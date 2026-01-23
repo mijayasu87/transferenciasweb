@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:x="http://xpert.com/faces">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta name="viewport"    content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+
+        <title>TRANSFERENCIAS</title>
+
+        <link rel="shortcut icon" type="image/png" href="#{resource['images/favicon.png']}" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+
+        <link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" />
+        <link href="resources/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="resources/assets/css/font-awesome.min.css" rel="stylesheet" />
+
+        <!-- Custom styles for our template -->
+        <link href="resources/assets/css/bootstrap-theme.css" rel="stylesheet" />
+        <link href="resources/assets/css/main.css" rel="stylesheet" />
+        <!-- My own style css -->
+        <link href="resources/assets/css/style.css" rel="stylesheet" />
+        <!--<meta http-equiv="Refresh" content="{loginBean.lectura eq false ? '':(loginBean.grupoActivo eq 'SC_AnexosModificaciones' ? '0.1;url=uplocert.xhtml':loginBean.grupoActivo eq 'SC_CancelacionTitulos'?'':'0.1;url=index.xhtml')}"/>-->
+    </h:head>
+    <h:body>
+        <!-- Start Page Loading -->
+        <div id="loader-wrapper">
+            <div id="loader"></div>        
+            <div class="loader-section section-left"></div>
+            <div class="loader-section section-right"></div>
+        </div>
+        <p:growl id="mensajes" showDetail="true" life="4000"/>
+        <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <div class="menu">
+                <a href="#" class="logo"  title="Logo Senadi" ><img src="resources/images/sena_2.png" width="161px"/></a>
+
+                <i id="edit_action" class="material-icons prefix" style="color: white; margin-left: 20px; display: inline-block">person</i>    
+
+                <p:outputLabel value="#{loginBean.nombre}" style="color: white; font-size: 18px" />
+
+                <div style="float: right; display: inline-block; margin-top: 5px">
+                    <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
+                                   oncomplete="logout(xhr, status, args)"
+                                   title="CERRAR SESIÓN" immediate="true">
+                        <i class="material-icons" style="font-size: 30px; ">exit_to_app</i>
+                    </p:commandLink>
+                </div>
+                <a class="itemm" href="settings.xhtml" title="Configuración" style="display: #{loginBean.grupoActivo eq 'SC_CancelacionTitulos' or loginBean.lectura eq true ? 'none':'inline-block'}"><i class="material-icons" >settings</i></a> 
+                <a class="itemm" href="uplocert.xhtml" title="Upload Certificados" style="display: #{loginBean.grupoActivo eq 'SC_CancelacionTitulos' or loginBean.lectura eq true ? 'none':'inline-block'}"><i class="material-icons" >upload</i></a>
+                <a class="activo" href="#" title="Reporte Modificaciones" >REPORTE MODIFICACIONES</a>
+                <a class="itemm" href="cambiocasillero.xhtml" title="Cambio de Casillero" style="display: #{loginBean.grupoActivo eq 'SC_CancelacionTitulos' or loginBean.lectura eq true ? 'none':'inline-block'}">CAMBIO DE CASILLERO</a>
+                <a class="itemm" href="cancelacionti.xhtml" title="Cancelación títulos" >CANCELACIÓN DE TÍTULOS</a>
+                <a class="itemm" href="alcancesmod.xhtml" title="Alcances de Modificaciones" >ALCANCES</a>
+
+            </div>
+            <div class="card" style="margin-top: 20%; position: absolute;">
+                <br/>
+                <p:sidebar widgetVar="sidebar1" style="z-index: 999 !important; width: 22%; background: #E8F5E9; overflow: scroll">
+                    <div id="menuside"></div>
+                </p:sidebar>
+                <p:commandButton icon="pi pi-arrow-right" type="button" onclick="PF('sidebar1').show()" styleClass="mr-2 " class="btn_sidebar"
+                                 style="position: fixed; z-index: 999; background-color: #d30039 !important;"/>
+            </div>
+            <br/>
+            <h:panelGrid columns="1"  style="text-align: center; font-size: 16px; font-weight: bold; margin: 0 auto; width: 97%;">
+                <p:panel class="panelContent" >
+                    <p:outputLabel value="REPORTE DE MODIFICACIONES AL REGISTRO" style="font-size: 16px !important;"/>                    
+                    
+                    <p:tabView style="font-size: 12px; margin: 0 auto; width: 70%; color: black !important" id="tabg">
+                        
+                        <p:ajax event="tabChange" listener="#{reporteBean.onTabChange}" update="mensajes tabg" />
+                        
+                        <p:tab title="Búsqueda por Denominación" id="deno">
+                            <p:outputLabel value="BUSCAR: " style="font-size: 13px; font-weight: bold; margin-right: 5px;"/>
+                            <p:inputText id="buscarDenomText" value="#{reporteBean.denominacion}" 
+                                         style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese una denominación"
+                                         title="Ingrese una denominación. Ej: coca cola"/>                            
+                        </p:tab>
+                        <p:tab title="Búsqueda por Número de Trámite" id="tram" >
+                            <p:outputLabel value="BUSCAR: " style="font-size: 13px; font-weight: bold; margin-right: 5px;"/>
+                            <p:inputText id="buscarText" value="#{reporteBean.tramite}" 
+                                         style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese un número de trámite"
+                                         title="Ingrese un número de trámite. Ej: SENADI-2023-12345"/>
+                        </p:tab>
+                        <p:tab title="Búsqueda por Titular" id="titul">
+                            <p:outputLabel value="BUSCAR: " style="font-size: 13px; font-weight: bold; margin-right: 5px;"/>
+                            <p:inputText id="buscarTitul" value="#{reporteBean.titular}" 
+                                         style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese un Titular"
+                                         title="Ingrese un titular. Ej: Juan Palacios"/>                            
+                        </p:tab>
+                        <p:tab title="Búsqueda por Fecha" id="fech">
+                            <p:outputLabel value="Desde: " style="font-size: 13px; font-weight: bold; margin-right: 10px;"/>
+                            <p:calendar id="finicioForm"  value="#{reporteBean.fechaInicio}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd"  title="Fecha Desde" navigator="true"/>
+                            
+                            <p:outputLabel value="Hasta: " style="font-size: 13px; font-weight: bold; margin-right: 5px; margin-left: 5px;"/>
+                            <p:calendar id="ffinForm"  value="#{reporteBean.fechaFin}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd"  title="Fecha Hasta" navigator="true"/>
+                        </p:tab>
+                    </p:tabView>
+                    <p:commandButton value="BUSCAR" actionListener="#{reporteBean.buscarTramites}"
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             style="font-size: 13px"
+                                             process="@parent" class="btn_peque"/>
+                    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+                    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                        <p:graphicImage name="/images/ajax-loader.gif" />
+                    </p:dialog>
+
+
+                    <p:outputLabel id="num_registros" value="#{reporteBean.numRegistros}" style="float: left; font-size: 12px"/>
+                    <br/>
+                    <p:dataTable id="tablaDeDatos" var="reporte"
+                                 value="#{reporteBean.reportes}" widgetVar="tablaDeDatos"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 filteredValue="#{reporteBean.reportesFiltrados}"
+                                 binding="#{reporteBean.reportesDataTable}"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20" selectionMode="single" rowKey="#{reporte.solicitud}"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important">
+
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="BUSCAR EN RESULTADO: " />
+                                <p:inputText id="globalFilter" onkeyup="PF('tablaDeDatos').filter()"
+                                             style="width:300px" placeholder="Escriba aquí"/>
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="Tipo" style="text-align: center;" filterBy="#{reporte.tipo}" filterMatchMode="contains">
+                            <h:outputText value="#{reporte.tipo}" />
+                        </p:column>
+                        <p:column headerText="Estado" style="text-align: center;" filterBy="#{reporte.estado}">
+                            <h:outputText value="#{reporte.estado}" />
+                        </p:column>
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{reporte.solicitud}" filterMatchMode="contains">
+                            <h:outputText value="#{reporte.solicitud}" />
+                        </p:column>
+                        <p:column headerText="F. Presentación" style="text-align: center;" filterBy="#{reporte.fechaPresentacion}" >
+                            <h:outputText value="#{reporte.fechaPresentacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Documento" style="text-align: center;" filterBy="#{reporte.numDocumento}" rendered="#{!reporte.documentoEmitido}">
+                            <h:outputText value="#{reporte.numDocumento}" />
+                        </p:column>
+                        <p:column  headerText="Documento" style="text-align: center;" filterBy="#{reporte.numDocumento}" rendered="#{reporte.documentoEmitido}">                            
+                            <a href="#{reporte.rutaDocumento}" target="_blank">#{reporte.numDocumento}</a>
+                        </p:column>
+
+                        <p:column headerText="F. Documento" style="text-align: center;" filterBy="#{reporte.fechaDocumento}" >
+                            <h:outputText value="#{reporte.fechaDocumento}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Actor1" style="text-align: center;" filterBy="#{reporte.actor1}" filterMatchMode="contains">
+                            <h:outputText value="#{reporte.actor1}" title="#{reporte.tipoActor1}"/>
+                        </p:column>
+                        
+                        <p:column headerText="Actor2" style="text-align: center;" filterBy="#{reporte.actor2}" filterMatchMode="contains">
+                            <h:outputText value="#{reporte.actor2}" title="#{reporte.tipoActor2}"/>
+                        </p:column>
+                        <p:column headerText="Registro" style="text-align: center;" filterBy="#{reporte.registro}">
+                            <h:outputText value="#{reporte.registro}" />
+                        </p:column>
+                        <p:column headerText="F. Registro" style="text-align: center;" filterBy="#{reporte.fechaRegistro}" >
+                            <h:outputText value="#{reporte.fechaRegistro}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Denominación" style="text-align: center;" filterBy="#{reporte.denominacion}" filterMatchMode="contains">
+                            <h:outputText value="#{reporte.denominacion}" />
+                        </p:column>                        
+                        <p:column headerText="Signo" style="text-align: center;" filterBy="#{reporte.signo}">
+                            <h:outputText value="#{reporte.signo}" />
+                        </p:column>
+                        <p:column headerText="Responsable" style="text-align: center;" filterBy="#{reporte.responsable}">
+                            <h:outputText value="#{reporte.responsable}" />
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:outputLabel id="num_reg" value="#{reporteBean.numRegistros}" style="float: left; font-size: 12px"/>
+                    <h:panelGrid columns="2" style="float: right;">
+                        <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
+                            <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
+                            <p:dataExporter type="xls" target="tablaDeDatos" fileName="#{reporteBean.exportName}" />
+                        </h:commandLink>                        
+                    </h:panelGrid>
+                    <br/>
+                </p:panel>
+            </h:panelGrid>
+
+            <p:confirmDialog global="true" showEffect="explode" hideEffect="explode">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes btn_peque" update="allform:tablaDeDelegaos"/>
+                <p:commandButton value="No" type="button"  styleClass="ui-confirmdialog-no btn_peque" />
+            </p:confirmDialog>
+            <br/>
+        </h:form>
+
+        <div id="footer"></div>
+
+        <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
+            <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
+                    oncomplete="PF('idleDialog').show()" />
+        </p:idleMonitor>
+        <p:dialog header="Sesión Caducada" resizable="false"
+                  widgetVar="idleDialog" modal="true" closable="false" style="font-size: 12px">
+            <h:form id="sesionCaducaForm">
+                <div class="titlePage">
+                    <h:outputText value="Sesión Caducada " />
+                    <p:commandButton styleClass="nav-link js-scroll-trigger"
+                                     actionListener="#{loginBean.logout}"
+                                     oncomplete="logout(xhr, status, args)"
+                                     value="ACEPTAR" immediate="true" style="font-size: 12px"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+
+        <!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+
+        <!-- <script src="resources/assets/js/headroom.min.js"></script>
+        <script src="resources/assets/js/jQuery.headroom.min.js"></script>
+        <script src="resources/assets/js/template.js"></script> -->
+
+
+    </h:body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('body').addClass('loaded');
+                $('h1').css('color', '#222222');
+                $("#footer").load("footer.html");
+            }, 150);
+
+            $("#menuside").load("menusidebar.html", function () {
+                jQuery('#repomod').addClass('activomenu');
+                jQuery('#cancelacion').removeClass('sideinactivo').addClass('sideactivo');
+            });
+        });
+
+        function getIdIndex(idName) {
+            var doc = document.forms['allform'];
+            var i;
+            var idResult = 0;
+            for (i = 0; doc.length > i; i++) {
+                if (doc[i].id.includes(idName)) {
+                    idResult = i;
+                    console.log(doc[i].id);
+                    break;
+                }
+            }
+            return idResult;
+        }
+
+        //<![CDATA[
+        function popupwindow(url, title, args) {
+            if (args.doit) {
+                window.open(url, title);
+            }
+        }
+        function otherpage(url, status, args) {
+            setTimeout(function () {
+                window.location = url;
+            }, 500);
+        }
+        function logout(xhr, status, args) {
+            setTimeout(function () {
+                window.location = 'login.xhtml';
+            }, 500);
+        }
+        //]]>
+    </script>
+</html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1635ad54-7921-4abf-a4f9-241a9d5a5499">
+	<property name="ireport.zoom" value="1.4641000000000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="idCambioCasillero" class="java.lang.Integer"/>
+	<parameter name="delegacion" class="java.lang.String"/>
+	<parameter name="delegado" class="java.lang.String"/>
+	<parameter name="resol" class="java.lang.String"/>
+	<parameter name="resolnot" class="java.lang.String"/>
+	<parameter name="secretaria" class="java.lang.String"/>
+	<parameter name="denosecre" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select * from cambio_casillero where id = $P{idCambioCasillero}]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="providencia_no" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_providencia" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="denominacion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="titular_casillero_nuevo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="titular_casillero_anterior" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tramite" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nuevo_casillero" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_notificacion" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tipo_modificacion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="casillero_anterior" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="estado" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="usuario" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="correo_tit_anterior" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="correo_tit_nuevo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="parrafo1" class="java.lang.String">
+		<variableExpression><![CDATA["Dentro del trámite <style pdfFontName='Times-Bold'>1) </style> Agréguese el escrito presentado por "+$F{titular_casillero_nuevo}.replace("&","&amp;")+
+", "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format($F{fecha_providencia})+", correspondiente al signo distintivo "+
+$F{denominacion}.replace("&","&amp;")+", signada con el número "+$F{tramite}+", se dispone lo "+
+"siguiente: <style pdfFontName='Times-Bold'>2) </style> Notifíquese a "+$F{titular_casillero_anterior}.replace("&","&amp;")+" que ha sido sustituido/a en "+
+"el patrocinio del trámite antes mencionado. <style pdfFontName='Times-Bold'>3) </style> Futuras notificaciones se enviarán al casillero virtual "+
+"<style pdfFontName='Times-Bold'>"+$F{nuevo_casillero}+"</style>."+
+"\n\n\n"+
+"La prensente providencia se emite en ejercicio de las facultades otorgadas, mediante Acción de Personal No. "+
+$P{resol}+". <style pdfFontName='Times-Bold'>Notifíquese.- </style>"+$P{delegado}+", <style pdfFontName='Times-Bold'>"+$P{delegacion}+".</style>"+
+"\n\n\n"+
+"<style pdfFontName='Times-Bold'>Razón: </style> Siento por tal, que el día de hoy "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format(new Date())+
+", notifiqué con la providencia que antecede a "+$F{titular_casillero_anterior}.replace("&","&amp;")+", mediante correo electrónico <style pdfFontName='Times-Bold'>"+$F{correo_tit_anterior}+"</style>, a "+
+$F{titular_casillero_nuevo}.replace("&","&amp;")+" al correo electrónico <style pdfFontName='Times-Bold'>"+$F{correo_tit_nuevo}+"</style>, "+
+"lo que certifico, en virtud de la delegación de la Dirección General del Servicio Nacional de Derechos Intelectuales conferida mediante Resolución No. "+$P{resolnot}+"."]]></variableExpression>
+	</variable>
+	<variable name="providencia" class="java.lang.String">
+		<variableExpression><![CDATA[$F{providencia_no}+" - SENADI-"+new SimpleDateFormat("yyyy",new Locale("es", "ES")).format(new Date())]]></variableExpression>
+	</variable>
+	<background>
+		<band height="802">
+			<image>
+				<reportElement x="-19" y="-19" width="636" height="821" uuid="2084ebde-61d6-467f-9ecb-baa74612b01b"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "background_encuentro.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="375" y="503" width="130" height="124" uuid="6f4d9c44-fe7a-40a5-87a7-15397c8b8f8a"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band height="110" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="80" width="555" height="20" uuid="21735a4c-6424-42f8-aa61-d7e951adea88"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<text><![CDATA[DIRECCIÓN NACIONAL DE PROPIEDAD INDUSTRIAL]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="16" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="427" splitType="Stretch">
+			<textField>
+				<reportElement x="55" y="76" width="457" height="351" uuid="b5160c41-d000-4ca3-9da9-8a2b9224d698"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{parrafo1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="163" y="0" width="342" height="20" uuid="e709fe32-96f3-4cec-b1bf-98cf55e21014"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{providencia}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="63" y="0" width="99" height="20" uuid="5d0b0dd6-192c-408e-8f8c-11020873b7a9"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<text><![CDATA[Providencia No.:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="162" y="18" width="343" height="20" uuid="34c8e7be-efe6-4ea6-9f7c-9efe8e5225b2"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{denominacion}.replace("&","&amp;")]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="63" y="18" width="99" height="20" uuid="80bac4b5-a84f-4d1e-8037-d5479d279ae4"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<text><![CDATA[Denominación:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="63" y="37" width="99" height="20" uuid="bd0de2e7-3019-4de6-9602-b0820caf2e57"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
+				</textElement>
+				<text><![CDATA[Trámite No.:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="162" y="37" width="343" height="20" uuid="fa580f0c-11e4-4178-82a7-c728a1c31286"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tramite}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="182" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="813a1d53-dc1d-4e9d-b0d9-84147ad527dc"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12" isBold="false" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{secretaria}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="18" width="555" height="20" uuid="87fb8039-e1ad-41ac-a409-aa80506a6d46"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{denosecre}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="10" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="15" splitType="Stretch"/>
+	</summary>
+</jasperReport>

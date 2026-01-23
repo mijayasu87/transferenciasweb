@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:x="http://xpert.com/faces">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta name="viewport"    content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+
+        <title>REZAGO-PRENDA-COMERCIAL</title>
+
+        <link rel="shortcut icon" type="image/png" href="#{resource['images/favicon.png']}" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+
+        <link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" />
+        <link href="resources/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="resources/assets/css/font-awesome.min.css" rel="stylesheet" />
+
+        <!-- Custom styles for our template -->
+        <link href="resources/assets/css/bootstrap-theme.css" rel="stylesheet" />
+        <link href="resources/assets/css/main.css" rel="stylesheet" />
+        <!-- My own style css -->
+        <link href="resources/assets/css/style.css" rel="stylesheet" />
+        <meta http-equiv="Refresh" content="#{loginBean.lectura eq true ? '0.1;url=index.xhtml':''}"/>
+    </h:head>
+    <h:body>
+        <!-- Start Page Loading -->
+        <div id="loader-wrapper">
+            <div id="loader"></div>        
+            <div class="loader-section section-left"></div>
+            <div class="loader-section section-right"></div>
+        </div>
+        <p:growl id="mensajes" showDetail="true" life="4000"/>
+        <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <div class="menu">
+                <a href="#" class="logo"  title="Logo Senadi" ><img src="resources/images/sena_2.png" width="161px"/></a>
+
+                <i id="edit_action" class="material-icons prefix" style="color: white; margin-left: 20px; display: inline-block">person</i>    
+
+                <p:outputLabel value="#{loginBean.nombre}" style="color: white; font-size: 18px" />
+
+                <div style="float: right; display: inline-block; margin-top: 5px">
+                    <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
+                                   oncomplete="logout(xhr, status, args)"
+                                   title="CERRAR SESIÓN" immediate="true">
+                        <i class="material-icons" style="font-size: 30px; ">exit_to_app</i>
+                    </p:commandLink>
+                </div>               
+                <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>                
+                <a class="itemm" href="caducadaprenda.xhtml" title="CADUCADA NEGADA" >CADUCADA NEGADA</a>
+                <a class="itemm" href="desistidaprenda.xhtml" title="Desistida" >DESISTIDAS</a>
+                <a class="itemm" href="levanprenda.xhtml" title="Levantamiento Prenda" >LEVANTAMIENTO</a>
+                <a class="itemm" href="notificadapre.xhtml" title="Notificaciones" >NOTIFICADAS</a> 
+                <a class="itemm" href="certificadopre.xhtml" title="CERTIFICADO" >CERTIFICADO P. COMERCIAL</a>
+                <a class="activo" href="#" title="REZAGO" >REZAGO</a>                
+                
+            </div>
+            <div class="card" style="margin-top: 20%; position: absolute;">
+                <br/>
+                <p:sidebar widgetVar="sidebar1" style="z-index: 999 !important; width: 22%; background: #E8F5E9; overflow: scroll">
+                    <div id="menuside"></div>
+                </p:sidebar>
+                <p:commandButton icon="pi pi-arrow-right" type="button" onclick="PF('sidebar1').show()" styleClass="mr-2 " class="btn_sidebar"
+                                 style="position: fixed; z-index: 999; background-color: #d30039 !important;"/>
+            </div>
+            <br/>
+            <h:panelGrid columns="1"  style="text-align: center; font-size: 16px; font-weight: bold; margin: 0 auto; width: 97%;">
+                <p:panel class="panelContent" >
+                    <p:outputLabel value="PRENDAS COMERCIALES"/>
+                    <p:commandButton id="buscar_registro" value="BUSCAR REZAGO" 
+                                     style="font-size: 12px; float: left"
+                                     class="btn_peque"
+                                     actionListener="#{prendrezBean.cargarRezago}"
+                                     update="mensajes tablaDeDatos num_reg tablaDeDatos:pasabtn"
+                                     process="@this" rendered="#{!loginBean.lectura}"/>
+                    <p:tabView style="font-size: 12px; margin: 0 auto; width: 50%; color: black !important">
+                        <p:tab title="Búsqueda por Criterio" >
+                            <p:outputLabel value="BUSCAR: " style="font-size: 13px; font-weight: bold; margin-right: 5px;"/>
+                            <p:inputText id="buscarText" value="#{prendrezBean.criterio}" 
+                                         style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese un No. Solicitud Ej: SENADI-2022-12345"
+                                         title="Ingrese un No. Solicitud Ej: SENADI-2022-12345"/>
+                            <p:commandButton value="BUSCAR" actionListener="#{prendrezBean.buscarRezagoPrendaComercialCriterio}"
+                                             update="allform:tablaDeDatos mensajes allform:num_reg "
+                                             style="font-size: 13px"
+                                             process="@parent" class="btn_peque"/>
+                        </p:tab>
+                        <p:tab title="Búsqueda por Fecha" >                            
+                            <p:outputLabel value="DESDE:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{prendrezBean.fechaInicio}" label="Fecha Desde" style="font-size: 20px !important; margin-right: 5px;" 
+                                        placeholder="Fecha Inicio de Búsqueda" navigator="true"/>
+                            <p:outputLabel value="HASTA:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{prendrezBean.fechaFin}" label="Fecha Hasta" style="font-size: 13px; margin-right: 5px;"
+                                        placeholder="Fecha Fin de Búsqueda" navigator="true"/>
+
+                            <p:commandButton value="BUSCAR"  
+                                             actionListener="#{prendrezBean.buscarPrendasComercialesPorFecha}" 
+                                             update="allform:tablaDeDatos mensajes allform:num_reg "
+                                             style="font-size: 13px"
+                                             process="@parent" title="Se busca por fecha de Presentación" class="btn_peque"/>                            
+                        </p:tab>                        
+                    </p:tabView>
+
+                    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+                    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                        <p:graphicImage name="/images/ajax-loader.gif" />
+                    </p:dialog>
+                    <p:outputLabel id="num_reg" value="#{prendrezBean.numRegistros}" style="font-size: 12px"/>
+                    <br/>
+                    <p:dataTable id="tablaDeDatos" var="prendacomercial"
+                                 value="#{prendrezBean.prendasComerciales}" widgetVar="tablaDeDatos"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 filteredValue="#{prendrezBean.prendasComercialesFiltradas}"
+                                 binding="#{prendrezBean.prendaComercialDataTable}"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 selection="#{prendrezBean.selectedPrendasComerciales}"
+                                 style="border: black !important; width: 50%; text-align: center; margin: 0 auto;" 
+                                 rowKey="#{prendacomercial.idRenewalForm}">
+
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="BUSCAR EN RESULTADO: " />
+                                <p:inputText id="globalFilter" onkeyup="PF('tablaDeDatos').filter()"
+                                             style="width:300px" placeholder="Escriba aquí"/>
+                            </p:outputPanel>
+                        </f:facet>                       
+
+                        <p:column id="tramiteexp" headerText="Trámite" style="text-align: center;" filterBy="#{prendacomercial.solicitud}"
+                                  filterMatchMode="contains">
+                            <p:commandLink value="#{prendacomercial.solicitud}" actionListener="#{prendrezBean.prepararExpediente}" process="@this"
+                                           style="color: blue"
+                                           oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
+                        </p:column>
+
+
+                        <p:column headerText="F. Presentación" style="text-align: center;" filterBy="#{prendacomercial.fechaPresentacion}" >
+                            <h:outputText value="#{prendacomercial.fechaPresentacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>                                               
+
+                        <p:column headerText="Registro" style="text-align: center; width: 13rem" filterBy="#{prendacomercial.registro}" >
+                            <h:outputText value="#{prendacomercial.registro}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo" style="text-align: center; width: 13rem" filterBy="#{prendacomercial.r1}" >
+                            <h:outputText value="#{prendacomercial.r1}" />
+                        </p:column>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{!loginBean.lectura}" exportable="false"/>
+                        <f:facet name="footer">
+                            <p:outputLabel id="num_registros" value="#{prendrezBean.numRegistros}" style="font-size: 12px"/>
+                            <br/>                            
+                            <p:commandButton id="pasabtn" value="PASAR SELECCIONADOS A PRENDAS COMERCIALES" class="btn_buscar" update="mensajes allform:dlgPasarTramite"
+                                             actionListener="#{prendrezBean.pasarSeleccionados}" process="tablaDeDatos" rendered="#{prendrezBean.botonpasar}"
+                                             oncomplete="if(args.pasado){PF('dlgPasarTramite').show();}" style="float: right !important"/>                            
+                            <p:commandButton value="QUITAR" oncomplete="if(args.pasado){PF('dlgQuitarTramite').show();}" process="tablaDeDatos"
+                                             actionListener="#{prendrezBean.prepararQuitar}" update="mensajes allform:dlgQuitarTramite"
+                                             rendered="#{prendrezBean.botonpasar}" style="float: right !important" class="btn_buscar" />
+                            <br/><br/>
+                        </f:facet>
+                    </p:dataTable>
+                    <br/><br/>
+
+                    <h:panelGrid columns="2" style="float: right;">
+                        <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
+                            <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
+                            <p:dataExporter type="xls" target="tablaDeDatos" fileName="resagados_prendas_comerciales" />
+                        </h:commandLink>                        
+                    </h:panelGrid>
+                    <br/>
+                </p:panel>
+
+                <p:inputTextarea value="#{prendrezBean.tramitesLog}"
+                                 class="maxsize" style="width: 50% !important" readonly="true" id="textarea" 
+                                 rendered="#{prendrezBean.tramitesLog != ''}"/>
+
+            </h:panelGrid>
+
+            <p:dialog id="dlgQuitarTramite" modal="true" resizable="true"
+                      header="#{prendrezBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgQuitarTramite" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" width="60%">
+                <p:ajax event="close" update="dlgQuitarTramite" resetValues="true" />                
+                <h:form id="frmQuitado" >
+                    <p:dataTable id="tablaDeQuitar" var="prendacomercial"
+                                 value="#{prendrezBean.selectedPrendasComerciales}" widgetVar="tablaDeQuitar"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="15"
+                                 rowsPerPageTemplate="15,30,50,100,200,300"
+                                 style="border: black !important; width: 100%; text-align: center; margin: 0 auto;"
+                                 rowIndexVar="rowIndex" editable="true">
+
+                        <p:column headerText="No." style="text-align: center; width: 5%">
+                            <h:outputText value="#{rowIndex + 1}" />
+                        </p:column>
+
+                        <p:column id="tramiteexp" headerText="Trámite" style="text-align: center; width: 15%">
+                            <h:outputText value="#{prendacomercial.solicitud}" />
+                        </p:column>
+
+                        <p:column headerText="F. Presentación" style="text-align: center;"  >
+                            <h:outputText value="#{prendacomercial.fechaPresentacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>                                               
+
+                        <p:column headerText="Registro" style="text-align: center; width: 15%"  >
+                            <h:outputText value="#{prendacomercial.registro}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo" style="text-align: center; width: 5%"  >
+                            <h:outputText value="#{prendacomercial.r1}" />
+                        </p:column>
+
+                        <p:column headerText="Observación" style="text-align: center; width: 40%" >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{prendacomercial.ro}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputTextarea value="#{prendacomercial.ro}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column>
+                            <p:rowEditor editTitle="Editar Delegado" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            <p:outputLabel value="Total Registros: #{prendrezBean.selectedPrendasComerciales.size()}" style="font-size: 12px"/>                                                       
+                        </f:facet>
+                    </p:dataTable>
+
+                    <br/>
+
+                    <p:commandButton value="CERRAR" style="font-size: 12px; float: right" class="btn_cerrar"
+                                     update="mensajes" oncomplete="PF('dlgQuitarTramite').hide();"/>
+                    <p:commandButton value="REMOVER TRÁMITES DE LA LISTA DE REZAGADOS" 
+                                     widgetVar="traspasarBtn" style="font-size: 12px; float: right" actionListener="#{prendrezBean.quitarTramites}" 
+                                     class="btn_buscar"  update="mensajes allform:textarea allform:tablaDeDatos" process="@this" 
+                                     oncomplete="if(args.quitado){PF('dlgQuitarTramite').hide();}">
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE REMOVER LOS REGISTROS DE LA TABLA, DE LA LISTA DE REZAGADOS ?"/> 
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+
+            <p:dialog id="dlgPasarTramite" modal="true" resizable="true"
+                      header="#{prendrezBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgPasarTramite" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" width="50%">
+                <p:ajax event="close" update="dlgPasarTramite" resetValues="true" />                
+                <h:form id="frmTramite" >
+                    <p:dataTable id="tablaDeTraspaso" var="prendacomercial"
+                                 value="#{prendrezBean.selectedPrendasComerciales}" widgetVar="tablaDeTraspaso"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="15"
+                                 rowsPerPageTemplate="15,30,50,100,200,300"
+                                 style="border: black !important; width: 100%; text-align: center; margin: 0 auto;"
+                                 rowIndexVar="rowIndex">
+
+                        <p:column headerText="No." style="text-align: center; width: 5%">
+                            <h:outputText value="#{rowIndex + 1}" />
+                        </p:column>
+
+                        <p:column id="tramiteexp" headerText="Trámite" style="text-align: center;">
+                            <h:outputText value="#{prendacomercial.solicitud}" />
+                        </p:column>
+
+                        <p:column headerText="F. Presentación" style="text-align: center;"  >
+                            <h:outputText value="#{prendacomercial.fechaPresentacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd"/>
+                            </h:outputText>
+                        </p:column>                                               
+
+                        <p:column headerText="Registro" style="text-align: center; width: 13rem"  >
+                            <h:outputText value="#{prendacomercial.registro}" />
+                        </p:column>
+
+                        <p:column headerText="Tipo" style="text-align: center; width: 13rem"  >
+                            <h:outputText value="#{prendacomercial.r1}" />
+                        </p:column>
+
+                        <f:facet name="footer">
+                            <p:outputLabel value="Total Registros: #{prendrezBean.selectedPrendasComerciales.size()}" style="font-size: 12px"/>                                                       
+                        </f:facet>
+                    </p:dataTable>
+
+                    <p:progressBar widgetVar="pbAjaxLong" ajax="true" value="#{prendrezBean.valorProgessBar}" 
+                                   labelTemplate="{value}%" styleClass="mt-3" global="false" interval="500">
+                        <p:ajax event="complete" listener="#{prendrezBean.onComplete}" update="allform:tablaDeDatos mensajes allform:textarea"
+                                oncomplete="PF('dlgPasarTramite').hide()" />
+                    </p:progressBar>
+
+                    <br/>
+
+                    <p:commandButton value="CERRAR" style="font-size: 12px; float: right" class="btn_cerrar"
+                                     update="mensajes" oncomplete="PF('dlgPasarTramite').hide();"/>
+                    <p:commandButton value="TRASPASAR REZAGADOS" onclick="PF('pbAjaxLong').start();PF('traspasarBtn').disable();" 
+                                     widgetVar="traspasarBtn" style="font-size: 12px; float: right" actionListener="#{prendrezBean.longRunning()}" 
+                                     class="btn_buscar"  update="mensajes allform:textarea allform:tablaDeDatos" process="@this" >
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE PASAR TODOS LOS REGISTROS DE LA TABLA A PRENDAS COMERCIALES ?"/> 
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgExpediente" modal="true" resizable="true"
+                      header="#{prendrezBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgExpediente" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" width="50%">
+                <p:ajax event="close" update="dlgExpediente" resetValues="true" />                
+                <h:form id="frmExpediente" >
+                    <p:dataTable id="tablaDeArchivos" var="archivo"
+                                 value="#{prendrezBean.archivos}" widgetVar="tablaDeArchivos"
+                                 emptyMessage="No hay Datos para mostrar"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" >
+                        <p:column headerText="Archivos" style="text-align: center;" filterBy="#{archivo}" >
+                            <p:commandLink value="#{archivo.nombre}" style="color: #0089ec; font-size: 14px;"
+                                           onclick="otherpage('#{archivo.url}#{archivo.id}/#{archivo.documento}')"  
+                                           />
+                        </p:column>
+                    </p:dataTable>
+                    <p:commandButton value="CERRAR" style="font-size: 12px; float: right" class="btn_peque"                                    
+                                     update="mensajes" oncomplete="PF('dlgExpediente').hide();"/>
+                </h:form>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="explode" hideEffect="explode">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes btn_peque" update="allform:tablaDeDatos"/>
+                <p:commandButton value="No" type="button"  styleClass="ui-confirmdialog-no btn_peque" />
+            </p:confirmDialog>
+            <br/>
+        </h:form>
+
+        <div id="footer"></div>
+
+        <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
+            <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
+                    oncomplete="PF('idleDialog').show()" />
+        </p:idleMonitor>
+        <p:dialog header="Sesión Caducada" resizable="false"
+                  widgetVar="idleDialog" modal="true" closable="false" style="font-size: 12px">
+            <h:form id="sesionCaducaForm">
+                <div class="titlePage">
+                    <h:outputText value="Sesión Caducada " />
+                    <p:commandButton styleClass="nav-link js-scroll-trigger"
+                                     actionListener="#{loginBean.logout}"
+                                     oncomplete="logout(xhr, status, args)"
+                                     value="ACEPTAR" immediate="true" style="font-size: 12px"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+
+        <!-- <script src="resources/assets/js/headroom.min.js"></script>
+        <script src="resources/assets/js/jQuery.headroom.min.js"></script>
+        <script src="resources/assets/js/template.js"></script> -->
+
+    </h:body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('body').addClass('loaded');
+                $('h1').css('color', '#222222');
+                $("#footer").load("footer.html");
+            }, 150);
+            $("#menuside").load("menusidebar.html", function () {
+                jQuery('#cer_nom').addClass('activomenu');
+                jQuery('#prendastitul').removeClass('sideinactivo').addClass('sideactivo');
+            });
+        });
+
+        function getIdIndex(idName) {
+            var doc = document.forms['allform'];
+            var i;
+            var idResult = 0;
+            for (i = 0; doc.length > i; i++) {
+                if (doc[i].id.includes(idName)) {
+                    idResult = i;
+                    console.log(doc[i].id);
+                    break;
+                }
+            }
+            return idResult;
+        }
+
+        //<![CDATA[
+        function popupwindow(url, title, args) {
+            if (args.doit) {
+                window.open(url, title);
+            }
+        }
+        function otherpage(url) {
+            setTimeout(function () {
+                window.open(url, '_blank');
+            }, 0);
+        }
+        function logout(xhr, status, args) {
+            setTimeout(function () {
+                window.location = 'login.xhtml';
+            }, 500);
+        }
+        //]]>
+    </script>
+</html>

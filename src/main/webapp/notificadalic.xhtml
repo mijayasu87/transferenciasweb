@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:x="http://xpert.com/faces">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta name="viewport"    content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+
+        <title>NOTIFICACION-LICENCIA</title>
+
+        <link rel="shortcut icon" type="image/png" href="#{resource['images/favicon.png']}" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+
+        <link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" />
+        <link href="resources/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="resources/assets/css/font-awesome.min.css" rel="stylesheet" />
+
+        <!-- Custom styles for our template -->
+        <link href="resources/assets/css/bootstrap-theme.css" rel="stylesheet" />
+        <link href="resources/assets/css/main.css" rel="stylesheet" />
+        <!-- My own style css -->
+        <link href="resources/assets/css/style.css" rel="stylesheet" />
+    </h:head>
+    <h:body>
+        <!-- Start Page Loading -->
+        <div id="loader-wrapper">
+            <div id="loader"></div>        
+            <div class="loader-section section-left"></div>
+            <div class="loader-section section-right"></div>
+        </div>
+        <p:growl id="mensajes" showDetail="true" life="3000"/>
+        <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <div class="menu">
+                <a href="#" class="logo"  title="Logo Senadi" ><img src="resources/images/sena_2.png" width="161px"/></a>
+
+                <i id="edit_action" class="material-icons prefix" style="color: white; margin-left: 20px; display: inline-block">person</i>    
+
+                <p:outputLabel value="#{loginBean.nombre}" style="color: white; font-size: 18px" />
+
+
+                <div style="float: right; display: inline-block; margin-top: 5px">
+                    <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
+                                   oncomplete="logout(xhr, status, args)"
+                                   title="CERRAR SESIÓN" immediate="true">
+                        <i class="material-icons" style="font-size: 30px; ">exit_to_app</i>
+                    </p:commandLink>
+                </div>
+                <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="abandonolic.xhtml" title="Abandonos" >ABANDONOS</a>
+                <a class="itemm" href="caducadalic.xhtml" title="Caducadas" >CADUCADAS - NEGADAS</a>
+                <a class="itemm" href="desistidalic.xhtml" title="Caducadas" >DESISTIDAS</a>                
+                <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a> 
+                <a class="activo" href="#" title="Notificada licencia" >NOTIFICADAS</a> 
+                <a class="itemm" href="certificadolic.xhtml" title="Certificado Cambio Nombre" >CERTIFICADO LICENCIA</a>
+            </div>
+            <div class="card" style="margin-top: 20%; position: absolute;">
+                <br/>
+                <p:sidebar widgetVar="sidebar1" style="z-index: 999 !important; width: 22%; background: #E8F5E9; overflow: scroll">
+                    <div id="menuside"></div>
+                </p:sidebar>
+                <p:commandButton icon="pi pi-arrow-right" type="button" onclick="PF('sidebar1').show()" styleClass="mr-2 " class="btn_sidebar"
+                                 style="position: fixed; z-index: 999; background-color: #d30039 !important;"/>
+            </div>
+            <br/>
+            <h:panelGrid columns="1"  style="text-align: center; font-size: 16px; font-weight: bold; margin: 0 auto; width: 97%;">
+                <p:panel class="panelContent" >
+                    <p:commandButton id="nuevo_registro" value="NUEVA NOTIFICACIÓN LICENCIA" 
+                                     class="btn_peque"
+                                     style="font-size: 12px; float: left"
+                                     actionListener="#{notificacionLicenciaBean.prepararNuevo}"
+                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn"
+                                     oncomplete="if(args.doit){PF('dlgNuevaT').show()};" process="@this" rendered="#{!loginBean.lectura}"/>
+                    <p:tabView style="font-size: 12px; margin: 0 auto; width: 50%">
+                        <p:tab title="Búsqueda por Criterio" >
+                            <p:outputLabel value="BUSCAR: " style="font-size: 13px; font-weight: bold; margin-right: 5px;"/>
+                            <p:inputText id="buscarText" value="#{notificacionLicenciaBean.criterio}" 
+                                         style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese un criterio de búsqueda"
+                                         title="Puede buscar por No. Solicitud, Denominación o Titular Actual"/>
+                            <p:commandButton value="BUSCAR" actionListener="#{notificacionLicenciaBean.buscarNotificacionesLicencia}"
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             style="font-size: 13px"
+                                             process="@parent" class="btn_peque"/>
+                        </p:tab>
+                        <p:tab title="Búsqueda por Fecha" >                            
+                            <p:outputLabel value="DESDE:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{notificacionLicenciaBean.fechaInicio}" label="Fecha Desde" style="font-size: 13px; margin-right: 5px;" 
+                                        placeholder="Fecha Inicio de Búsqueda" navigator="true"/>
+                            <p:outputLabel value="HASTA:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{notificacionLicenciaBean.fechaFin}" label="Fecha Hasta" style="font-size: 13px; margin-right: 5px;"
+                                        placeholder="Fecha Fin de Búsqueda" navigator="true"/>
+
+                            <p:commandButton value="BUSCAR"  
+                                             actionListener="#{notificacionLicenciaBean.buscarNotificacionesPorFecha}" 
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             style="font-size: 13px" class="btn_peque"
+                                             process="@parent" title="Se busca por fecha de Presentación"/>                            
+                        </p:tab>
+                        <p:tab title="Búsqueda por Fecha Notificación" >                            
+                            <p:outputLabel value="DESDE:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{notificacionLicenciaBean.fechaInicioCertificado}" label="Fecha Desde" style="font-size: 13px; margin-right: 5px;" 
+                                        placeholder="Fecha Inicio de Búsqueda" navigator="true"/>
+                            <p:outputLabel value="HASTA:" style="font-size: 13px; margin-right: 5px;"/>
+                            <p:calendar pattern="yyyy-MM-dd" value="#{notificacionLicenciaBean.fechaFinCertificado}" label="Fecha Hasta" style="font-size: 13px; margin-right: 5px;"
+                                        placeholder="Fecha Fin de Búsqueda" navigator="true"/>
+
+                            <p:commandButton value="BUSCAR"  
+                                             actionListener="#{notificacionLicenciaBean.buscarNotificacionesPorFechaLicencia}" 
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             style="font-size: 13px" class="btn_peque"
+                                             process="@parent" title="Se busca por fecha de Presentación"/>                            
+                        </p:tab>
+                    </p:tabView>
+
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #9c27b0; padding: 6px; " >REGLAMENTO</div>
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #00E676; padding: 6px; " >ERJAFE</div>
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid dodgerblue; padding: 6px; " >COA</div>
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid green; padding: 6px" >CON NOTIFICACIÓN</div>
+                    <br/>
+                    <p:commandButton value="PASAR A ABANDONOS" actionListener="#{notificacionLicenciaBean.prepararPasarAbandonos}" 
+                                     update="mensajes dlgTipoAbandono tipoAbanForm"
+                                     style="float: right; font-weight: bold; margin-top: 20px; margin-right: 5px; " class="btn_peque"
+                                     oncomplete="if(args.abait){PF('dlgTipoAbandono').show();}"/>
+                    <p:commandButton value="PARA ABANDONO" actionListener="#{notificacionLicenciaBean.prepararParaAbandonos}" 
+                                     update="mensajes dlgParaAbandono tipoAbanForm"
+                                     style="float: right; font-weight: bold; margin-top: 20px;" class="btn_peque"
+                                     oncomplete="if(args.abait){PF('dlgParaAbandono').show();}"/>
+                    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+                    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                        <p:graphicImage name="/images/ajax-loader.gif" />
+                    </p:dialog>
+                    <p:outputLabel id="num_reg" value="#{notificacionLicenciaBean.numRegistros}" style="float: left; font-size: 12px"/>
+                    <br/>
+                    <p:dataTable id="tablaDeDatos" var="notificacion"
+                                 value="#{notificacionLicenciaBean.notificaciones}" widgetVar="tablaDeNotificaciones"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 filteredValue="#{notificacionLicenciaBean.notificacionesFiltradas}"
+                                 binding="#{notificacionLicenciaBean.notificacionesDataTable}"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 selection="#{notificacionLicenciaBean.selectedNotificaciones}"
+                                 style="margin:3px auto; font-size: 9px !important;" 
+                                 rowKey="#{notificacion.id}" rowStyleClass="#{notificacion.tipoAbandono eq 'ERJAFE'?'row-erjafe':notificacion.tipoAbandono eq 'REGLAMENTO'?'row-reglamento':notificacion.tipoAbandono eq 'COA'?'row-coa':''}">
+
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="BUSCAR EN RESULTADO: " />
+                                <p:inputText id="globalFilter" onkeyup="PF('tablaDeNotificaciones').filter()"
+                                             style="width:300px" placeholder="Escriba aquí"/>
+                            </p:outputPanel>
+                        </f:facet>
+
+                        <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{!loginBean.lectura}" exportable="false"/>
+
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{notificacion.solicitud}" >
+                            <h:outputText value="#{notificacion.solicitud}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="F. Presentación" style="text-align: center;" filterBy="#{notificacion.fechaPresentacion}" >
+                            <h:outputText value="#{notificacion.fechaPresentacion}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}">
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column  headerText="Notificación" style="text-align: center;" filterBy="#{notificacion.notificacion}" filterMatchMode="contains">
+                            <p:commandLink id="notlink" value="#{notificacion.notificacion}" style="color: #0089ec; font-size: 14px;" process="@this"
+                                           title="Visualizar Notificación #{notificacion.notificacion}" actionListener="#{notificacionLicenciaBean.validarNotificacion(notificacion)}"
+                                           oncomplete="if(args.viewnotificacion){otherpage(args.view)};" update="mensajes notlink" rendered="#{notificacion.notificacionEmitida}"/>
+                            <h:outputText value="#{notificacion.notificacion}" rendered="#{!notificacion.notificacionEmitida}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+
+                        <p:column headerText="F. Notificacion" style="text-align: center;" filterBy="#{notificacion.fechaNotificacion}" >
+                            <h:outputText value="#{notificacion.fechaNotificacion}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}">
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Registro" style="text-align: center; width: 13rem" filterBy="#{notificacion.registro}" >
+                            <h:outputText value="#{notificacion.registro}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="F. Registro" style="text-align: center;" filterBy="#{notificacion.fechaRegistro}" >
+                            <h:outputText value="#{notificacion.fechaRegistro}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}">
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Denominación" style="text-align: center;" filterBy="#{notificacion.denominacion}" >
+                            <h:outputText value="#{notificacion.denominacion}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="signo" style="text-align: center;" filterBy="#{notificacion.signo}" >
+                            <h:outputText value="#{notificacion.signo}" />
+                        </p:column>                       
+                        <p:column headerText="Licenciante" style="text-align: center;" filterBy="#{notificacion.licenciante}" >
+                            <h:outputText value="#{notificacion.licenciante}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="Licenciatario" style="text-align: center;" filterBy="#{notificacion.licenciatario}" >
+                            <h:outputText value="#{notificacion.licenciatario}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="F. Contrato" style="text-align: center;" filterBy="#{notificacion.fechaContrato}" >
+                            <h:outputText value="#{notificacion.fechaContrato}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}">
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>                        
+                        <p:column headerText="Casillero Senadi" style="text-align: center;"  visible="false" >
+                            <h:outputText value="#{notificacion.casilleroSenadi}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+
+                        <p:column headerText="Casillero Judicial" style="text-align: center;"  visible="false" >
+                            <h:outputText value="#{notificacion.casilleroJudicial}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column headerText="Responsable" style="text-align: center;">
+                            <h:outputText value="#{notificacion.responsable}" title="#{notificacionLicenciaBean.getTooltipAbandono(notificacion)}"/>
+                        </p:column>
+                        <p:column id="editar" headerText="Acción"  exportable="false" style="margin: 0 auto; width: 150px;" 
+                                  styleClass="#{notificacion.notificacionEmitida eq true ?'border_green_color':null}">                            
+                            <p:commandLink class="link"
+                                           actionListener="#{notificacionLicenciaBean.prepararEditar}"
+                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn "
+                                           oncomplete="if(args.peditar){PF('dlgNuevaT').show()};"
+                                           process="@this"
+                                           title="Editar" rendered="#{!loginBean.lectura}">
+                                <i id="edit_action" class="material-icons md-18">edit</i>
+                            </p:commandLink>
+                            <p:commandLink class="link"
+                                           actionListener="#{notificacionLicenciaBean.prepararHistorial}"
+                                           title="Seguimiento" process="@this"
+                                           update="allform:dlgHistorial"
+                                           oncomplete="PF('dlgHistorial').show();" rendered="#{!loginBean.lectura}">
+                                <i id="history_action" class="material-icons md-18">history</i>                            
+                            </p:commandLink>
+                            <p:commandLink class="link" title="Descargar" disabled="#{notificacion.notificacionEmitida}"
+                                           actionListener="#{notificacionLicenciaBean.prepararDescarga}"
+                                           process="@this" update="mensajes allform:dlgFechaNotificacion"
+                                           oncomplete="PF('dlgFechaNotificacion').show();" rendered="#{!loginBean.lectura}">
+                                <i id="download_action" class="material-icons md-18">cloud_download</i>
+
+                            </p:commandLink>
+                            <p:commandLink class="link" title="Descargar" rendered="#{!loginBean.lectura}"
+                                           actionListener="#{notificacionLicenciaBean.viewErjafe}"
+                                           process="@this" 
+                                           update="mensajes"
+                                           oncomplete="popupwindow('erjreport', '_blank', args);">
+                                <i id="download_action" class="material-icons md-18">cloud_download</i>
+                            </p:commandLink>
+                            <p:commandLink class="link_remove" 
+                                           actionListener="#{notificacionLicenciaBean.eliminarNotificacion}"
+                                           update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                           title="Eliminar" process="@this" rendered="#{!loginBean.lectura}">
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA NOTIFICACIÓN CON SOLICITUD: #{notificacion.solicitud} ?"/> 
+                            </p:commandLink>
+                            <p:commandLink class="link" actionListener="#{notificacionLicenciaBean.prepararViewRo}"
+                                           update="allform:dlgRoshow mensajes"
+                                           oncomplete="if(args.viewro){PF('dlgRoshow').show()};"
+                                           process="@this"
+                                           title="Visualizar ro" rendered="#{loginBean.lectura}">
+
+                                <i class="pi pi-eye" style="font-size: 2rem"></i>
+                            </p:commandLink>
+                        </p:column>
+                        <f:facet name="footer">
+                            <!-- <p:selectBooleanCheckbox value="{notificacionLicenciaBean.separado}" itemLabel="Separados" rendered="{!loginBean.lectura}" /> -->
+                            <p:commandButton process="tablaDeDatos" value="Descargar Seleccionados" 
+                                             actionListener="#{notificacionLicenciaBean.downloadSelected}" 
+                                             update="mensajes" oncomplete="popupwindow('licenciausor', '_self', args);" 
+                                             rendered="#{!loginBean.lectura}" class="btn_peque" />
+                            
+                            <p:commandButton process="tablaDeDatos" value="Descargar Seleccionados ERJAFE" 
+                                         actionListener="#{notificacionLicenciaBean.downloadSelectedErjafe}" 
+                                         update="mensajes" oncomplete="popupwindow('erjreport', '_self', args);" 
+                                         rendered="#{!loginBean.lectura}" class="btn_peque"/>
+
+                        </f:facet>
+                    </p:dataTable>
+                    <p:outputLabel id="num_registros" value="#{notificacionLicenciaBean.numRegistros}" style="float: left; font-size: 12px"/>
+
+                    <h:panelGrid columns="2" style="float: right;">
+                        <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
+                            <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
+                            <p:dataExporter type="xlsx" target="tablaDeDatos" fileName="#{notificacionLicenciaBean.exportName}"/>
+                        </h:commandLink>
+                        <br/>
+                    </h:panelGrid>
+                    <br/>
+                </p:panel>
+            </h:panelGrid>
+
+            <p:dialog id="dlgTipoAbandono" modal="true" resizable="true"
+                      header="TRÁMITES SELECCIONADOS PARA PASAR A ABANDONO" fitViewport="true"
+                      widgetVar="dlgTipoAbandono" style="font-size: 11px; margin-bottom: 10px" showEffect="clip" 
+                      hideEffect="explode" closeOnEscape="true" width="600px">
+                <p:ajax event="close" update="dlgTipoAbandono" resetValues="true" />
+                <p:growl id="tipoAb" life="1000"/>
+                <h:form id="tipoAbanForm" >
+                    <p:panel style="margin: 0 auto; text-align: center;" styleClass="panelpasa">
+                        <p:outputLabel value="Con esta opción Ud. pasará todas las notificaciones seleccionadas a la pestaña de 'ABANDONOS'"
+                                       style="font-size: 10px !important; text-align: center !important"/>
+                    </p:panel>
+                    <p:dataTable id="tablaDeAbandonos" var="abandono"
+                                 value="#{notificacionLicenciaBean.selectedNotificaciones}" widgetVar="tablaDeAbandonos"
+                                 emptyMessage="No hay Datos para mostrar"                                                                               
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,60,150,200,250,300"
+                                 style="margin:3px auto; font-size: 9px !important;">
+
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{notificacion.solicitud}" >
+                            <h:outputText value="#{abandono.solicitud}" />
+                        </p:column>
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{notificacion.denominacion}" >
+                            <h:outputText value="#{abandono.denominacion}" />
+                        </p:column>
+                        <p:column headerText="Notificación" style="text-align: center;" filterBy="#{notificacion.notificacion}" >
+                            <h:outputText value="#{abandono.notificacion}" />
+                        </p:column>
+                        <p:column headerText="F. Notificación" style="text-align: center;" >
+                            <h:outputText value="#{abandono.fechaNotificacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:outputPanel>
+                                <h:outputText value="#{notificacionLicenciaBean.selectedNotificaciones.size()} Registros" style="font-size: 9px"/>
+                            </p:outputPanel>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:panelGrid style="width:  100% !important" columns="2" columnClasses="twenty-percent, seventy-percent">
+                        <p:outputLabel value="Tipo Abandono:" for="tipoAbandono"/>
+                        <p:selectOneMenu id="tipoAbandono" value="#{notificacionLicenciaBean.tipoAbandono}" class="maxsize" >
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true" />
+                            <f:selectItem itemLabel="ERJAFE" itemValue="ERJAFE"/>
+                            <f:selectItem itemLabel="REGLAMENTO" itemValue="REGLAMENTO"/>
+                            <f:selectItem itemLabel="COA" itemValue="COA"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+
+                    <p:commandButton value="CERRAR" class="btn_cerrar" onclick="PF('dlgTipoAbandono').hide();" style="float: right;"/>
+                    <p:commandButton value="PASAR A ABANDONOS" actionListener="#{notificacionLicenciaBean.pasarAAbandonos}" 
+                                     update="mensajes allform:tablaDeDatos tipoAbandono" process="@form"
+                                     style="float: right; font-weight: bold;" class="btn_buscar"
+                                     oncomplete="if(args.abit){PF('dlgTipoAbandono').hide();}">
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE PASAR LAS NOTIFICACIONES SELECCIONADAS A ABANDONO ?"/> 
+                    </p:commandButton>
+
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgParaAbandono" modal="true" resizable="true"
+                      header="TRÁMITES SELECCIONADOS PARA ESTABLECER COMO ABANDONO" fitViewport="true"
+                      widgetVar="dlgParaAbandono" style="font-size: 11px; margin-bottom: 10px;" showEffect="clip" 
+                      hideEffect="explode" closeOnEscape="true" width="800px">
+                <p:ajax event="close" update="dlgParaAbandono" resetValues="true" />
+                <p:growl id="paraAb" life="1000"/>
+                <h:form id="paraAbanForm" >
+                    <p:panel style="margin: 0 auto; text-align: center;" styleClass="panelpara">
+                        <p:outputLabel value="Las Notificaciones seleccionadas se configurarán para abandono y una vez cumplido el plazo respectivo se pasarán a la pestaña 'ABANDONOS'"
+                                       style="font-size: 10px !important; text-align: center !important;"/>
+                    </p:panel>
+                    <p:dataTable id="tablaDePara" var="abandono"
+                                 value="#{notificacionLicenciaBean.selectedNotificaciones}" widgetVar="tablaDePara"
+                                 emptyMessage="No hay Datos para mostrar"                                                                               
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,60,150,200,250,300"
+                                 style="margin:3px auto; font-size: 9px !important; background: none">
+
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{notificacion.solicitud}" >
+                            <h:outputText value="#{abandono.solicitud}" />
+                        </p:column>
+                        <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{notificacion.denominacion}" >
+                            <h:outputText value="#{abandono.denominacion}" />
+                        </p:column>
+                        <p:column headerText="Notificación" style="text-align: center;" filterBy="#{notificacion.notificacion}" >
+                            <h:outputText value="#{abandono.notificacion}" />
+                        </p:column>
+                        <p:column headerText="F. Notificación" style="text-align: center;" >
+                            <h:outputText value="#{abandono.fechaNotificacion}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Tipo Abandono" style="text-align: center;" filterBy="#{notificacion.tipoAbandono}" >
+                            <h:outputText value="#{abandono.tipoAbandono}" />
+                        </p:column>
+                        <p:column headerText="F. Abandono" style="text-align: center;" >
+                            <h:outputText value="#{abandono.fechaPuestaAbandono}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:outputPanel>
+                                <h:outputText value="#{notificacionLicenciaBean.selectedNotificaciones.size()} Registros" style="font-size: 9px"/>
+                            </p:outputPanel>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:panelGrid style="width:  100% !important" columns="2" columnClasses="thirty-percent, sixty-percent">
+                        <p:outputLabel value="Fecha Abandono:" for="fechaAbandono" style="float: right"/>
+                        <p:calendar id="fechaAbandono"  value="#{notificacionLicenciaBean.fechaPuestaAbandono}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd"  title="Fecha Puesta Abandono" inputStyleClass="maxsize"
+                                    navigator="true"/>
+                        <p:outputLabel value="Tipo Abandono:" for="tipoAbandono" style="float: right"/>
+                        <p:selectOneMenu id="tipoAbandono" value="#{notificacionLicenciaBean.tipoAbandono}" class="maxsize" required="#{notificacionLicenciaBean.abandonosS}">
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true" />
+                            <f:selectItem itemLabel="ERJAFE" itemValue="ERJAFE"/>
+                            <f:selectItem itemLabel="REGLAMENTO" itemValue="REGLAMENTO"/>
+                            <f:selectItem itemLabel="COA" itemValue="COA"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+
+                    <p:commandButton value="CERRAR" class="btn_cerrar" onclick="PF('dlgParaAbandono').hide();" style="float: right;"/>
+                    <p:commandButton value="PARA ABANDONO" actionListener="#{notificacionLicenciaBean.paraAbandonos}" 
+                                     update="mensajes allform:tablaDeDatos tipoAbandono" process="@form"
+                                     style="float: right; font-weight: bold;" class="btn_buscar"
+                                     oncomplete="if(args.abit){PF('dlgParaAbandono').hide();}">
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE CONFIGURAR LAS NOTIFICACIONES SELECCIONADAS PARA ABANDONO ?"/> 
+                    </p:commandButton>
+
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgFechaNotificacion" modal="true" resizable="true"
+                      header="#{notificacionLicenciaBean.notificacion.solicitud}" fitViewport="true"
+                      widgetVar="dlgFechaNotificacion" style="font-size: 11px; margin-bottom: 10px" showEffect="clip" 
+                      hideEffect="explode" closeOnEscape="true" width="30%">
+                <p:ajax event="close" update="dlgFechaNotificacion" resetValues="true" />
+                <p:growl id="fechareg" life="1000"/>
+                <h:form id="frmFecha" >
+                    <p:outputLabel value="¿DESEA REGISTRAR LA FECHA DE NOTIFICACIÓN, CON LA FECHA ACTUAL?"/>
+                    <p:panelGrid class="noBorders" columns="2" style="float: right;" >                        
+                        <p:commandButton value="SI" actionListener="#{notificacionLicenciaBean.viewNotificacionSi}" process="@parent" style="float: right"
+                                         oncomplete="popupwindow('licenciausor', '_blank', args);PF('dlgFechaNotificacion').hide();" 
+                                         class="btn_peque" update="mensajes allform:tablaDeDatos"/>
+                        <p:commandButton value="NO" actionListener="#{notificacionLicenciaBean.viewNotificacionNo}" process="@this" style="float: right"
+                                         oncomplete="popupwindow('licenciausor', '_blank', args);PF('dlgFechaNotificacion').hide();" update="mensajes"
+                                         class="btn_peque"/>
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+
+
+            <p:dialog id="dlgRoshow" modal="true" resizable="true"
+                      header="MOTIVO DE NOTIFICACIÓN - #{notificacionLicenciaBean.notificacion.solicitud}" fitViewport="true"
+                      widgetVar="dlgRoshow" style="font-size: 11px; margin-bottom: 10px" showEffect="clip" 
+                      hideEffect="explode" closeOnEscape="true" width="70%">
+                <p:ajax event="close" update="dlgRoshow" resetValues="true" />
+                <p:growl id="roreg" life="1000"/>
+                <h:form id="frmRoshow" >
+                    <p:panel>
+                        <p:inputTextarea value="#{notificacionLicenciaBean.roshow}" readonly="true" style="width: 100%"/>
+                    </p:panel>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true"
+                      header="#{notificacionLicenciaBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="clip" 
+                      hideEffect="explode" closeOnEscape="true" width="80%">
+                <p:ajax event="close" update="dlgNuevaT" resetValues="true" />
+                <p:growl id="nuevoreg" life="1000"/>
+                <h:form id="frmNuevaT" >
+                    <p:panelGrid columns="6" id="datosNuevaT" styleClass="showcase-text-align-center" style="width: 100%" 
+                                 columnClasses="ten-percent,twenty-percent,ten-percent,twenty-percent,ten-percent,twenty-percent">
+
+                        <p:outputLabel value="Solicitud:" for="solicitudForm"/>
+                        <h:panelGroup>
+                            <p:inputText id="solicitudForm" value="#{notificacionLicenciaBean.notificacion.solicitud}" title="Solicitud" required="true" 
+                                         style="background: #aed581 !important; width: 85%; text-transform: uppercase"/>
+                            <p:commandButton icon="pi pi-search" class="btn_peque" style="position: absolute;" actionListener="#{notificacionLicenciaBean.buscarTramite}"
+                                             rendered="#{notificacionLicenciaBean.dialogTitle eq 'NUEVA NOTIFICACIÓN LICENCIA'?true:false}" process="@parent" update="mensajes frmNuevaT:datosNuevaT"/>
+                        </h:panelGroup>
+
+                        <p:outputLabel value="F. Presentación:" for="fpresentacionForm"/>                            
+                        <p:calendar id="fpresentacionForm"  value="#{notificacionLicenciaBean.notificacion.fechaPresentacion}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd"  required="true" title="Fecha de Presentación" inputStyleClass="maxsize"
+                                    navigator="true"/>
+
+                        <p:outputLabel value="Notificación:" for="notificacionForm"/>
+                        <p:inputText id="notificacionForm" value="#{notificacionLicenciaBean.notificacion.notificacion}" title="Notificación" 
+                                     style="background: #FFCDD2 !important;" required="true" class="maxsize">
+                            <p:keyFilter mask="num" />
+                        </p:inputText>
+
+                        <p:outputLabel value="F. Notificación:" for="fechaNotificacionForm"/>
+                        <p:calendar id="fechaNotificacionForm"  value="#{notificacionLicenciaBean.notificacion.fechaNotificacion}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha Notifición" inputStyleClass="maxsize"
+                                    navigator="true"/>
+
+                        <p:outputLabel value="Registro:" for="registroForm"/>                            
+                        <p:inputText id="registroForm" value="#{notificacionLicenciaBean.notificacion.registro}" title="Registro" required="true" class="maxsize"/>
+
+                        <p:outputLabel value="F. Registro:" for="fregistroForm"/>
+                        <p:calendar id="fregistroForm"  value="#{notificacionLicenciaBean.notificacion.fechaRegistro}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"
+                                    navigator="true"/>
+                        
+                        <p:outputLabel value="Solicitante:" for="solicitanteForm"/>                            
+                        <p:inputText id="solicitanteForm" value="#{notificacionLicenciaBean.notificacion.solicitante}" title="Solicitante" required="true" class="maxsize"/>
+
+                        <p:outputLabel value="Denominación:" for="denominacionForm"/>
+                        <p:inputTextarea id="denominacionForm" value="#{notificacionLicenciaBean.notificacion.denominacion}" title="Denominación" 
+                                         required="true" class="maxsize"/>
+
+                        <p:outputLabel value="Signo:" for="signoForm"/>                            
+                        <p:inputText id="signoForm" value="#{notificacionLicenciaBean.notificacion.signo}" title="Signo" required="true" class="maxsize"/>
+
+                        <p:outputLabel value="F. Contrato:" for="fcontratoForm"/>
+                        <p:calendar id="fcontratoForm"  value="#{notificacionLicenciaBean.notificacion.fechaContrato}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd" title="Fecha Contrato" inputStyleClass="maxsize" navigator="true"/>
+
+                        <p:outputLabel value="F. Vence Contrato:" for="fcontratovForm"/>
+                        <p:calendar id="fcontratovForm"  value="#{notificacionLicenciaBean.notificacion.fechaVenceContrato}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd" title="Fecha Contrato" inputStyleClass="maxsize" navigator="true"/>                       
+
+                        <p:outputLabel value="Licenciante" for="licencianteForm"/>
+                        <p:inputTextarea id="licencianteForm" value="#{notificacionLicenciaBean.notificacion.licenciante}" title="Licenciante" 
+                                         required="true" class="maxsize"/>
+
+                        <p:outputLabel value="Licenciatario" for="licenciatarioForm"/>
+                        <p:inputTextarea id="licenciatarioForm" value="#{notificacionLicenciaBean.notificacion.licenciatario}" title="Licenciatario" 
+                                         required="true" class="maxsize"/>
+
+                        <p:outputLabel value="Apoderado" for="apoderadoForm"/>
+                        <p:inputTextarea id="apoderadoForm" value="#{notificacionLicenciaBean.notificacion.apoderadoRepresentante}" title="Apoderado" 
+                                         required="true" class="maxsize"/>
+
+                        <p:outputLabel value="F. Noti. Licencia:" for="fnotifLicForm"/>
+                        <p:calendar id="fnotifLicForm"  value="#{notificacionLicenciaBean.notificacion.fechaNotiProvReg}" timeZone="GMT-5"
+                                    mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha Noti. Licencia" inputStyleClass="maxsize"
+                                    navigator="true"/>                        
+
+                        <p:outputLabel value="Casillero SENADI:" for="casSenadiForm"/>
+                        <p:panel class="noBorders" style="padding: 0 0 !important; border: none !important">
+                            <p:inputText id="casSenadiForm" value="#{notificacionLicenciaBean.notificacion.casilleroSenadi}" title="Casillero SENADI" style="width: 80%"/>
+                            <p:commandButton icon="pi pi-search" class="btn_peque" actionListener="#{notificacionLicenciaBean.buscarCasillero}" 
+                                             rendered="#{notificacionLicenciaBean.dialogTitle eq 'NUEVA NOTIFICACIÓN LICENCIA'?false:true}" 
+                                             process="@parent" update="casSenadiForm" style="width: 12%" title="BUSCAR CASILLERO"/>
+                        </p:panel>
+
+                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>                            
+                        <p:inputText id="casJudicialForm" value="#{notificacionLicenciaBean.notificacion.casilleroJudicial}" title="Casillero Judicial" class="maxsize"/>
+
+                        <p:outputLabel value="Comprobante" for="comproForm"/>
+                        <p:inputText id="comproForm" value="#{notificacionLicenciaBean.notificacion.comprobante}" title="comprobante" class="maxsize"/>
+
+                        <p:outputLabel value="Responsable:" for="responsableForm"/>                            
+                        <p:inputText id="responsableForm" value="#{notificacionLicenciaBean.notificacion.responsable}" title="Responsable" 
+                                     class="maxsize" required="true" />
+
+                        <p:outputLabel value="Ro: " for="rofor"/>
+                        <p:commandLink id="rofor" value="M. de Notificación" actionListener="#{notificacionLicenciaBean.prepararShowRo}" update="allform:dlgRo"
+                                       oncomplete="if(args.viewro){PF('dlgRo').show()};" process="@this" style="color: #0089ec"
+                                       disabled="#{notificacionLicenciaBean.notificacion.id eq null? true:false}" />
+
+                        <p:outputLabel value="Url: " style="float: right !important"/>
+                        <p:commandLink value="Ruta Expediente" actionListener="#{notificacionLicenciaBean.prepararExpediente}" process="@this"
+                                       disabled="#{notificacionLicenciaBean.notificacion.solicitud eq null? true:false}" style="color: blue"
+                                       oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
+
+                    </p:panelGrid>
+
+                    <p:panelGrid id="guardarBtn" columns="2" class="panel-bottom">
+                        <p:outputLabel value="PASAR A: " class="float-right"
+                                       rendered="#{notificacionLicenciaBean.dialogTitle eq 'NUEVA NOTIFICACIÓN LICENCIA'?false:true}"/>
+                        <p:selectOneMenu id="estadoRegistro" class="float-right" value="#{notificacionLicenciaBean.estadoTemp}" 
+                                         rendered="#{notificacionLicenciaBean.dialogTitle eq 'NUEVA NOTIFICACIÓN LICENCIA'?false:true}">
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="LICENCIA" itemValue="LICENCIA"/>
+                            <f:selectItem itemLabel="TERMINACIÓN LICENCIA" itemValue="TERMINACION"/>
+                            <f:selectItem itemLabel="DESISTIDAS" itemValue="DESISTIDAS"/>
+                            <f:selectItem itemLabel="CADUCADAS-NEGADAS" itemValue="CADUCADAS"/>                            
+                        </p:selectOneMenu>                        
+                    </p:panelGrid>
+                    <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar float-right"/>
+                    <p:commandButton value="#{notificacionLicenciaBean.saveEdit}" actionListener="#{notificacionLicenciaBean.guardarNotificacion}"
+                                     update="mensajes allform:tablaDeDatos datosNuevaT"
+                                     oncomplete="if(args.saved){PF('dlgNuevaT').hide();}"
+                                     process="@form" class="btn_buscar float-right">
+                        <p:confirm header="Seguridad" message="#{notificacionLicenciaBean.mensajeConfirmacion}" />
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgExpediente" modal="true" resizable="true"
+                      header="#{notificacionLicenciaBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgExpediente" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" width="50%">
+                <p:ajax event="close" update="dlgExpediente" resetValues="true" />                
+                <h:form id="frmExpediente" >
+                    <p:dataTable id="tablaDeArchivos" var="archivo"
+                                 value="#{notificacionLicenciaBean.archivos}" widgetVar="tablaDeArchivos"
+                                 emptyMessage="No hay Datos para mostrar"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" >
+                        <p:column headerText="Archivos" style="text-align: center;" filterBy="#{archivo}" >
+                            <p:commandLink value="#{archivo.nombre}" style="color: #0089ec; font-size: 14px;"
+                                           onclick="otherpage('https://registro.propiedadintelectual.gob.ec/solicitudes/media/files/renewal_forms/#{notificacionLicenciaBean.notificacion.idRenewalForm}/#{archivo.documento}')"  
+                                           />
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgRo" modal="true" resizable="true"
+                      header="RO #{notificacionLicenciaBean.notificacion.solicitud}" fitViewport="true"
+                      widgetVar="dlgRo" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" width="75%">
+                <p:ajax event="close" update="dlgRo" resetValues="true" />                
+                <h:form id="frmRo" >
+                    <div style="text-align:  center; margin: 0 auto;">
+                        <p:outputLabel value="RO:" for="roselone" style="width: 5%;"/>
+                        <p:selectOneMenu id="roselone" value="#{notificacionLicenciaBean.roChoose}" style="width: 95%;" title="RO" disabled="#{notificacionLicenciaBean.roselectable}" >
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{notificacionLicenciaBean.roRazones}" class="inputM"/>
+                        </p:selectOneMenu>
+                        <p:selectBooleanCheckbox itemLabel="Otro:" value="#{notificacionLicenciaBean.roselectable}"  style="width: 7%;">
+                            <p:ajax update="mensajes otroro roselone" listener="#{notificacionLicenciaBean.validaSeleccion}"/>
+                        </p:selectBooleanCheckbox>
+                        <p:inputText id="otroro" value="#{notificacionLicenciaBean.razon}" style="width: 93%;" disabled="#{!notificacionLicenciaBean.roselectable}"/>
+
+                        <p:commandButton style="margin-top: 5px;" actionListener="#{notificacionLicenciaBean.agregarRo}" title="Agregar ro al trámite #{notificacionLicenciaBean.notificacion.solicitud}"
+                                         update="mensajes tablaDeRo" process="@parent" icon="pi pi-arrow-down" class="btn_peque"/> 
+
+                        <div style="background: cornflowerblue  !important; padding: 0.1px !important; margin-top: 5px;">
+
+                            <p:dataTable id="tablaDeRo" var="ro"
+                                         value="#{notificacionLicenciaBean.roos}" widgetVar="tablaDeRo"
+                                         emptyMessage="No hay Datos para mostrar"
+                                         binding="#{notificacionLicenciaBean.roDataTable}"
+                                         style="margin:3px auto; font-size: 9px !important; " 
+                                         rowKey="#{ro.id}">
+
+                                <p:column headerText="Ro" style="text-align: center; width: 90%"  >
+                                    <h:outputText value="#{ro.ro}" style="font-size: 12px; font-weight: bold"/>
+                                </p:column>
+
+                                <p:column id="removero" headerText="Acción"  exportable="false" style="text-align: center;" >
+                                    <p:commandLink class="link_remove" actionListener="#{notificacionLicenciaBean.eliminarRo}"
+                                                   update="mensajes tablaDeRo" title="Eliminar Ro" process="@this" >
+                                        <i id="delete_action" class="material-icons md-18">delete</i>
+                                        <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR EL RO SELECCIONADO?"/> 
+                                    </p:commandLink>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                        <br/>
+                        <p:commandButton value="CERRAR" class="btn_peque" onclick="PF('dlgRo').hide();" style="float: right"/>
+                    </div>
+
+                </h:form>
+
+            </p:dialog>
+
+            <p:dialog id="dlgHistorial" modal="true" resizable="true"
+                      header="#{notificacionLicenciaBean.dialogTitle}" fitViewport="true"
+                      widgetVar="dlgHistorial" style="font-size: 11px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true">
+                <p:ajax event="close" update="dlgHistorial" resetValues="true" />                
+                <h:form id="frmHistory" >
+                    <p:inputTextarea id='historialText' value="#{notificacionLicenciaBean.historial}" rows="10" cols="160" readonly="true" style="width: 100%"/>
+                </h:form>
+            </p:dialog>            
+
+            <p:confirmDialog global="true" showEffect="explode" hideEffect="explode">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes btn_peque" update="renovacionForm:tablaDeDatos"/>
+                <p:commandButton value="No" type="button"  styleClass="ui-confirmdialog-no btn_peque"/>
+            </p:confirmDialog>
+
+            <br/>
+        </h:form>
+
+        <div id="footer"></div>
+
+        <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
+            <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
+                    oncomplete="PF('idleDialog').show()" />
+        </p:idleMonitor>
+        <p:dialog header="Sesión Caducada" resizable="false"
+                  widgetVar="idleDialog" modal="true" closable="false" style="font-size: 12px">
+            <h:form id="sesionCaducaForm">
+                <div class="titlePage">
+                    <h:outputText value="Sesión Caducada " />
+                    <p:commandButton styleClass="nav-link js-scroll-trigger"
+                                     actionListener="#{loginBean.logout}"
+                                     oncomplete="logout(xhr, status, args)"
+                                     value="ACEPTAR" immediate="true" style="font-size: 12px"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+
+        <!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+
+        <!-- <script src="resources/assets/js/headroom.min.js"></script>
+        <script src="resources/assets/js/jQuery.headroom.min.js"></script>
+        <script src="resources/assets/js/template.js"></script> -->
+
+
+    </h:body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('body').addClass('loaded');
+                $('h1').css('color', '#222222');
+                $("#footer").load("footer.html");
+            }, 150);
+            $("#menuside").load("menusidebar.html", function () {
+                jQuery('#not_lic').addClass('activomenu');
+                jQuery('#licentitul').removeClass('sideinactivo').addClass('sideactivo');
+            });
+        });
+
+        function getIdIndex(idName) {
+            var doc = document.forms['allform'];
+            var i;
+            var idResult = 0;
+            for (i = 0; doc.length > i; i++) {
+                if (doc[i].id.includes(idName)) {
+                    idResult = i;
+                    console.log(doc[i].id);
+                    break;
+                }
+            }
+            return idResult;
+        }
+
+        //<![CDATA[
+        function popupwindow(url, title, args) {
+            if (args.doit) {
+                window.open(url, title);
+            }
+        }
+        function otherpage(url) {
+            setTimeout(function () {
+                window.open(url, '_blank');
+            }, 0);
+        }
+        function logout(xhr, status, args) {
+            setTimeout(function () {
+                window.location = 'login.xhtml';
+            }, 500);
+        }
+        //]]>
+    </script>
+</html>

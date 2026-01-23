@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
+	<property name="ireport.zoom" value="1.464100000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="nombrePersona" class="java.lang.String"/>
+	<parameter name="resolucionData" class="java.lang.String"/>
+	<parameter name="delegacion" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="cert_no" class="java.lang.String"/>
+	<field name="fe_certificado" class="java.lang.String"/>
+	<field name="sol_senadi" class="java.lang.String"/>
+	<field name="fe_presentacion" class="java.lang.String"/>
+	<field name="sign" class="java.lang.String"/>
+	<field name="no_reg" class="java.lang.String"/>
+	<field name="fe_registro" class="java.lang.String"/>
+	<field name="denom" class="java.lang.String"/>
+	<field name="tit_actual" class="java.lang.String"/>
+	<field name="tit_anterior" class="java.lang.String"/>
+	<field name="respons" class="java.lang.String"/>
+	<variable name="texto" class="java.lang.String">
+		<variableExpression><![CDATA["<style pdfFontName='Helvetica-Bold'>SERVICIO NACIONAL DE DERECHOS INTELECTUALES - SENADI.- Dirección Técnica de Modificaciones al Registro.-</style>"+
+" Quito, "+$F{fe_certificado}+". Vista la solicitud de transferencia No. "+$F{sol_senadi}+", presentada el "+$F{fe_presentacion}+", del registro de "+$F{sign}+" No. "+$F{no_reg}+
+", otorgado el "+$F{fe_registro}+". De acuerdo a lo establecido en los artículos 161 y 199 de la Decisión 486 de la Comisión de la Comunidad Andina, en concordancia "+
+"con los artículos 99, 374, 377 del Código Orgánico de la Economía Social de los Conocimientos, Creatividad e Innovación; una vez cumplidos los requisitos legales y reglamentarios;  "+
+"y en ejercicio de la facultad conferida mediante Acción de Personal No. "+$P{resolucionData}+", procede a otorgar el certificado de transferencia No. "+$F{cert_no}+", con los datos siguientes:"]]></variableExpression>
+	</variable>
+	<variable name="titulo" class="java.lang.String">
+		<variableExpression><![CDATA["CERTIFICADO DE TRANSFERENCIA No. "+$F{cert_no}+" - SENADI"]]></variableExpression>
+	</variable>
+	<background>
+		<band height="802" splitType="Stretch">
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+				<reportElement x="-19" y="-20" width="595" height="822" uuid="2a414a1f-7d19-478e-937d-890175e16e10"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "background_new.png"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band height="25" splitType="Stretch"/>
+	</title>
+	<columnHeader>
+		<band height="22" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="710" splitType="Stretch">
+			<textField>
+				<reportElement x="57" y="130" width="441" height="212" uuid="367c9703-c810-4922-b82a-a8d2a53e6c1e"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="SansSerif" size="12" pdfFontName="Helvetica" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{texto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="57" y="344" width="162" height="54" uuid="c4252ba8-8d31-40dd-8275-83e126015e37"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<text><![CDATA[DENOMINACIÓN:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="219" y="344" width="279" height="54" uuid="8175af18-9ff6-4e83-8cc8-47ff9d38f0d8"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{denom}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="57" y="398" width="162" height="71" uuid="79fc4c31-874a-4010-9d7b-bf2ad541f385"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<text><![CDATA[TITULAR ACTUAL:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="219" y="398" width="279" height="71" uuid="a0ced7d1-23db-4724-a1f3-812610b52f41"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_actual}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="57" y="469" width="162" height="58" uuid="bc257bbd-f960-409c-b581-82c61dd3fffb"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12"/>
+				</textElement>
+				<text><![CDATA[TITULAR ANTERIOR]]></text>
+			</staticText>
+			<image>
+				<reportElement x="367" y="489" width="143" height="139" uuid="6ace09a7-39ae-427f-ae5d-06e2c5fa2678"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
+			</image>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement x="219" y="469" width="279" height="58" uuid="dd9ec0f2-a066-47ef-8e6d-4606e0f104e1"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tit_anterior}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="49" y="698" width="100" height="12" uuid="81363007-7ba0-4b62-9ba7-509e37759ff8"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{respons}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="62" width="555" height="27" uuid="0261b427-bb5b-4b37-868c-937413f95d1f"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="14" isBold="true" pdfFontName="Helvetica-Bold" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{titulo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="608" width="555" height="20" uuid="82c747ac-0825-469c-be88-743e271f3c3f"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{nombrePersona}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="625" width="555" height="20" uuid="8a7f612a-799e-441b-a746-c9c4e3c922ee"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{delegacion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="9" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="8" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="7" splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3c.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:x="http://xpert.com/faces">
+    <h:head>
+        <meta charset="utf-8" />
+        <meta name="viewport"    content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+
+        <title>SETTINGS</title>
+
+        <link rel="shortcut icon" type="image/png" href="#{resource['images/favicon.png']}" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+
+        <link rel="stylesheet" media="screen" href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" />
+        <link href="resources/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="resources/assets/css/font-awesome.min.css" rel="stylesheet" />
+
+        <!-- Custom styles for our template -->
+        <link href="resources/assets/css/bootstrap-theme.css" rel="stylesheet" />
+        <link href="resources/assets/css/main.css" rel="stylesheet" />
+        <!-- My own style css -->
+        <link href="resources/assets/css/style.css" rel="stylesheet" />
+        <meta http-equiv="Refresh" content="#{loginBean.lectura eq false ? '':(loginBean.grupoActivo eq 'SC_AnexosModificaciones' ? '0.1;url=uplocert.xhtml':'0.1;url=index.xhtml')}"/>
+    </h:head>
+    <h:body>
+        <!-- Start Page Loading -->
+        <div id="loader-wrapper">
+            <div id="loader"></div>        
+            <div class="loader-section section-left"></div>
+            <div class="loader-section section-right"></div>
+        </div>
+        <p:growl id="mensajes" showDetail="true" life="4000"/>
+        <h:form id="allform" enctype="multipart/form-data" style=" background: #e3e3e3; min-height: calc(100vh - 424px);">
+            <div class="menu">
+                <a href="#" class="logo"  title="Logo Senadi" ><img src="resources/images/sena_2.png" width="161px"/></a>
+
+                <i id="edit_action" class="material-icons prefix" style="color: white; margin-left: 20px; display: inline-block">person</i>    
+
+                <p:outputLabel value="#{loginBean.nombre}" style="color: white; font-size: 18px" />
+
+                <div style="float: right; display: inline-block; margin-top: 5px">
+                    <p:commandLink styleClass="btn_logout" actionListener="#{loginBean.logout}"
+                                   oncomplete="logout(xhr, status, args)"
+                                   title="CERRAR SESIÓN" immediate="true">
+                        <i class="material-icons" style="font-size: 30px; ">exit_to_app</i>
+                    </p:commandLink>
+                </div>
+                <a class="activo" href="#" title="Configuración" ><i class="material-icons" >settings</i></a> 
+                <a class="itemm" href="uplocert.xhtml" title="Upload Certificados" ><i class="material-icons" >upload</i></a>
+                <a class="itemm" href="reportemod.xhtml" title="Reporte Modificaciones" >REPORTE MODIFICACIONES</a>
+                <a class="itemm" href="cambiocasillero.xhtml" title="Cambio de casillero">CAMBIO DE CASILLERO</a>                
+                <a class="itemm" href="cancelacionti.xhtml" title="Cancelación títulos" >CANCELACIÓN DE TÍTULOS</a>
+                <div style="float: right; display: inline-block;">
+                    <p:commandLink class="itemm" value="RAZÓN PARA CORRECCIÓN" style="color: black; text-decoration: none; font-size: 14px;" 
+                                   oncomplete="PF('dlgRazon').show()" title="RAZONES PARA CORRECCIÓN" 
+                                   update="allform:dlgRazon allform:frmRazon mensajes"  actionListener="#{configuracionBean.mostrarRazon}"
+                                   process="@this" rendered="#{!loginBean.lectura}"/>
+                </div>
+                <a class="itemm" href="alcancesmod.xhtml" title="Alcances de Modificaciones" >ALCANCES</a>
+
+            </div>
+            <div class="card" style="margin-top: 20%; position: absolute;">
+                <br/>
+                <p:sidebar widgetVar="sidebar1" style="z-index: 999 !important; width: 22%; background: #E8F5E9; overflow: scroll">
+                    <div id="menuside"></div>
+                </p:sidebar>
+                <p:commandButton icon="pi pi-arrow-right" type="button" onclick="PF('sidebar1').show()" styleClass="mr-2 " class="btn_sidebar"
+                                 style="position: fixed; z-index: 999; background-color: #d30039 !important;"/>
+            </div>
+            <br/>
+            <h:panelGrid columns="1"  style="text-align: center; font-size: 16px; font-weight: bold; margin: 0 auto; width: 50%;">
+
+                <p:outputLabel value="PARAMETROS DE CONFIGURACIÓN" style="font-size: 16px !important;"/>
+                <p:panel class="panelDele" >
+                    <p:outputLabel value="DELEGADOS" style="font-size: 14px !important;"/>
+                    <p:dataTable id="tablaDeDelegados" var="delegado"
+                                 value="#{configuracionBean.delegados}" widgetVar="tablaDeDelegados"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 binding="#{configuracionBean.delegadoDataTable}"                                 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" 
+                                 rowKey="#{delegado.id}"
+                                 editable="true">
+
+                        <p:ajax event="rowEdit" listener="#{configuracionBean.onRowEditDelegado}" update="mensajes"/>
+                        <p:ajax event="rowEditCancel" listener="#{configuracionBean.onRowCancelDelegado}" update="mensajes"/>
+
+                        <p:column headerText="Nombre Delegado" style="text-align: center; width: 48%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{delegado.nombre}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{delegado.nombre}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column headerText="Alias" style="text-align: center;"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{delegado.alias}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{delegado.alias}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column style="width:6rem">
+                            <p:rowEditor editTitle="Editar Delegado" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <p:column headerText="Activo" style="text-align: center;"  >
+                            <p:selectBooleanCheckbox id="deles" value="#{delegado.estado}"  itemLabel="#{delegado.estado?'ACTIVO':'INACTIVO'}" >
+                                <p:ajax update="allform:tablaDeDelegados" listener="#{configuracionBean.enableDelegado(delegado)}"/>
+                            </p:selectBooleanCheckbox>
+                        </p:column>
+
+                        <p:column style="width:5rem">
+                            <p:commandLink class="link_remove" actionListener="#{configuracionBean.eliminarDelegado}"
+                                           update="allform:tablaDeDelegados mensajes" title="Eliminar Delegado" process="@this" >
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR EL DELEGADO #{delegado.nombre}?"/>
+                            </p:commandLink>
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="NUEVO DELEGADO" class="btn_peque" action="#{configuracionBean.onAddNewDelegado()}" 
+                                     process="@this"  oncomplete="PF('tablaDeDelegados').addRow();" update="mensajes"/>
+                </p:panel>
+
+                <p:panel class="panelSecre" >
+                    <p:outputLabel value="SECRETARIAS" style="font-size: 14px !important;"/>
+                    <p:dataTable id="tablaDeSecretarias" var="secretaria"
+                                 value="#{configuracionBean.secretarias}" widgetVar="tablaDeSecretarias"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 binding="#{configuracionBean.secretariaDataTable}"                                 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" 
+                                 rowKey="#{secretaria.id}"
+                                 editable="true">
+
+                        <p:ajax event="rowEdit" listener="#{configuracionBean.onRowEditSecretaria}" update="mensajes"/>
+                        <p:ajax event="rowEditCancel" listener="#{configuracionBean.onRowCancelSecretaria}" update="mensajes"/>
+
+                        <p:column headerText="Nombre Secretaria" style="text-align: center; width: 30%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{secretaria.nombre}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{secretaria.nombre}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column headerText="Alias" style="text-align: center; width: 10%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{secretaria.alias}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{secretaria.alias}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column headerText="Denominación" style="text-align: center; width: 28%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{secretaria.denominacion}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputTextarea value="#{secretaria.denominacion}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>                        
+
+                        <p:column style="width:6rem; width: 10%">
+                            <p:rowEditor editTitle="Editar Secretaria" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <p:column headerText="Activo" style="text-align: center; width: 12%"  >
+                            <p:selectBooleanCheckbox id="deles" value="#{secretaria.estado}" itemLabel="#{secretaria.estado?'ACTIVO':'INACTIVO'}" 
+                                                     style="width:100%">
+                                <p:ajax update="allform:tablaDeSecretarias" listener="#{configuracionBean.enableSecretaria(secretaria)}"/>
+                            </p:selectBooleanCheckbox>
+                        </p:column>
+
+                        <p:column style="width:5rem">
+                            <p:commandLink class="link_remove" actionListener="#{configuracionBean.eliminarSecretaria}"
+                                           update="allform:tablaDeSecretarias mensajes" title="Eliminar Secretaria" process="@this" >
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA SECRETARIA #{secretaria.nombre}?"/>
+                            </p:commandLink>
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="NUEVA SECRETARIA" class="btn_peque" action="#{configuracionBean.onAddNewSecretaria()}" 
+                                     process="@this"  oncomplete="PF('tablaDeSecretarias').addRow();" update="mensajes"/>
+                </p:panel>
+
+                <p:panel class="panelDelegac" >
+                    <p:outputLabel value="DELEGACIONES" style="font-size: 14px !important;"/>
+                    <p:dataTable id="tablaDeDelegaciones" var="delegacion"
+                                 value="#{configuracionBean.delegaciones}" widgetVar="tablaDeDelegaciones"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 binding="#{configuracionBean.delegacionesDataTable}"                                 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" 
+                                 rowKey="#{delegacion.id}"
+                                 editable="true">
+
+                        <p:ajax event="rowEdit" listener="#{configuracionBean.onRowEditDelegacion}" update="mensajes"/>
+                        <p:ajax event="rowEditCancel" listener="#{configuracionBean.onRowCancelDelegacion}" update="mensajes"/>
+
+                        <p:column headerText="Nombre Delegación" style="text-align: center; width: 62%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{delegacion.nombre}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputTextarea value="#{delegacion.nombre}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column style="width:6rem">
+                            <p:rowEditor editTitle="Editar Delegación" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <p:column headerText="Activo" style="text-align: center;"  >
+                            <p:selectBooleanCheckbox id="deles" value="#{delegacion.activo}"  itemLabel="#{delegacion.activo?'ACTIVO':'INACTIVO'}" >
+                                <p:ajax update="allform:tablaDeDelegaciones" listener="#{configuracionBean.enableDelegacion(delegacion)}"/>
+                            </p:selectBooleanCheckbox>
+                        </p:column>
+
+                        <p:column style="width:5rem">
+                            <p:commandLink class="link_remove" actionListener="#{configuracionBean.eliminarDelegacion}"
+                                           update="allform:tablaDeDelegaciones mensajes" title="Eliminar Delegación" process="@this" >
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA DELEGACIÓN #{delegacion.nombre}?"/> 
+                            </p:commandLink>
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="NUEVA DELEGACIÓN" class="btn_peque" action="#{configuracionBean.onAddNewDelegacion}" 
+                                     process="@this"  oncomplete="PF('tablaDeDelegaciones').addRow();" update="mensajes"/>
+                </p:panel>
+
+                <p:panel class="panelDelegac" >
+                    <p:outputLabel value="RESOLUCIONES - CERTIFICADO" style="font-size: 14px !important;"/>
+                    <p:dataTable id="tablaDeResoluciones" var="resolucion"
+                                 value="#{configuracionBean.resoluciones}" widgetVar="tablaDeResoluciones"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 binding="#{configuracionBean.resolucionDataTable}"                                 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" 
+                                 rowKey="#{resolucion.id}"
+                                 editable="true">
+
+                        <p:ajax event="rowEdit" listener="#{configuracionBean.onRowEditResolucion}" update="mensajes"/>
+                        <p:ajax event="rowEditCancel" listener="#{configuracionBean.onRowCancelResolucion}" update="mensajes"/>
+
+                        <p:column headerText="Resolución" style="text-align: center; width: 45%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{resolucion.resolucion}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{resolucion.resolucion}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column headerText="Fecha" style="text-align: center;" >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{resolucion.fecha}" >
+                                        <f:convertDateTime pattern="yyyy-MM-dd"/>
+                                    </h:outputText>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:calendar value="#{resolucion.fecha}" inputStyleClass="maxsize" pattern="yyyy-MM-dd" navigator="true"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column style="width:6rem">
+                            <p:rowEditor editTitle="Editar Resolución" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <p:column headerText="Activo" style="text-align: center;"  >
+                            <p:selectBooleanCheckbox id="deles" value="#{resolucion.activo}"  itemLabel="#{resolucion.activo?'ACTIVO':'INACTIVO'}" >
+                                <p:ajax update="allform:tablaDeResoluciones" listener="#{configuracionBean.enableResolucion(resolucion)}"/>
+                            </p:selectBooleanCheckbox>
+                        </p:column>
+
+                        <p:column style="width:5rem">
+                            <p:commandLink class="link_remove" actionListener="#{configuracionBean.eliminarResolucion}"
+                                           update="allform:tablaDeResoluciones mensajes" title="Eliminar Resolución Certificado" process="@this" >
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA RESOLUCIÓN #{resolucion.resolucion}?"/> 
+                            </p:commandLink>
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="NUEVA RESOLUCIÓN - CERTIFICADO" class="btn_peque" action="#{configuracionBean.onAddNewResolucion}" 
+                                     process="@this"  oncomplete="PF('tablaDeResoluciones').addRow();" update="mensajes"/>
+                </p:panel>
+                <p:panel class="panelDelegac" >
+                    <p:outputLabel value="RESOLUCIONES - NOTIFICACIÓN" style="font-size: 14px !important;"/>
+                    <p:dataTable id="tablaDeResolucionesNot" var="resolucionot"
+                                 value="#{configuracionBean.resolucionesNotificacion}" widgetVar="tablaDeResolucionesNot"
+                                 emptyMessage="No hay Datos para mostrar"                                              
+                                 binding="#{configuracionBean.resolucionNotDataTable}"                                 
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="20"
+                                 rowsPerPageTemplate="20,50,100,150,200,250,300"
+                                 style="border: black !important" 
+                                 rowKey="#{resolucionot.id}"
+                                 editable="true">
+
+                        <p:ajax event="rowEdit" listener="#{configuracionBean.onRowEditResolucion}" update="mensajes"/>
+                        <p:ajax event="rowEditCancel" listener="#{configuracionBean.onRowCancelResolucion}" update="mensajes"/>
+
+                        <p:column headerText="Resolución" style="text-align: center; width: 45%"  >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{resolucionot.resolucion}"/>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:inputText value="#{resolucionot.resolucion}" style="width:100%"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column headerText="Fecha" style="text-align: center;" >
+                            <p:cellEditor>
+                                <f:facet name="output">
+                                    <h:outputText value="#{resolucionot.fecha}" >
+                                        <f:convertDateTime pattern="yyyy-MM-dd"/>
+                                    </h:outputText>
+                                </f:facet>
+                                <f:facet name="input">
+                                    <p:calendar value="#{resolucionot.fecha}" inputStyleClass="maxsize" pattern="yyyy-MM-dd" navigator="true"/>
+                                </f:facet>
+                            </p:cellEditor>
+                        </p:column>
+
+                        <p:column style="width:6rem">
+                            <p:rowEditor editTitle="Editar Resolución" cancelTitle="Cancelar" saveTitle="Guardar Cambios"/>
+                        </p:column>
+
+                        <p:column headerText="Activo" style="text-align: center;"  >
+                            <p:selectBooleanCheckbox id="deles" value="#{resolucionot.activo}"  itemLabel="#{resolucionot.activo?'ACTIVO':'INACTIVO'}" >
+                                <p:ajax update="allform:tablaDeResolucionesNot" listener="#{configuracionBean.enableResolucionNotificacion(resolucionot)}"/>
+                            </p:selectBooleanCheckbox>
+                        </p:column>
+
+                        <p:column style="width:5rem">
+                            <p:commandLink class="link_remove" actionListener="#{configuracionBean.eliminarResolucionNotificacion}"
+                                           update="allform:tablaDeResolucionesNot mensajes" title="Eliminar Resolución-Notificación" process="@this" >
+                                <i id="delete_action" class="material-icons md-18">delete</i>
+                                <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA RESOLUCIÓN-NOTIFICACIÓN #{resolucionot.resolucion}?"/> 
+                            </p:commandLink>
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="NUEVA RESOLUCIÓN - NOTIFICACIÓN" class="btn_peque" action="#{configuracionBean.onAddNewResolucionNotificacion}" 
+                                     process="@this"  oncomplete="PF('tablaDeResolucionesNot').addRow();" update="mensajes"/>
+                </p:panel>
+
+            </h:panelGrid>                                    
+
+            <p:dialog id="dlgRazon" modal="true" resizable="true"
+                      header="RAZONES PARA CORRECCIÓN" fitViewport="true" width="60%"
+                      widgetVar="dlgRazon" style="font-size: 11px; margin-bottom: 10px;" showEffect="explode" 
+                      hideEffect="explode" closeOnEscape="true" >
+                <p:ajax event="close" update="dlgRazon" resetValues="true" />
+                <p:growl id="sdocreg" life="1000"/>
+                <h:form id="frmRazon" style="text-align: center !important; margin: 0 auto !important">
+                    <p:panelGrid columns="2" style="width: 100%" columnClasses="twenty-percent, seventy-percent">
+                        <p:outputLabel value="Tipo Modificación: " for="tmod"/>
+                        <p:selectOneMenu id="tmod" value="#{configuracionBean.razon.tipoModificacion}" class="maxsize" required="true">
+                            <f:selectItem itemLabel="Seleccione una opción" itemValue="" noSelectionOption="true"/>
+                            <f:selectItems value="#{configuracionBean.tiposModificacion}"/>
+                        </p:selectOneMenu>
+
+                        <p:outputLabel value="Suscriptor:" for="susc"/>
+                        <p:inputText id="susc" value="#{configuracionBean.razon.suscriptor}" class="maxsize" required="true"/>
+
+                        <p:outputLabel value="Denominación Suscriptor:" for="dens"/>
+                        <p:inputText id="dens" value="#{configuracionBean.razon.denominacion}" class="maxsize" required="true"/>
+
+                        <p:outputLabel value="Números de Trámite:" for="trams"/>
+                        <p:inputTextarea id="trams" value="#{configuracionBean.razon.tramites}" required="true"
+                                         placeholder="Ej: SENADI-2023-123,SENADI-2023-124,SENADI-2023-125,SENADI-2023-126" class="maxsize"/>
+
+                        <p:outputLabel value="Razón:" for="raz"/>
+                        <p:inputTextarea id="raz" value="#{configuracionBean.razon.razon}" class="maxsize" required="true"/>                                                                        
+                    </p:panelGrid>
+                    <br/>
+                    <p:commandButton value="CERRAR" onclick="PF('dlgRazon').hide();" style="float: right" class="btn_cerrar"/>
+                    <p:commandButton actionListener="#{configuracionBean.ejecutarRazon}" value="ACEPTAR" style="float: right" class="btn_buscar"
+                                     update="mensajes" process="@form" 
+                                     oncomplete="reportes(args);if(args.doit){PF('dlgRazon').hide();}" >
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE GENERAR LOS DOCUMENTOS SOLICITADOS?"/> 
+                    </p:commandButton>
+                </h:form>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="explode" hideEffect="explode" style="white-space: pre; ">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes btn_peque" update="allform:tablaDeDelegaos"/>
+                <p:commandButton value="No" type="button"  styleClass="ui-confirmdialog-no btn_peque" />
+            </p:confirmDialog>
+            <br/>
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage name="/images/ajax-loader.gif" />
+            </p:dialog>
+        </h:form>
+
+        <div id="footer"></div>
+
+        <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
+            <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
+                    oncomplete="PF('idleDialog').show()" />
+        </p:idleMonitor>
+        <p:dialog header="Sesión Caducada" resizable="false"
+                  widgetVar="idleDialog" modal="true" closable="false" style="font-size: 12px">
+            <h:form id="sesionCaducaForm">
+                <div class="titlePage">
+                    <h:outputText value="Sesión Caducada " />
+                    <p:commandButton styleClass="nav-link js-scroll-trigger"
+                                     actionListener="#{loginBean.logout}"
+                                     oncomplete="logout(xhr, status, args)"
+                                     value="ACEPTAR" immediate="true" style="font-size: 12px"/>
+                </div>
+            </h:form>
+        </p:dialog>
+
+
+        <!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+
+        <!-- <script src="resources/assets/js/headroom.min.js"></script>
+        <script src="resources/assets/js/jQuery.headroom.min.js"></script>
+        <script src="resources/assets/js/template.js"></script> -->
+
+
+    </h:body>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('body').addClass('loaded');
+                $('h1').css('color', '#222222');
+                $("#footer").load("footer.html");
+            }, 150);
+
+            $("#menuside").load("menusidebar.html");
+        });
+
+        function reportes(args){
+            if(args.tipo == 'transfer'){
+                popupwindow('reportes', '_self', args);
+            }else if(args.tipo == 'cambion'){
+                popupwindow('cambionombrep', '_self', args);
+            }else if(args.tipo == 'licur'){
+                popupwindow('licenciausor', '_self', args);
+            }else if(args.tipo == 'cambd'){
+                popupwindow('cambiodomiciliop', '_self', args);
+            }else if(args.tipo == 'prendc'){
+                popupwindow('prendacomercialr', '_self', args);
+            }else{
+                popupwindow('sublicusor', '_self', args);
+            }
+        }
+
+
+        function getIdIndex(idName) {
+            var doc = document.forms['allform'];
+            var i;
+            var idResult = 0;
+            for (i = 0; doc.length > i; i++) {
+                if (doc[i].id.includes(idName)) {
+                    idResult = i;
+                    console.log(doc[i].id);
+                    break;
+                }
+            }
+            return idResult;
+        }
+
+        //<![CDATA[
+        function popupwindow(url, title, args) {
+            if (args.doit) {
+                window.open(url, title);
+            }
+        }
+        function otherpage(url, status, args) {
+            setTimeout(function () {
+                window.location = url;
+            }, 500);
+        }
+        function logout(xhr, status, args) {
+            setTimeout(function () {
+                window.location = 'login.xhtml';
+            }, 500);
+        }
+        //]]>
+    </script>
+</html>

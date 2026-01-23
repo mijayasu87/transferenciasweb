@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="transferenciaPU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:/jboss/datasources/transferencia_prod</jta-data-source>
+    <class>senadi.gob.ec.transfweb.model.Caducada</class>
+    <class>senadi.gob.ec.transfweb.model.Desistimiento</class>
+    <class>senadi.gob.ec.transfweb.model.Notificacion</class>
+    <class>senadi.gob.ec.transfweb.model.Transferencia</class>
+    <class>senadi.gob.ec.transfweb.model.Usuario</class>
+    <class>senadi.gob.ec.transfweb.model.Historial</class>
+    <class>senadi.gob.ec.transfweb.model.Delegado</class>
+    <class>senadi.gob.ec.transfweb.model.Delegacion</class>
+    <class>senadi.gob.ec.transfweb.model.Resolucion</class>
+    <class>senadi.gob.ec.transfweb.model.Rooptions</class>
+    <class>senadi.gob.ec.transfweb.model.UploadNotificacion</class>
+    <class>senadi.gob.ec.transfweb.model.cn.CambioNombre</class>
+    <class>senadi.gob.ec.transfweb.model.cd.CambioDomicilio</class>
+    <class>senadi.gob.ec.transfweb.model.prenda.PrendaComercial</class>
+    <class>senadi.gob.ec.transfweb.model.licencia.LicenciaUso</class>
+    <class>senadi.gob.ec.transfweb.model.licencia.SubLicenciaUso</class>
+    <class>senadi.gob.ec.transfweb.model.TituloCancelado</class>
+    <class>senadi.gob.ec.transfweb.model.CambioCasillero</class>
+    <class>senadi.gob.ec.transfweb.model.Abandono</class>
+    <class>senadi.gob.ec.transfweb.model.ModificationScope</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties/>
+  </persistence-unit>
+  <persistence-unit name="renovacionPU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:/jboss/datasources/modificacion_prod</jta-data-source>
+    <class>senadi.gob.ec.transfweb.renova.model.CaducadaRen</class>
+    <class>senadi.gob.ec.transfweb.renova.model.Desistida</class>
+    <class>senadi.gob.ec.transfweb.renova.model.Notificada</class>
+    <class>senadi.gob.ec.transfweb.renova.model.Renovacion</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties/>
+  </persistence-unit>
+  <persistence-unit name="modpatentePU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:/jboss/datasources/modificacion_patentes_prod</jta-data-source>
+    <class>senadi.gob.ec.transfweb.modpat.TransferenciaPat</class>
+    <class>senadi.gob.ec.transfweb.modpat.CambioNombrePat</class>
+    <class>senadi.gob.ec.transfweb.modpat.HistorialPat</class>
+    <class>senadi.gob.ec.transfweb.modpat.CambioDomicilioPat</class>
+    <class>senadi.gob.ec.transfweb.modpat.LicenciaUsoPat</class>
+    <class>senadi.gob.ec.transfweb.modpat.SubLicenciaUsoPat</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties/>
+  </persistence-unit>
+  <persistence-unit name="procesosPU" transaction-type="JTA">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <jta-data-source>java:/jboss/datasources/iepi3</jta-data-source>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiSolicitudModificacion</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiPersonaSolicitudSignoDistintivo</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiTituloSignoDistintivo</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiPersona</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiSolicitudSignoDistintivo</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiResolucion</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiTituloPatente</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiSolicitudPatente</class>
+    <class>senadi.gob.ec.transfweb.modelp.PpdiTipoDerecho</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties/>
+  </persistence-unit>
+</persistence>

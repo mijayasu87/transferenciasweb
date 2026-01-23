@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
+	<property name="ireport.zoom" value="1.464100000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="id" class="java.lang.Integer"/>
+	<parameter name="resol_label" class="java.lang.String"/>
+	<parameter name="delegado" class="java.lang.String"/>
+	<parameter name="delegacion" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[Select * from desistimiento where id = $P{id}]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="solicitud" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_solicitud" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="resolucion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_resolucion" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="titulo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_titulo" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_vencimiento" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="denominacion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="signo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="titular_anterior" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="titular_actual" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="abogado_patrocinador" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="casillero_senadi" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="casillero_judicial" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="email" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ro" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r1" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r2" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r3" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r4" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r5" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r6" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r7" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="r8" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="responsable" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="identificacion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="etiqueta" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="comprobante" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="titulo_r" class="java.lang.String">
+		<variableExpression><![CDATA["Resolución No. "+$F{resolucion}+" - "+(new java.util.Date().getYear() + 1900)+" - SENADI"]]></variableExpression>
+	</variable>
+	<variable name="no_solicitud" class="java.lang.String">
+		<variableExpression><![CDATA[$F{solicitud}+", de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_solicitud})]]></variableExpression>
+	</variable>
+	<variable name="parrafo1" class="java.lang.String">
+		<variableExpression><![CDATA["<style isBold='true' pdfFontName='Helvetica-Bold'>SERVICIO NACIONAL DE DERECHOS INTELECTUALES - SENADI, DIRECCIÓN TÉCNICA DE MODIFICACIONES AL REGISTRO.-</style>"+
+" Quito, D.M., "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy', a las 'HH':'mm").format(new Date())+".- Vistos: Que, "+$F{titular_actual}.replace("&","&amp;")+", "+
+"mediante escrito ingresado con fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_resolucion})+", en el cual se solicita el "+
+"desistimiento de la solicitud de transferencia No. "+$F{solicitud}+", presentada el "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_solicitud})+
+", relacionada a un "+$F{signo}+", con registro originario No. "+$F{titulo}+", de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_titulo})+
+", con denominación "+$F{denominacion}+". En lo principal, esta Dirección, en ejercicio de la facultad atribuida por la Dirección Nacional de Propiedad Industrial "+
+"mediante Acción de Personal "+$P{resol_label}+", y conforme a lo dispuesto en el artículo 211 del Código Orgánico Administrativo COA; "+
+"<style isBold='true' pdfFontName='Helvetica-Bold'>RESUELVE: </style> Aceptar el desistimiento de la solicitud de transferencia "+$F{solicitud}+", presentada el "+
+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_solicitud})+", relacionada a un "+$F{signo}+" con registro originario No. "+$F{titulo}+", "+
+"de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_titulo})+"; y, ordenar del expediente, conformado para el efecto.- "+
+"<style isBold='true' pdfFontName='Helvetica-Bold'>NOTIFÍQUESE Y ARCHÍVESE.-</style>"]]></variableExpression>
+	</variable>
+	<variable name="parrafo2" class="java.lang.String">
+		<variableExpression><![CDATA["<style isBold='true' pdfFontName='Helvetica-Bold'>RAZÓN:</style> Siento por tal que el día de hoy "+
+"<style isBold='true' pdfFontName='Helvetica-Bold'>"+new SimpleDateFormat("dd 'de' MMMM 'de' yyyy").format(new Date())+"</style>, "+
+"se notificó con la resolución que antecede a <style isBold='true' pdfFontName='Helvetica-Bold'>"+$F{titular_actual}.replace("&","&amp;")+"</style>, "+
+"mediante boleta depositada en la casilla electrónica SENADI No. <style isBold='true' pdfFontName='Helvetica-Bold'>"+$F{casillero_senadi}+"</style>, "+
+"Lo que certifico, en virtud de la delegación de la Directora de Gestión Institucional conferida mnediante Resolución "+$P{resol_label}+"."]]></variableExpression>
+	</variable>
+	<variable name="registro_titulo" class="java.lang.String">
+		<variableExpression><![CDATA[$F{titulo}+" de "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_titulo})]]></variableExpression>
+	</variable>
+	<background>
+		<band height="802" splitType="Stretch">
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+				<reportElement x="-19" y="-20" width="595" height="822" uuid="2a414a1f-7d19-478e-937d-890175e16e10"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "background.png"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="363" y="570" width="156" height="132" uuid="4df19d99-a75a-43fa-98b8-4fcb78b16cfa"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band height="40" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="21"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="3" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="645" splitType="Stretch">
+			<textField>
+				<reportElement x="42" y="102" width="477" height="324" uuid="980bb540-d643-497b-a245-955c2d72d18a"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font size="12" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{parrafo1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="412" width="555" height="20" uuid="8aaf1c6b-d3cd-4996-b4a6-96856dee7d82"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{delegado}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="428" width="555" height="20" uuid="3dcfd02b-9525-4461-92f2-c05523aec2aa"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{delegacion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="42" y="464" width="477" height="95" uuid="67682ddc-dc21-425c-bba8-d49eb4df490a"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font size="12"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{parrafo2}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="604" width="555" height="20" uuid="034aa88d-d939-4d82-845d-268745c8fdc9"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Abg. Mateo Rodríguez]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="620" width="555" height="20" uuid="1149f76f-042b-4415-90e9-50f338afc57e"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DELEGADA PARA LAS ATRIBUCIONES DE LA GESTIÓN DE ARCHIVO]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="42" y="10" width="513" height="20" uuid="15fadfa5-21ca-43b9-b513-3bf7d0633cef"/>
+				<textElement textAlignment="Justified">
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{titulo_r}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="141" y="30" width="414" height="20" uuid="d31d39ce-3eec-4462-87f2-7694ceec9a87"/>
+				<textElement textAlignment="Justified">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{no_solicitud}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="42" y="30" width="109" height="20" uuid="564c5c99-ad6c-4d52-a5bf-4342c94eea01"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Solicitud:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="42" y="50" width="109" height="20" uuid="4493769a-a572-4c3a-b259-b8de568a55ea"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Denominación:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="141" y="50" width="414" height="20" uuid="b967bac1-70bb-4d1a-b47e-1fe486ccdb26"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{denominacion}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="42" y="70" width="109" height="20" uuid="dad95509-9daa-4727-9018-5ee539fa3fe1"/>
+				<textElement>
+					<font size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Registro:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="141" y="70" width="414" height="20" uuid="039f6f5f-e801-4464-802b-7d53e60ffb6e"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{registro_titulo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="12" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="7" splitType="Stretch"/>
+	</summary>
+</jasperReport>
