@@ -425,6 +425,7 @@ public class NotificacionBean implements Serializable {
                         transferencia.setCertificadoEmitido(notificacion.isCertificadoEmitido());
                         transferencia.setNotificacionEmitida(notificacion.isNotificacionEmitida());
                         transferencia.setCancelado(notificacion.getCancelado());
+                        transferencia.setSolicitante(notificacion.getSolicitante());
 
                         if (c.validarExistenciaTransferencia(transferencia.getSolicitud())) {
                             PrimeFaces.current().ajax().addCallbackParam("saved", false);
@@ -471,6 +472,7 @@ public class NotificacionBean implements Serializable {
                         desist.setIdentificacion(notificacion.getIdentificacion());
                         desist.setComprobante(notificacion.getComprobante());
                         desist.setCancelado(notificacion.getCancelado());
+                        desist.setSolicitante(notificacion.getSolicitante());
 
                         if (c.validarExistenciaDesistimiento(desist.getSolicitud())) {
                             PrimeFaces.current().ajax().addCallbackParam("saved", false);
@@ -518,6 +520,7 @@ public class NotificacionBean implements Serializable {
                         caducada.setIdentificacion(notificacion.getIdentificacion());
                         caducada.setComprobante(notificacion.getComprobante());
                         caducada.setCancelado(notificacion.getCancelado());
+                        caducada.setSolicitante(notificacion.getSolicitante());
 
                         if (c.validarExistenciaCaducada(caducada.getSolicitud())) {
                             PrimeFaces.current().ajax().addCallbackParam("saved", false);

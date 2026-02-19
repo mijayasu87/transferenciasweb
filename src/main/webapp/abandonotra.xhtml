@@ -191,7 +191,7 @@ and open the template in the editor.
                             <h:outputText value="#{abandono.casilleroSenadi}" />
                         </p:column>
 
-                        <p:column headerText="Casillero Judicial" style="text-align: center;"  visible="false" >
+                        <p:column headerText="RO" style="text-align: center;"  visible="false" >
                             <h:outputText value="#{abandono.casilleroJudicial}" />
                         </p:column>
                         <p:column headerText="T. Abandono" style="text-align: center;" filterBy="#{abandono.tipoAbandono}" >
@@ -287,7 +287,7 @@ and open the template in the editor.
                                      style="background: #FFCDD2 !important;" required="true" class="maxsize" disabled="#{abandonoBean.dialogTitle eq 'NUEVO ABANDONO'?true:false}">
                             <p:keyFilter mask="num" />
                         </p:inputText>
-                        
+
                         <p:outputLabel value="F. Abandono" for="fabandonoForm"/>                            
                         <p:calendar id="fabandonoForm"  value="#{abandonoBean.abandono.fechaAbandono}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"
@@ -300,10 +300,10 @@ and open the template in the editor.
                         <p:calendar id="fregistroForm"  value="#{abandonoBean.abandono.fechaRegistro}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"
                                     navigator="true"/>
-                        
+
                         <p:outputLabel value="Solicitante:" for="solicitanteForm"/>
                         <p:inputTextarea id="solicitanteForm" value="#{abandonoBean.abandono.solicitante}" title="Solicitante" required="true" class="maxsize"/>
-                        
+
                         <p:outputLabel value="Denominación:" for="denominacionForm"/>                            
                         <p:inputTextarea id="denominacionForm" value="#{abandonoBean.abandono.denominacion}" title="Denominación" 
                                          required="true" class="maxsize"/>
@@ -343,10 +343,7 @@ and open the template in the editor.
                             <p:commandButton icon="pi pi-search" class="btn_peque" actionListener="#{abandonoBean.buscarCasillero}" 
                                              rendered="#{abandonoBean.dialogTitle eq 'NUEVO ABANDONO'?false:true}" 
                                              process="@parent" update="casSenadiForm" style="width: 12%" title="BUSCAR CASILLERO"/>
-                        </p:panel>
-
-                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>                            
-                        <p:inputText id="casJudicialForm" value="#{abandonoBean.abandono.casilleroJudicial}" title="Casillero Judicial" class="maxsize"/>
+                        </p:panel>                       
 
                         <p:outputLabel value="Identificación:" for="identificacionForm"/>                            
                         <p:inputText id="identificacionForm" value="#{abandonoBean.abandono.identificacion}" title="Identificación" class="maxsize"/>
@@ -357,7 +354,7 @@ and open the template in the editor.
                         <p:outputLabel value="Responsable:" for="responsableForm"/>                            
                         <p:inputText id="responsableForm" value="#{abandonoBean.abandono.responsable}" title="Responsable" 
                                      class="maxsize" required="true"/>
-                        
+
                         <p:outputLabel value="Tipo Abandono:" for="tipoAbandono"/>
                         <p:selectOneMenu id="tipoAbandono" value="#{abandonoBean.abandono.tipoAbandono}" class="maxsize" 
                                          required="#{abandonoBean.saveEdit eq 'EDITAR' or abandonoBean.dialogTitle eq 'NUEVO ABANDONO'}">
@@ -367,17 +364,19 @@ and open the template in the editor.
                             <f:selectItem itemLabel="COA" itemValue="COA"/>
                         </p:selectOneMenu>
 
-                        <p:outputLabel value="Ro: " for="rofor"/>
+                        <p:outputLabel value="M. Notificación: " for="rofor"/>
                         <p:commandLink id="rofor" value="M. de Notificación" actionListener="#{abandonoBean.prepararShowRo}" update="allform:dlgRo"
                                        oncomplete="if(args.viewro){PF('dlgRo').show()};" process="@this" style="color: #0089ec"
-                                        disabled="#{abandonoBean.abandono.solicitud eq null? true:false}"/>
+                                       disabled="#{abandonoBean.abandono.solicitud eq null? true:false}"/>
 
                         <p:outputLabel value="Url: " style="float: right !important"/>
                         <p:commandLink value="Ruta Expediente" actionListener="#{abandonoBean.prepararExpediente}" process="@this"
                                        disabled="#{abandonoBean.abandono.solicitud eq null? true:false}" style="color: blue"
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
                     </p:panelGrid>
-
+                    <p:outputLabel value="RO:" for="roForm"/>                            
+                    <p:inputTextarea id="roForm" value="#{abandonoBean.abandono.ro}" title="RO" class="maxsize" required="true"/>
+                    <br/><br/>
                     <p:panelGrid id="guardarBtn" columns="2" class="panel-bottom">
                         <p:outputLabel value="PASAR A: " class="float-right"
                                        rendered="#{abandonoBean.dialogTitle eq 'NUEVO ABANDONO'?false:true}"/>
@@ -390,7 +389,7 @@ and open the template in the editor.
                     </p:panelGrid>
                     <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar float-right"/>
                     <p:commandButton value="#{abandonoBean.saveEdit}" actionListener="#{abandonoBean.guardarAbandono}"
-                                     update="mensajes allform:tablaDeDatos datosNuevaT"
+                                     update="mensajes allform:tablaDeDatos datosNuevaT frmNuevaT"
                                      oncomplete="if(args.saved){PF('dlgNuevaT').hide();}"
                                      process="@form" class="btn_buscar float-right">
                         <p:confirm header="Seguridad" message="#{abandonoBean.mensajeConfirmacion}" />

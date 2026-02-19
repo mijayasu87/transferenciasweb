@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
-	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.zoom" value="1.2100000000000029"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="288"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
 	<parameter name="nombrePersona" class="java.lang.String"/>
 	<parameter name="delegacion" class="java.lang.String"/>
@@ -135,7 +135,7 @@ GROUP BY
 "DIRECCIÓN TÉCNICA DE MODIFICACIONES AL REGISTRO.-</style> Quito, D.M., "+
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 ", a las 13h30.- \n\n"+
-"<style pdfFontName='Times-Bold'>ANTECEDENTES</style>"]]></variableExpression>
+"<style pdfFontName='Times-Bold'>ANTECEDENTES</style>\n\n"]]></variableExpression>
 	</variable>
 	<variable name="parrafo_2" class="java.lang.String">
 		<variableExpression><![CDATA["1. Con fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_presentacion})+",  "+$F{solicitante}+
@@ -205,7 +205,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 		<band height="22" splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-		<band height="210" splitType="Stretch">
+		<band height="165" splitType="Stretch">
 			<staticText>
 				<reportElement x="49" y="45" width="87" height="20" uuid="723396e7-2daa-425f-bb4b-ecc5b98de52f"/>
 				<textElement>
@@ -255,8 +255,8 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 				</textElement>
 				<textFieldExpression><![CDATA[$V{registro_n}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement x="49" y="142" width="480" height="68" uuid="5038c762-8915-419b-850c-1b6840f032ac"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="49" y="142" width="479" height="23" uuid="5038c762-8915-419b-850c-1b6840f032ac"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
@@ -277,27 +277,36 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 				<textFieldExpression><![CDATA[$F{solicitante}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="27">
+		<band height="17">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="49" y="0" width="479" height="27" uuid="ab7e5387-8cd5-4568-94c2-055d19eade42"/>
+				<reportElement x="49" y="0" width="479" height="17" uuid="ab7e5387-8cd5-4568-94c2-055d19eade42"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_2}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="29" splitType="Immediate">
+		<band height="17">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="49" y="0" width="479" height="17" uuid="db0e9efb-d0df-4a7f-b549-edcb7a7b5933"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ro}+"\n"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="19" splitType="Immediate">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="50" y="0" width="479" height="29" uuid="df3880b9-538b-4531-9489-c90697c8426b"/>
+				<reportElement x="49" y="0" width="479" height="19" uuid="df3880b9-538b-4531-9489-c90697c8426b"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_3}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="29" splitType="Prevent">
+		<band height="19" splitType="Prevent">
 			<textField isStretchWithOverflow="true">
-				<reportElement stretchType="RelativeToBandHeight" x="48" y="0" width="479" height="29" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
+				<reportElement stretchType="RelativeToBandHeight" x="49" y="0" width="479" height="19" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
@@ -373,7 +382,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 		<band height="10" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="13" splitType="Stretch"/>
+		<band height="51" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="7" splitType="Stretch"/>

@@ -733,20 +733,27 @@ public class AbandonoSubLicenciaBean implements Serializable {
                     if (abandonoaux.getTipoAbandono() != null && !abandonoaux.getTipoAbandono().trim().isEmpty()) {
                         if (abandonoaux.getSolicitante() != null && !abandonoaux.getSolicitante().trim().isEmpty()) {
                             if (abandonoaux.getRegistro() != null && !abandonoaux.getRegistro().trim().isEmpty()) {
-                                if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
-                                    List<Rooptions> roosaux = c.getRosBySolicitud(abandonoaux.getSolicitud());
-                                    if (roosaux.isEmpty()) {
-                                        band = false;
-                                        msj = "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN "+abandonoaux.getSolicitud();
-                                        break;
-                                    }
+                                if (abandonoaux.getRo() != null && !abandonoaux.getRo().trim().isEmpty()) {
+                                    if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
+                                        List<Rooptions> roosaux = c.getRosBySolicitud(abandonoaux.getSolicitud());
+                                        if (roosaux.isEmpty()) {
+                                            band = false;
+                                            msj = "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN " + abandonoaux.getSolicitud();
+                                            break;
+                                        }
 
+                                    } else {
+                                        band = false;
+                                        msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
+                                        break;
+
+                                    }
                                 } else {
                                     band = false;
-                                    msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
+                                    msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE RO";
                                     break;
-
                                 }
+
                             } else {
                                 band = false;
                                 msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE NÚMERO DE REGISTRO";
@@ -920,23 +927,26 @@ public class AbandonoSubLicenciaBean implements Serializable {
             if (abandono.getTipoAbandono() != null && !abandono.getTipoAbandono().trim().isEmpty()) {
                 if (abandono.getSolicitante() != null && !abandono.getSolicitante().trim().isEmpty()) {
                     if (abandono.getRegistro() != null && !abandono.getRegistro().trim().isEmpty()) {
-                        if (Operaciones.validarFecha(abandono.getFechaRegistro())) {
-                            Controlador c = new Controlador();
-                            List<Rooptions> roosaux = c.getRosBySolicitud(abandono.getSolicitud());
-                            if (roosaux.isEmpty()) {
-                                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN");
+                        if (abandono.getRegistro() != null && !abandono.getRegistro().trim().isEmpty()) {
+                            if (Operaciones.validarFecha(abandono.getFechaRegistro())) {
+                                Controlador c = new Controlador();
+                                List<Rooptions> roosaux = c.getRosBySolicitud(abandono.getSolicitud());
+                                if (roosaux.isEmpty()) {
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN");
+                                } else {
+                                    loginBean.setSublicencia(abandono);
+                                    loginBean.setVarious(false);
+                                    System.out.println("envía abandono licencia descargar");
+                                    PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "ABANDONO PREPARADO PARA DESCARGA");
+                                }
+
                             } else {
-                                loginBean.setSublicencia(abandono);
-                                loginBean.setVarious(false);
-                                System.out.println("envía abandono licencia descargar");
-                                PrimeFaces.current().ajax().addCallbackParam("doit", true);
-                                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "ABANDONO PREPARADO PARA DESCARGA");
+                                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE FECHA DE REGISTRO");
                             }
-
                         } else {
-                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE FECHA DE REGISTRO");
+                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE RO");
                         }
-
                     } else {
                         msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE NÚMERO DE REGISTRO");
                     }

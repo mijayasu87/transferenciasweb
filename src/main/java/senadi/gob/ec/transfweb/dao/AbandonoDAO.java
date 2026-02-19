@@ -197,6 +197,6 @@ public class AbandonoDAO extends DAOAbstract<Abandono> {
         query.setParameter("tipo", type);
         query.setParameter("fechaLimite", fechaLimiteDate);
         return query.getResultList();
-    }    
+    }
 
 }

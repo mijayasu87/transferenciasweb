@@ -387,6 +387,8 @@ public class AbandonoBean implements Serializable {
                         notificacion.setCertificadoEmitido(abandono.isCertificadoEmitido());
                         notificacion.setNotificacionEmitida(abandono.isNotificacionEmitida());
                         notificacion.setCancelado(abandono.getCancelado());
+                        notificacion.setFechaPuestaAbandono(null);
+                        notificacion.setTipoAbandono(null);
 
                         if (c.validarExistenciaNotificacion(abandono.getSolicitud())) {
                             PrimeFaces.current().ajax().addCallbackParam("saved", false);
@@ -489,22 +491,25 @@ public class AbandonoBean implements Serializable {
         if (abandono != null && abandono.getId() != null) {
             if (abandono.getSolicitante() != null && !abandono.getSolicitante().trim().isEmpty()) {
                 if (abandono.getRegistro() != null && !abandono.getRegistro().trim().isEmpty()) {
-                    if (Operaciones.validarFecha(abandono.getFechaRegistro())) {
-                        Controlador c = new Controlador();
-                        List<Rooptions> roosaux = c.getRosBySolicitud(abandono.getSolicitud());
-                        if (roosaux.isEmpty()) {
-                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN");
+                    if (abandono.getRo() != null && !abandono.getRo().trim().isEmpty()) {
+                        if (Operaciones.validarFecha(abandono.getFechaRegistro())) {
+                            Controlador c = new Controlador();
+                            List<Rooptions> roosaux = c.getRosBySolicitud(abandono.getSolicitud());
+                            if (roosaux.isEmpty()) {
+                                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN");
+                            } else {
+                                loginBean.setAbandono(abandono);
+                                loginBean.setVarious(false);
+                                System.out.println("envía abandono descargar");
+                                PrimeFaces.current().ajax().addCallbackParam("doit", true);
+                                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "ABANDONO PREPARADO PARA DESCARGA");
+                            }
                         } else {
-                            loginBean.setAbandono(abandono);
-                            loginBean.setVarious(false);
-                            System.out.println("envía abandono descargar");
-                            PrimeFaces.current().ajax().addCallbackParam("doit", true);
-                            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "ABANDONO PREPARADO PARA DESCARGA");
+                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE FECHA DE REGISTRO");
                         }
                     } else {
-                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE FECHA DE REGISTRO");
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE RO");
                     }
-
                 } else {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL ABANDONO " + abandono.getSolicitud() + " NO POSEE NÚMERO DE REGISTRO");
                 }
@@ -532,7 +537,8 @@ public class AbandonoBean implements Serializable {
                 if (abandonoaux != null && abandonoaux.getId() != null) {
                     if (abandonoaux.getSolicitante() != null && !abandonoaux.getSolicitante().trim().isEmpty()) {
                         if (abandonoaux.getRegistro() != null && !abandonoaux.getRegistro().trim().isEmpty()) {
-                            if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
+                            if (abandonoaux.getRo() != null && !abandonoaux.getRo().trim().isEmpty()) {
+                                if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
                                     List<Rooptions> roosaux = c.getRosBySolicitud(abandonoaux.getSolicitud());
                                     if (roosaux.isEmpty()) {
                                         flag = false;
@@ -540,11 +546,17 @@ public class AbandonoBean implements Serializable {
                                         break;
                                     }
 
+                                } else {
+                                    flag = false;
+                                    msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
+                                    break;
+                                }
                             } else {
                                 flag = false;
-                                msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
+                                msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE RO";
                                 break;
                             }
+
                         } else {
                             flag = false;
                             msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE NÚMERO DE REGISTRO";

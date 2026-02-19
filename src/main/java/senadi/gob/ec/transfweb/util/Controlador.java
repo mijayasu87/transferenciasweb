@@ -3067,7 +3067,9 @@ public class Controlador {
         }
     }
 
-    ///////////// SECCIÓN DEL SCHEDULER PARA ABANDONOS ////////////////////
+    ///////////// SECCIÓN DEL SCHEDULER PARA ABANDONOS ///////////////////
+    /// @param dias/
+    /// @return 
     public List<Notificacion> getAbandonosErjafeVencidos(int dias) {
         AbandonoDAO ad = new AbandonoDAO(null);
         return ad.getAbandonosErjafeVencidos(dias);

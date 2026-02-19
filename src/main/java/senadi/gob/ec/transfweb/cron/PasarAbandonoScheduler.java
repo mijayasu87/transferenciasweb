@@ -44,7 +44,7 @@ public class PasarAbandonoScheduler {
         createAbandonosLicenciaUso(erjafe, coa, reglamento);
         createAbandonosSubLicenciaUso(erjafe, coa, reglamento);
     }
-    
+
     public void createAbandonosSubLicenciaUso(int erjafe, int coa, int reglamento) {
         Controlador c = new Controlador();
         List<SubLicenciaUso> cambios = c.getAbandonosSublicErjafeVencidos(erjafe);
@@ -54,7 +54,7 @@ public class PasarAbandonoScheduler {
         cambios = c.getAbandonosSublicSinFinesSemana(reglamento, "REGLAMENTO");
         createAbandonosSubLicencia(cambios, "REGLAMENTO");
     }
-    
+
     public void createAbandonosLicenciaUso(int erjafe, int coa, int reglamento) {
         Controlador c = new Controlador();
         List<LicenciaUso> cambios = c.getAbandonosLicenciaErjafeVencidos(erjafe);
@@ -64,7 +64,7 @@ public class PasarAbandonoScheduler {
         cambios = c.getAbandonosLicenciaSinFinesSemana(reglamento, "REGLAMENTO");
         createAbandonosLicencia(cambios, "REGLAMENTO");
     }
-    
+
     public void createAbandonosPrendaComercial(int erjafe, int coa, int reglamento) {
         Controlador c = new Controlador();
         List<PrendaComercial> cambios = c.getAbandonosPrendaErjafeVencidos(erjafe);
@@ -140,7 +140,7 @@ public class PasarAbandonoScheduler {
             }
         }
     }
-    
+
     public void createAbandonosPrenda(List<PrendaComercial> notificaciones, String type) {
         Controlador c = new Controlador();
         int n = 0;
@@ -158,7 +158,7 @@ public class PasarAbandonoScheduler {
             }
         }
     }
-    
+
     public void createAbandonosLicencia(List<LicenciaUso> notificaciones, String type) {
         Controlador c = new Controlador();
         int n = 0;
@@ -176,7 +176,7 @@ public class PasarAbandonoScheduler {
             }
         }
     }
-    
+
     public void createAbandonosSubLicencia(List<SubLicenciaUso> notificaciones, String type) {
         Controlador c = new Controlador();
         int n = 0;
@@ -227,6 +227,7 @@ public class PasarAbandonoScheduler {
             abandono.setComprobante(notaux.getComprobante());
             abandono.setCertificadoEmitido(notaux.isCertificadoEmitido());
             abandono.setNotificacionEmitida(notaux.isNotificacionEmitida());
+            abandono.setSolicitante(notaux.getSolicitante());
             abandono.setCancelado(notaux.getCancelado());
 
             abandono.setTipoAbandono(type);

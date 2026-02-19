@@ -106,6 +106,9 @@ public class Desistimiento implements Serializable {
     
     @Column(name = "cancelado")
     private String cancelado;
+    
+    @Column(name = "solicitante")
+    private String solicitante;
 
     /**
      * @return the id
@@ -539,5 +542,19 @@ public class Desistimiento implements Serializable {
      */
     public void setCancelado(String cancelado) {
         this.cancelado = cancelado;
+    }
+
+    /**
+     * @return the solicitante
+     */
+    public String getSolicitante() {
+        return solicitante;
+    }
+
+    /**
+     * @param solicitante the solicitante to set
+     */
+    public void setSolicitante(String solicitante) {
+        this.solicitante = solicitante;
     }
 }

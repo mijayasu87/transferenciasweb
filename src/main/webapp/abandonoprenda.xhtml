@@ -169,7 +169,7 @@ and open the template in the editor.
                         <p:column  headerText="Notificación" style="text-align: center;" filterBy="#{abandono.notificacion}" >                            
                             <h:outputText value="#{abandono.notificacion}"/>
                         </p:column>    
-                        
+
                         <p:column headerText="F. Notificacion" style="text-align: center;" filterBy="#{abandono.fechaNotificacion}" >
                             <h:outputText value="#{abandono.fechaNotificacion}" >
                                 <f:convertDateTime pattern="yyyy-MM-dd" />
@@ -338,21 +338,21 @@ and open the template in the editor.
                                      disabled="#{abandonoprendaBean.dialogTitle eq 'NUEVO ABANDONO PRENDA COMERCIAL'?true:false}">
                             <p:keyFilter mask="num" />
                         </p:inputText>
-                        
+
                         <p:outputLabel value="F. Abandono:" for="fabaForm"/>
                         <p:calendar id="fabaForm"  value="#{abandonoprendaBean.abandono.fechaAbandono}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Notificación" inputStyleClass="maxsize"/>
-                        
+
                         <p:outputLabel value="Solicitante:" for="solicitanteForm"/>                            
                         <p:inputTextarea id="solicitanteForm" value="#{abandonoprendaBean.abandono.solicitante}" 
                                          title="Solicitante" required="true" class="maxsize"/>
-                        
+
                         <p:outputLabel value="Notificación:" for="notificacionForm"/>
                         <p:inputText id="notificacionForm" value="#{abandonoprendaBean.abandono.notificacion}" title="Notificación" 
                                      required="true" class="maxsize">
                             <p:keyFilter mask="num" />
                         </p:inputText>
-                        
+
                         <p:outputLabel value="F. Notificación:" for="fnotForm"/>
                         <p:calendar id="fnotForm"  value="#{abandonoprendaBean.abandono.fechaNotificacion}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Notificación" inputStyleClass="maxsize"/>
@@ -393,10 +393,7 @@ and open the template in the editor.
                             <p:commandButton icon="pi pi-search" class="btn_peque" actionListener="#{abandonoprendaBean.buscarCasillero}" 
                                              rendered="#{abandonoprendaBean.dialogTitle eq 'NUEVO ABANDONO PRENDA COMERCIAL'?false:true}" 
                                              process="@parent" update="casSenadiForm" style="width: 12%" title="BUSCAR CASILLERO"/>
-                        </p:panel>
-
-                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>                            
-                        <p:inputText id="casJudicialForm" value="#{abandonoprendaBean.abandono.casilleroJudicial}" title="Casillero Judicial" class="maxsize"/>
+                        </p:panel>                        
 
                         <p:outputLabel value="Identificación:" for="identificacionForm"/>                            
                         <p:inputText id="identificacionForm" value="#{abandonoprendaBean.abandono.identificacion}" title="Identificación" class="maxsize"/>
@@ -407,7 +404,7 @@ and open the template in the editor.
                         <p:outputLabel value="Responsable:" for="responsableForm"/>                            
                         <p:inputText id="responsableForm" value="#{abandonoprendaBean.abandono.responsable}" title="Responsable" 
                                      class="maxsize" required="true" />
-                        
+
                         <p:outputLabel value="Tipo Abandono:" for="tipoAbandono"/>
                         <p:selectOneMenu id="tipoAbandono" value="#{abandonoprendaBean.abandono.tipoAbandono}" class="maxsize" 
                                          required="#{(abandonoprendaBean.saveEdit eq 'EDITAR') or (abandonoprendaBean.dialogTitle eq 'NUEVO ABANDONO PRENDA COMERCIAL')}">
@@ -417,7 +414,7 @@ and open the template in the editor.
                             <f:selectItem itemLabel="COA" itemValue="COA"/>
                         </p:selectOneMenu>                                                
 
-                        <p:outputLabel value="Ro: " for="rofor"/>                        
+                        <p:outputLabel value="M. Notificación " for="rofor"/>                        
                         <p:commandLink id="rofor" value="M. de Notificación" actionListener="#{abandonoprendaBean.prepararShowRo}" update="allform:dlgRo mensajes"
                                        oncomplete="if(args.viewro){PF('dlgRo').show()};" process="@this" style="color: #0089ec"/>
 
@@ -427,7 +424,9 @@ and open the template in the editor.
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
 
                     </p:panelGrid>
-
+                    <p:outputLabel value="RO:" for="roForm"/>                            
+                    <p:inputTextarea id="roForm" value="#{abandonoprendaBean.abandono.ro}" title="RO" class="maxsize" required="true"/>
+                    <br/><br/>
                     <p:panelGrid id="guardarBtn" columns="2" class="panel-bottom">
                         <p:outputLabel value="PASAR A: " class="float-right"
                                        rendered="#{abandonoprendaBean.dialogTitle eq 'NUEVO ABANDONO PRENDA COMERCIAL'?false:true}"/>
@@ -437,11 +436,11 @@ and open the template in the editor.
                             <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADAS"/>
                             <p:ajax event="itemSelect" update="mensajes frmNuevaT" listener="#{abandonoprendaBean.onTipoAbandonoSelectedListener}" />
                         </p:selectOneMenu>
-                        
+
                     </p:panelGrid>
                     <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar float-right"/>
                     <p:commandButton value="#{abandonoprendaBean.saveEdit}" actionListener="#{abandonoprendaBean.guardarAbandono}"
-                                     update="mensajes allform:tablaDeAbandonos datosNuevaT"
+                                     update="mensajes allform:tablaDeAbandonos datosNuevaT frmNuevaT"
                                      oncomplete="if(args.saved){PF('dlgNuevaT').hide();}"
                                      process="@form" class="btn_buscar float-right">
                         <p:confirm header="Seguridad" message="#{abandonoprendaBean.mensajeConfirmacion}" />

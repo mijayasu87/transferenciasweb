@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
-	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.zoom" value="1.2100000000000009"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="288"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
 	<parameter name="nombrePersona" class="java.lang.String"/>
 	<parameter name="delegacion" class="java.lang.String"/>
@@ -152,14 +152,25 @@ $F{notificacion}+", se solicitó "+$F{motivo}+"\n"]]></variableExpression>
 "en su Artículo 76 numeral 1 y 7 literal a, señala:\n\n"+
 "Art. 76.- “En todo proceso en el que se determinen derechos y obligaciones de cualquier orden, se asegurará el derecho al debido proceso (…).\n\n"+
 "<style pdfFontName='Times-Bold'>SEGUNDO.-</style> Que, de conformidad a lo que dispone La Constitución de la "+
-"República del Ecuador, en su Artículo 82, señala:\n\n"+
-"Art. 82.- de la Constitución de la República del Ecuador, “El derecho a la seguridad jurídica se fundamenta en el respeto a la Constitución y "+
+"República del Ecuador, en su Artículo 82, señala:\n"]]></variableExpression>
+	</variable>
+	<variable name="parrafo_3_0" class="java.lang.String">
+		<variableExpression><![CDATA["Art. 82.- de la Constitución de la República del Ecuador, “El derecho a la seguridad jurídica se fundamenta en el respeto a la Constitución y "+
 "en la existencia de normas jurídicas previas, claras, públicas y aplicadas por las autoridades competentes.”\n\n"+
 "<style pdfFontName='Times-Bold'>TERCERO.-</style> Que, de conformidad al Reglamento de Gestión de los Conocimientos, en su artículo 51, señala:\n\n"+
-"Art. 51.- Trámite de inscripción. La inscripción de los actos descritos en la presente sección se realizará de la siguiente manera:\n\n"+
-"En caso de que las solicitudes no cumplan con los requisitos establecidos en el presente Reglamento, el Servicio Nacional "+
+"Art. 51.- Trámite de inscripción. La inscripción de los actos descritos en la presente sección se realizará de la siguiente manera:\n"]]></variableExpression>
+	</variable>
+	<variable name="parrafo_3_1" class="java.lang.String">
+		<variableExpression><![CDATA["En caso de que las solicitudes no cumplan con los requisitos establecidos en el presente Reglamento, el Servicio Nacional "+
 "de Derechos Intelectuales dispondrá que el solicitante complete su solicitud en el término de diez días, bajo prevención de "+
 "que en caso de no hacerlo se declarará su petición en abandono. (…).”\n"]]></variableExpression>
+	</variable>
+	<variable name="parrafo_3_2" class="java.lang.String">
+		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>CUARTO.-</style> Que, toda vez que se ha revisado y analizado la información que reposa "+
+"en el archivo de esta Dirección, tanto físico como digital; se ha determinado que el interesado no ha cumplido lo dispuesto "+
+"por esta dirección. En tal virtud, y con sustento en lo prescrito en el artículo 51 del Reglamento de Gestión de los "+
+"Conocimientos, y por cuanto ha transcurrido el termino previsto en dicha disposición, esta dirección, tomando en cuenta "+
+"las consideraciones de hecho y de derecho realizadas.\n"]]></variableExpression>
 	</variable>
 	<variable name="titulo_abandono" class="java.lang.String">
 		<variableExpression><![CDATA["Resolución No. "+$F{numero_abandono}+"-"+new SimpleDateFormat("yyyy").format(new java.util.Date())+"-SENADI"]]></variableExpression>
@@ -176,13 +187,6 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_registro})+".\n\
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 ", notifiqué con la resolución que antecede a "+$F{solicitante}+", <style pdfFontName='Times-Bold'>NOTIFÍQUESE y CÚMPLASE. -</style>"]]></variableExpression>
 	</variable>
-	<variable name="parrafo_3_1" class="java.lang.String">
-		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>CUARTO.-</style> Que, toda vez que se ha revisado y analizado la información que reposa "+
-"en el archivo de esta Dirección, tanto físico como digital; se ha determinado que el interesado no ha cumplido lo dispuesto "+
-"por esta dirección. En tal virtud, y con sustento en lo prescrito en el artículo 51 del Reglamento de Gestión de los "+
-"Conocimientos, y por cuanto ha transcurrido el termino previsto en dicha disposición, esta dirección, tomando en cuenta "+
-"las consideraciones de hecho y de derecho realizadas.\n"]]></variableExpression>
-	</variable>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
@@ -192,10 +196,10 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 		</band>
 	</background>
 	<title>
-		<band height="25" splitType="Stretch"/>
+		<band height="28" splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="50">
+		<band height="40">
 			<printWhenExpression><![CDATA[new Boolean($V{PAGE_NUMBER}.intValue() > 1)]]></printWhenExpression>
 		</band>
 	</pageHeader>
@@ -284,22 +288,49 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 				<textFieldExpression><![CDATA[$V{parrafo_2}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="29" splitType="Immediate">
+		<band height="17">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="50" y="0" width="479" height="17" isRemoveLineWhenBlank="true" uuid="902ae382-770c-4ec0-b7de-a7acecef18d3"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ro}+"\n"]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="18">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="50" y="0" width="479" height="29" uuid="df3880b9-538b-4531-9489-c90697c8426b"/>
+				<reportElement x="50" y="0" width="479" height="18" uuid="df3880b9-538b-4531-9489-c90697c8426b"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_3}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="29" splitType="Prevent">
+		<band height="21">
 			<textField isStretchWithOverflow="true">
-				<reportElement stretchType="RelativeToBandHeight" x="48" y="0" width="479" height="29" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
+				<reportElement x="50" y="0" width="479" height="21" uuid="7e655dfa-b4e4-4e54-a4c1-cc70b7e30a15"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{parrafo_3_0}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="21">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="50" y="0" width="479" height="21" uuid="f5f681a8-f156-4d8a-902f-09786bf97071"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_3_1}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="29">
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="50" y="0" width="479" height="29" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{parrafo_3_2}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="217">
@@ -371,7 +402,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 		<band height="10" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="13" splitType="Stretch"/>
+		<band height="56" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="7" splitType="Stretch"/>

@@ -168,7 +168,7 @@ and open the template in the editor.
                                 <f:convertDateTime pattern="yyyy-MM-dd" />
                             </h:outputText>
                         </p:column>
-                        
+
                         <p:column  headerText="Notificación" style="text-align: center;" filterBy="#{abandono.notificacion}" filterMatchMode="contains">                            
                             <h:outputText value="#{abandono.notificacion}"/>
                         </p:column>
@@ -267,7 +267,7 @@ and open the template in the editor.
                         </f:facet>
                     </p:dataTable>
                     <p:outputLabel id="num_registros" value="#{abandonoLicenciaBean.numRegistros}" style="float: left; font-size: 12px"/>
-                    
+
                     <h:panelGrid columns="2" style="float: right;">
                         <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
                             <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
@@ -334,18 +334,18 @@ and open the template in the editor.
                         <p:calendar id="fpresentacionForm"  value="#{abandonoLicenciaBean.abandono.fechaPresentacion}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd"  required="true" title="Fecha de Presentación" inputStyleClass="maxsize"
                                     navigator="true"/>
-                        
+
                         <p:outputLabel value="Abandono:" for="abandonoForm"/>
                         <p:inputText id="abandonoForm" value="#{abandonoLicenciaBean.abandono.numeroAbandono}" title="Número Abandono" 
                                      required="true" class="maxsize" style="background: #FFCDD2 !important;" placeholder="Automático"
                                      disabled="#{abandonoLicenciaBean.dialogTitle eq 'NUEVO ABANDONO LICENCIA'?true:false}">
                             <p:keyFilter mask="num" />
                         </p:inputText>
-                        
+
                         <p:outputLabel value="F. Abandono:" for="fabaForm"/>
                         <p:calendar id="fabaForm"  value="#{abandonoLicenciaBean.abandono.fechaAbandono}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Notificación" inputStyleClass="maxsize"/>
-                        
+
                         <p:outputLabel value="Solicitante:" for="solicitanteForm"/>                            
                         <p:inputTextarea id="solicitanteForm" value="#{abandonoLicenciaBean.abandono.solicitante}" 
                                          title="Solicitante" required="true" class="maxsize"/>
@@ -402,10 +402,7 @@ and open the template in the editor.
                             <p:commandButton icon="pi pi-search" class="btn_peque" actionListener="#{abandonoLicenciaBean.buscarCasillero}" 
                                              rendered="#{abandonoLicenciaBean.dialogTitle eq 'NUEVO ABANDONO LICENCIA'?false:true}" 
                                              process="@parent" update="casSenadiForm" style="width: 12%" title="BUSCAR CASILLERO"/>
-                        </p:panel>
-
-                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>                            
-                        <p:inputText id="casJudicialForm" value="#{abandonoLicenciaBean.abandono.casilleroJudicial}" title="Casillero Judicial" class="maxsize"/>
+                        </p:panel>                       
 
                         <p:outputLabel value="Comprobante:" for="comproForm"/>
                         <p:inputText id="comproForm" value="#{abandonoLicenciaBean.abandono.comprobante}" title="comprobante" class="maxsize"/>
@@ -413,7 +410,7 @@ and open the template in the editor.
                         <p:outputLabel value="Responsable:" for="responsableForm"/>                            
                         <p:inputText id="responsableForm" value="#{abandonoLicenciaBean.abandono.responsable}" title="Responsable" 
                                      class="maxsize" required="true" />
-                        
+
                         <p:outputLabel value="Tipo Abandono:" for="tipoAbandono"/>
                         <p:selectOneMenu id="tipoAbandono" value="#{abandonoLicenciaBean.abandono.tipoAbandono}" class="maxsize" 
                                          required="#{(abandonoLicenciaBean.saveEdit eq 'EDITAR') or (abandonoLicenciaBean.dialogTitle eq 'NUEVO ABANDONO LICENCIA')}">
@@ -423,7 +420,7 @@ and open the template in the editor.
                             <f:selectItem itemLabel="COA" itemValue="COA"/>
                         </p:selectOneMenu>                                                
 
-                        <p:outputLabel value="Ro: " for="rofor"/>
+                        <p:outputLabel value="M. Notificación: " for="rofor"/>
                         <p:commandLink id="rofor" value="M. de Notificación" actionListener="#{abandonoLicenciaBean.prepararShowRo}" update="allform:dlgRo"
                                        oncomplete="if(args.viewro){PF('dlgRo').show()};" process="@this" style="color: #0089ec"
                                        disabled="#{abandonoLicenciaBean.abandono.id eq null? true:false}" />
@@ -434,6 +431,10 @@ and open the template in the editor.
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
 
                     </p:panelGrid>
+
+                    <p:outputLabel value="RO:" for="roForm"/>                            
+                    <p:inputTextarea id="roForm" value="#{abandonoLicenciaBean.abandono.ro}" title="Casillero Judicial" class="maxsize" required="true"/>
+                    <br/><br/>
 
                     <p:panelGrid id="guardarBtn" columns="2" class="panel-bottom">
                         <p:outputLabel value="PASAR A: " class="float-right"
@@ -447,7 +448,7 @@ and open the template in the editor.
                     </p:panelGrid>
                     <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar float-right"/>
                     <p:commandButton value="#{abandonoLicenciaBean.saveEdit}" actionListener="#{abandonoLicenciaBean.guardarAbandono}"
-                                     update="mensajes allform:tablaDeAbandonos datosNuevaT"
+                                     update="mensajes allform:tablaDeAbandonos datosNuevaT frmNuevaT"
                                      oncomplete="if(args.saved){PF('dlgNuevaT').hide();}"
                                      process="@form" class="btn_buscar float-right">
                         <p:confirm header="Seguridad" message="#{abandonoLicenciaBean.mensajeConfirmacion}" />

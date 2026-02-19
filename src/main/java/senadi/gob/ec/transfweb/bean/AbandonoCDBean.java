@@ -681,18 +681,23 @@ public class AbandonoCDBean implements Serializable {
                     if (abandonoaux.getTipoAbandono() != null && !abandonoaux.getTipoAbandono().trim().isEmpty()) {
                         if (abandonoaux.getSolicitante() != null && !abandonoaux.getSolicitante().trim().isEmpty()) {
                             if (abandonoaux.getRegistro() != null && !abandonoaux.getRegistro().trim().isEmpty()) {
-                                if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
-                                    List<Rooptions> roosaux = c.getRosBySolicitud(abandonoaux.getSolicitud());
-                                    if (roosaux.isEmpty()) {
+                                if (abandonoaux.getRo() != null && !abandonoaux.getRo().trim().isEmpty()) {
+                                    if (Operaciones.validarFecha(abandonoaux.getFechaRegistro())) {
+                                        List<Rooptions> roosaux = c.getRosBySolicitud(abandonoaux.getSolicitud());
+                                        if (roosaux.isEmpty()) {
+                                            band = false;
+                                            msj = "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN PARA EL TRÁMITE " + abandonoaux.getSolicitud();
+                                            break;
+                                        }
+                                    } else {
                                         band = false;
-                                        msj = "DEBE INGRESAR UN MOTIVO DE NOTIFICACIÓN PARA EL TRÁMITE "+abandonoaux.getSolicitud();
+                                        msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
                                         break;
                                     }
                                 } else {
                                     band = false;
-                                    msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE FECHA DE REGISTRO";
+                                    msj = "EL ABANDONO " + abandonoaux.getSolicitud() + " NO POSEE RO";
                                     break;
-
                                 }
                             } else {
                                 band = false;

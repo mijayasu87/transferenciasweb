@@ -69,22 +69,22 @@ public class LoginBean implements Serializable {
     private boolean allInOne;
 
     private CambioCasillero cambioCasillero;
-    
+
     private RazonCorreccion razon;
-    
+
     private Abandono abandono;
     private List<Abandono> abandonos;
-    
+
     private Caducada caducada;
     private List<Caducada> caducadas;
-    
+
     private int tipoTramite;
 
 //    private Employe employe;
 //    private FullTimeCode fullTimeCode;
     public LoginBean() {
         shake = true;
-        
+
     }
 
     public boolean estaLogeado() {
@@ -113,6 +113,7 @@ public class LoginBean implements Serializable {
         String grupo = "SC_Modificacion";
         String anexos = "SC_AnexosModificaciones";
         String tcocdi = "SC_CancelacionTitulos";
+        String modolectura = "SC_LecturaModificaciones";
         int n = c.validarIngresoLDAPRestringido(nombre, clave, grupo);
 //        int n = c.validarIngresoLDAPSinrestrinccion(nombre, clave) ? 1 : 0;
         if (n == 1) {
@@ -180,10 +181,14 @@ public class LoginBean implements Serializable {
                 } else {
                     shake = true;
                     logeado = false;
+//                    if (n == -1) {
+//                        msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login Error", "No Tiene Permisos");
+//                    } else {
+//                        msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login Error", "Credenciales Incorrectas");
+//                    }
                     if (n == -1) {
-                        int lect = c.validarIngresoLDAPSinrestrinccion(nombre, clave) ? 1 : 0;
+                        int lect = c.validarIngresoLDAPRestringido(nombre, clave, modolectura);
                         if (lect == 1) {
-
                             shake = false;
                             logeado = true;
                             lectura = true;
@@ -199,6 +204,8 @@ public class LoginBean implements Serializable {
                             }
                             msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Bienvenid@", nombre + " - MODO LECTURA");
 
+                        } else if (n == -1) {
+                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login Error", "No tiene autorización para ingresar");
                         } else {
                             msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Login Error", "Credenciales Incorrectas");
                         }
