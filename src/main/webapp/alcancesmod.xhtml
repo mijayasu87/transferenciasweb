@@ -168,16 +168,38 @@ and open the template in the editor.
                                            rendered="#{scope.status eq 'PREVIEW'?false:true}">
                                 <i class="pi pi-file" style="font-size: 2rem"></i>
                             </p:commandLink>
-                            <p:commandLink class="linkdoit" title="VISUALIZAR FORMULARIOO" 
+                            <p:commandLink class="linkdoit" title="VISUALIZAR FORMULARIO"
                                            actionListener="#{scopeBean.viewFormulario}"
-                                           process="@this" update="mensajes" 
+                                           process="@this" update="mensajes"
                                            oncomplete="if(args.viewform){otherpage(args.view)};">
-                                <i class="pi pi-file" style="font-size: 2rem"></i>
+                                <i class="pi pi-file-edit" style="font-size: 2rem"></i>
                             </p:commandLink>
-                            
+
                         </p:column>
                     </p:dataTable>
-                    <p:dialog id="dlgAtendido" modal="true" resizable="true" 
+                    <h:panelGrid columns="2" style="float: right;">
+                        <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
+                            <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
+                            <p:dataExporter type="xlsx" target="tablaDeAlcances" fileName="alcances_modificaciones"/>
+                        </h:commandLink>
+                        <br/>
+                    </h:panelGrid>
+                    <div class="leyendaIconos" style="text-align: left; font-size: 11px; font-weight: normal; padding: 8px 4px; float: right">
+                        <span style="font-weight: bold; margin-right: 10px;">LEYENDA:</span>
+                        <span style="margin-right: 15px;">
+                            <i class="pi pi-user-edit" style="font-size: 1.1rem; vertical-align: middle;"></i> Atender el registro
+                        </span>
+                        <span style="margin-right: 15px;">
+                            <i class="pi pi-chevron-circle-up" style="font-size: 1.1rem; vertical-align: middle;"></i> Razón atendido
+                        </span>
+                        <span style="margin-right: 15px;">
+                            <i class="pi pi-file" style="font-size: 1.1rem; vertical-align: middle;"></i> Visualizar alcance
+                        </span>
+                        <span style="margin-right: 15px;">
+                            <i class="pi pi-file-edit" style="font-size: 1.1rem; vertical-align: middle;"></i> Visualizar formulario
+                        </span>
+                    </div>
+                    <p:dialog id="dlgAtendido" modal="true" resizable="true"
                               header="ALCANCE #{scopeBean.scope.scopeNumber} DEL TRÁMITE #{scopeBean.scope.affectedApplicationNumber}" fitViewport="true"
                               widgetVar="dlgAtendido" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                               hideEffect="explode" closeOnEscape="true" width="50%">
@@ -201,13 +223,7 @@ and open the template in the editor.
                     </p:dialog>
                     <p:outputLabel id="num_registros" value="Registros Mostrados #{scopeBean.scopes.size()}" style="float: left; font-size: 12px"/>
 
-                    <h:panelGrid columns="2" style="float: right;">
-                        <h:commandLink title="Exportar a excel..." rendered="#{!loginBean.lectura}" immediate="true">
-                            <p:graphicImage class="excel" width="20px" height="20px" library="images" name="excel.png"/>
-                            <p:dataExporter type="xlsx" target="tablaDeAlcances" fileName="alcances_modificaciones"/>
-                        </h:commandLink>
-                        <br/>
-                    </h:panelGrid>
+
                     <br/>
                 </p:panel>
             </h:panelGrid>                       

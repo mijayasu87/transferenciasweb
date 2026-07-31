@@ -29,6 +29,7 @@ import senadi.gob.ec.transfweb.model.Documento;
 import senadi.gob.ec.transfweb.model.Notificacion;
 import senadi.gob.ec.transfweb.model.Transferencia;
 import senadi.gob.ec.transfweb.model.UploadNotificacion;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.model.cd.CambioDomicilio;
 import senadi.gob.ec.transfweb.model.cn.CambioNombre;
 import senadi.gob.ec.transfweb.model.iepform.RenewalForm;
@@ -383,21 +384,30 @@ public class UploadCertBean implements Serializable {
                                                 System.out.println("certificado para " + camd.getSolicitud() + " emitido");
                                                 un.setTipo("CERTIFICADO CAMBIO DOMICILIO");
                                             }
-                                            conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
-                                            if (conf == 1) {
-                                                camd.setAbandonoNotificado(true);
-                                                c.saveHistorial("ABANDONO_CD", "ABANDONO_CD", camd.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                System.out.println("abandono para " + camd.getSolicitud() + " emitido");
-                                                un.setTipo("ABANDONO CAMBIO DOMICILIO");
-                                            } else if (conf == 0) {
-                                                camd.setNotificacionEmitida(true);
-                                                c.saveHistorial("NOTIFICACION_CD", "NOTIFICACION_CD", camd.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                System.out.println("notificación para " + camd.getSolicitud() + " emitido");
-                                                un.setTipo("NOTIFICADA CAMBIO DOMICILIO");
-                                            }
-
-                                            if (conf == 1 || conf == 0) {
+                                            int confPro = Operaciones.validaTextoEnPdf(rutadoccas, "ampliación al término");
+                                            if (confPro == 1) {
+                                                camd.setProrrogaNotificada(true);
+                                                c.saveHistorial("PRORROGA_CD", "PRORROGA_CD", camd.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                System.out.println("prórroga para " + camd.getSolicitud() + " notificada");
+                                                un.setTipo("PRORROGA CAMBIO DOMICILIO");
                                                 c.updateCambioDomicilio(camd);
+                                            } else {
+                                                conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
+                                                if (conf == 1) {
+                                                    camd.setAbandonoNotificado(true);
+                                                    c.saveHistorial("ABANDONO_CD", "ABANDONO_CD", camd.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                    System.out.println("abandono para " + camd.getSolicitud() + " emitido");
+                                                    un.setTipo("ABANDONO CAMBIO DOMICILIO");
+                                                } else if (conf == 0) {
+                                                    camd.setNotificacionEmitida(true);
+                                                    c.saveHistorial("NOTIFICACION_CD", "NOTIFICACION_CD", camd.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                    System.out.println("notificación para " + camd.getSolicitud() + " emitido");
+                                                    un.setTipo("NOTIFICADA CAMBIO DOMICILIO");
+                                                }
+
+                                                if (conf == 1 || conf == 0) {
+                                                    c.updateCambioDomicilio(camd);
+                                                }
                                             }
                                         } else {
                                             CambioNombre cambn = c.getCambioNombreBySolicitud(un.getSolicitud());
@@ -409,20 +419,29 @@ public class UploadCertBean implements Serializable {
                                                     System.out.println("certificado para " + cambn.getSolicitud() + " emitido");
                                                     un.setTipo("CERTIFICADO CAMBIO NOMBRE");
                                                 }
-                                                conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
-                                                if (conf == 1) {
-                                                    cambn.setAbandonoNotificado(true);
-                                                    c.saveHistorial("ABANDONO_CN", "ABANDONO_CN", cambn.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                    System.out.println("abandono para " + cambn.getSolicitud() + " emitido");
-                                                    un.setTipo("ABANDONO CAMBIO NOMBRE");
-                                                } else if (conf == 0) {
-                                                    cambn.setNotificacionEmitida(true);
-                                                    c.saveHistorial("NOTIFICACION_CN", "NOTIFICACION_CN", cambn.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                    System.out.println("notificación para " + cambn.getSolicitud() + " emitido");
-                                                    un.setTipo("NOTIFICADA CAMBIO NOMBRE");
-                                                }
-                                                if (conf == 1 || conf == 0) {
+                                                int confProCN = Operaciones.validaTextoEnPdf(rutadoccas, "ampliación al término");
+                                                if (confProCN == 1) {
+                                                    cambn.setProrrogaNotificada(true);
+                                                    c.saveHistorial("PRORROGA_CN", "PRORROGA_CN", cambn.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                    System.out.println("prórroga para " + cambn.getSolicitud() + " notificada");
+                                                    un.setTipo("PRORROGA CAMBIO NOMBRE");
                                                     c.updateCambioNombre(cambn);
+                                                } else {
+                                                    conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
+                                                    if (conf == 1) {
+                                                        cambn.setAbandonoNotificado(true);
+                                                        c.saveHistorial("ABANDONO_CN", "ABANDONO_CN", cambn.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                        System.out.println("abandono para " + cambn.getSolicitud() + " emitido");
+                                                        un.setTipo("ABANDONO CAMBIO NOMBRE");
+                                                    } else if (conf == 0) {
+                                                        cambn.setNotificacionEmitida(true);
+                                                        c.saveHistorial("NOTIFICACION_CN", "NOTIFICACION_CN", cambn.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                        System.out.println("notificación para " + cambn.getSolicitud() + " emitido");
+                                                        un.setTipo("NOTIFICADA CAMBIO NOMBRE");
+                                                    }
+                                                    if (conf == 1 || conf == 0) {
+                                                        c.updateCambioNombre(cambn);
+                                                    }
                                                 }
                                             } else {
                                                 PrendaComercial prend = c.getPrendaComercialBySolicitud(un.getSolicitud());
@@ -437,19 +456,28 @@ public class UploadCertBean implements Serializable {
                                                         c.saveHistorial("CERTIFICADO_PRENDA", "CERTIFICADO_PRENDA", prend.getSolicitud(), "CERTIFICADO EMITIDO " + un.getDocumento(), 0, login.getNombre());
                                                         un.setTipo("CERTFICADO PRENDA");
                                                     }
-                                                    conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
-                                                    if (conf == 1) {
-                                                        prend.setAbandonoNotificado(true);
-                                                        c.saveHistorial("ABANDONO_PRENDA", "ABANDONO_PRENDA", prend.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                        System.out.println("abandono para " + prend.getSolicitud() + " emitido");
-                                                        un.setTipo("ABANDONO PRENDA COMERCIAL");
-                                                    } else if (conf == 0) {
-                                                        prend.setNotificacionEmitida(true);
-                                                        c.saveHistorial("NOTIFICACION_PRENDA", "NOTIFICACION_PRENDA", prend.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                        un.setTipo("NOTIFICADA PRENDA");
-                                                    }
-                                                    if (conf == 1 || conf == 0) {
+                                                    int confProPre = Operaciones.validaTextoEnPdf(rutadoccas, "ampliación al término");
+                                                    if (confProPre == 1) {
+                                                        prend.setProrrogaNotificada(true);
+                                                        c.saveHistorial("PRORROGA_PRENDA", "PRORROGA_PRENDA", prend.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                        System.out.println("prórroga para " + prend.getSolicitud() + " notificada");
+                                                        un.setTipo("PRORROGA PRENDA COMERCIAL");
                                                         c.updatePrendaComercial(prend);
+                                                    } else {
+                                                        conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
+                                                        if (conf == 1) {
+                                                            prend.setAbandonoNotificado(true);
+                                                            c.saveHistorial("ABANDONO_PRENDA", "ABANDONO_PRENDA", prend.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                            System.out.println("abandono para " + prend.getSolicitud() + " emitido");
+                                                            un.setTipo("ABANDONO PRENDA COMERCIAL");
+                                                        } else if (conf == 0) {
+                                                            prend.setNotificacionEmitida(true);
+                                                            c.saveHistorial("NOTIFICACION_PRENDA", "NOTIFICACION_PRENDA", prend.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                            un.setTipo("NOTIFICADA PRENDA");
+                                                        }
+                                                        if (conf == 1 || conf == 0) {
+                                                            c.updatePrendaComercial(prend);
+                                                        }
                                                     }
                                                 } else {
                                                     LicenciaUso licu = c.getLicenciaUsoBySolicitud(un.getSolicitud());
@@ -477,19 +505,28 @@ public class UploadCertBean implements Serializable {
                                                             c.saveHistorial("TERMINACION_LICENCIA", "TERMINACION_LICENCIA", licu.getSolicitud(), "INSCRIPCIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
                                                             un.setTipo("TERMINACION LICENCIA");
                                                         }
-                                                        conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
-                                                        if (conf == 1) {
-                                                            licu.setAbandonoNotificado(true);
-                                                            c.saveHistorial("ABANDONO_LICENCIA", "ABANDONO_LICENCIA", licu.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                            System.out.println("abandono para " + licu.getSolicitud() + " emitido");
-                                                            un.setTipo("ABANDONO LICENCIA USO");
-                                                        } else if (conf == 0) {
-                                                            licu.setNotificacionEmitida(true);
-                                                            c.saveHistorial("NOTIFICACION_LICENCIA", "NOTIFICACION_LICENCIA", licu.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                            un.setTipo("NOTIFICADA LICENCIA");
-                                                        }
-                                                        if (conf == 1 || conf == 0) {
+                                                        int confProLic = Operaciones.validaTextoEnPdf(rutadoccas, "ampliación al término");
+                                                        if (confProLic == 1) {
+                                                            licu.setProrrogaNotificada(true);
+                                                            c.saveHistorial("PRORROGA_LICENCIA", "PRORROGA_LICENCIA", licu.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                            System.out.println("prórroga para " + licu.getSolicitud() + " notificada");
+                                                            un.setTipo("PRORROGA LICENCIA USO");
                                                             c.updateLicenciaUso(licu);
+                                                        } else {
+                                                            conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
+                                                            if (conf == 1) {
+                                                                licu.setAbandonoNotificado(true);
+                                                                c.saveHistorial("ABANDONO_LICENCIA", "ABANDONO_LICENCIA", licu.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                                System.out.println("abandono para " + licu.getSolicitud() + " emitido");
+                                                                un.setTipo("ABANDONO LICENCIA USO");
+                                                            } else if (conf == 0) {
+                                                                licu.setNotificacionEmitida(true);
+                                                                c.saveHistorial("NOTIFICACION_LICENCIA", "NOTIFICACION_LICENCIA", licu.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                                un.setTipo("NOTIFICADA LICENCIA");
+                                                            }
+                                                            if (conf == 1 || conf == 0) {
+                                                                c.updateLicenciaUso(licu);
+                                                            }
                                                         }
                                                     } else {
                                                         SubLicenciaUso subl = c.getSublicenciaUsoBySolicitud(un.getSolicitud());
@@ -500,19 +537,28 @@ public class UploadCertBean implements Serializable {
                                                                 c.saveHistorial("CERTIFICADO_SUBLICENCIA", "CERTIFICADO_SUBLICENCIA", subl.getSolicitud(), "INSCRIPCIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
                                                                 un.setTipo("CERTIFICADO SUBLICENCIA");
                                                             }
-                                                            conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
-                                                            if (conf == 1) {
-                                                                subl.setAbandonoNotificado(true);
-                                                                c.saveHistorial("ABANDONO_SUBLICENCIA", "ABANDONO_SUBLICENCIA", subl.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                                System.out.println("abandono para " + subl.getSolicitud() + " emitido");
-                                                                un.setTipo("ABANDONO SUBLICENCIA USO");
-                                                            } else if (conf == 0) {
-                                                                subl.setNotificacionEmitida(true);
-                                                                c.saveHistorial("NOTIFICACION_SUBLICENCIA", "NOTIFICACION_SUBLICENCIA", subl.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
-                                                                un.setTipo("NOTIFICADA SUBLICENCIA");
-                                                            }
-                                                            if (conf == 1 || conf == 0) {
+                                                            int confProSub = Operaciones.validaTextoEnPdf(rutadoccas, "ampliación al término");
+                                                            if (confProSub == 1) {
+                                                                subl.setProrrogaNotificada(true);
+                                                                c.saveHistorial("PRORROGA_SUBLICENCIA", "PRORROGA_SUBLICENCIA", subl.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                                System.out.println("prórroga para " + subl.getSolicitud() + " notificada");
+                                                                un.setTipo("PRORROGA SUBLICENCIA USO");
                                                                 c.updateSublicenciaUso(subl);
+                                                            } else {
+                                                                conf = Operaciones.validaTextoEnPdf(rutadoccas, "Declarar el abandono de la solicitud");
+                                                                if (conf == 1) {
+                                                                    subl.setAbandonoNotificado(true);
+                                                                    c.saveHistorial("ABANDONO_SUBLICENCIA", "ABANDONO_SUBLICENCIA", subl.getSolicitud(), "ABANDONO EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                                    System.out.println("abandono para " + subl.getSolicitud() + " emitido");
+                                                                    un.setTipo("ABANDONO SUBLICENCIA USO");
+                                                                } else if (conf == 0) {
+                                                                    subl.setNotificacionEmitida(true);
+                                                                    c.saveHistorial("NOTIFICACION_SUBLICENCIA", "NOTIFICACION_SUBLICENCIA", subl.getSolicitud(), "NOTIFICACIÓN EMITIDA " + un.getDocumento(), 0, login.getNombre());
+                                                                    un.setTipo("NOTIFICADA SUBLICENCIA");
+                                                                }
+                                                                if (conf == 1 || conf == 0) {
+                                                                    c.updateSublicenciaUso(subl);
+                                                                }
                                                             }
                                                         } else {
                                                             //para indicar que se ha entregado certificado digital firmado
@@ -545,7 +591,15 @@ public class UploadCertBean implements Serializable {
                                                                             c.saveHistorial("ABANDONO", "ABANDONO", abaxu.getSolicitud(), "ABANDONO EMITIDO " + un.getDocumento(), 0, login.getNombre());
                                                                             un.setTipo("ABANDONO TRANSFERENCIA");
                                                                         } else {
-                                                                            encontrardoc = false;
+                                                                            Prorroga proaux = c.getProrrogaBySolicitud(un.getSolicitud());
+                                                                            if (proaux.getId() != null) {
+                                                                                proaux.setProrrogaNotificada(true);
+                                                                                c.updateProrroga(proaux);
+                                                                                c.saveHistorial("PRORROGA", "PRORROGA", proaux.getSolicitud(), "PRÓRROGA NOTIFICADA " + un.getDocumento(), 0, login.getNombre());
+                                                                                un.setTipo("PRORROGA TRANSFERENCIA");
+                                                                            } else {
+                                                                                encontrardoc = false;
+                                                                            }
                                                                         }
                                                                     }
                                                                 }

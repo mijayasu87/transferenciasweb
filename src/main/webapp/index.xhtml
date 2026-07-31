@@ -57,6 +57,7 @@ and open the template in the editor.
                 <a class="itemm" href="abandonotra.xhtml" title="Abandonos" >ABANDONOS</a>
                 <a class="itemm" href="caducadas.xhtml" title="Caducadas" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistimientos.xhtml" title="Desistimientos" >DESISTIMIENTOS</a>
+                <a class="itemm" href="prorrogatransf.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificaciones.xhtml" title="Notificaciones" >NOTIFICACIONES</a>
                 <a class="activo" href="#" title="Transferencias" >TRANSFERENCIAS</a>
                 <a class="itemm" href="transfindex.xhtml" title="REZAGO" style="display: #{loginBean.lectura eq true?'none':'inline-block'}" >REZAGO</a>
@@ -277,9 +278,9 @@ and open the template in the editor.
                 </p:panel>              
 
             </h:panelGrid>
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true" 
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice"
                       header="#{transferenciaBean.dialogTitle}" fitViewport="true"
-                      widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
+                      widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode"
                       hideEffect="explode" closeOnEscape="true" width="80%">
                 <p:ajax event="close" update="dlgNuevaT" resetValues="true" />
                 <p:growl id="nuevoreg" life="1000"/>
@@ -289,86 +290,86 @@ and open the template in the editor.
 
                         <p:outputLabel value="Solicitud:" for="solicitudForm"/>
                         <h:panelGroup>
-                            <p:inputText id="solicitudForm" value="#{transferenciaBean.transferencia.solicitud}" title="Solicitud" required="true" 
+                            <p:inputText id="solicitudForm" value="#{transferenciaBean.transferencia.solicitud}" title="Solicitud" required="true"
                                          style="background: #aed581 !important; width: 85%; text-transform: uppercase" />
-                            <p:commandButton icon="pi pi-search" class="btn_peque"  style="position: absolute;" actionListener="#{transferenciaBean.buscarTramite}" 
-                                             rendered="#{transferenciaBean.dialogTitle eq 'NUEVA TRANSFERENCIA'?true:false}" process="@parent" 
+                            <p:commandButton icon="pi pi-search" class="btn_peque"  style="position: absolute;" actionListener="#{transferenciaBean.buscarTramite}"
+                                             rendered="#{transferenciaBean.dialogTitle eq 'NUEVA TRANSFERENCIA'?true:false}" process="@parent"
                                              update="mensajes frmNuevaT:datosNuevaT"/>
                         </h:panelGroup>
 
-                        <p:outputLabel value="F. Presentación:" for="fpresentacionForm"/>                            
+                        <p:outputLabel value="F. Presentación:" for="fpresentacionForm"/>
                         <p:calendar id="fpresentacionForm"  value="#{transferenciaBean.transferencia.fechaPresentacion}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Presentación" inputStyleClass="maxsize"
                                     navigator="true"/>
 
-                        <p:outputLabel value="Certificado:" for="certificadoForm"/>                            
+                        <p:outputLabel value="Certificado:" for="certificadoForm"/>
                         <p:inputText id="certificadoForm" placeholder="automático" value="#{transferenciaBean.transferencia.certificado}"  title="Certificado" label="Se genera automáticamente"
                                      style="background: #FFCDD2 !important;" class="maxsize" disabled="#{transferenciaBean.dialogTitle eq 'NUEVA TRANSFERENCIA'?true:false}">
                             <p:tooltip for="certificadoForm" value="Número que se crea automáticamente" position="right"/>
                             <p:keyFilter mask="num" />
                         </p:inputText>
 
-                        <p:outputLabel value="F. Certificado:" for="fcertificadoForm"/>                            
+                        <p:outputLabel value="F. Certificado:" for="fcertificadoForm"/>
                         <p:calendar id="fcertificadoForm"  value="#{transferenciaBean.transferencia.fechaCertificado}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Certificado" inputStyleClass="maxsize"
                                     navigator="true"/>
 
-                        <p:outputLabel value="Registro:" for="registroForm"/>                            
+                        <p:outputLabel value="Registro:" for="registroForm"/>
                         <p:inputText id="registroForm" value="#{transferenciaBean.transferencia.registro}" title="Registro" required="true" class="maxsize"/>
 
-                        <p:outputLabel value="F. Registro:" for="fregistroForm"/>                            
+                        <p:outputLabel value="F. Registro:" for="fregistroForm"/>
                         <p:calendar id="fregistroForm"  value="#{transferenciaBean.transferencia.fechaRegistro}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"/>
 
-                        <p:outputLabel value="Denominación:" for="denominacionForm"/>                            
-                        <p:inputTextarea id="denominacionForm" value="#{transferenciaBean.transferencia.denominacion}" title="Denominación" 
+                        <p:outputLabel value="Denominación:" for="denominacionForm"/>
+                        <p:inputTextarea id="denominacionForm" value="#{transferenciaBean.transferencia.denominacion}" title="Denominación"
                                          required="true" style="width: 100% !important" class="maxsize"/>
 
-                        <p:outputLabel value="Signo:" for="signoForm"/>                            
+                        <p:outputLabel value="Signo:" for="signoForm"/>
                         <p:inputText id="signoForm" value="#{transferenciaBean.transferencia.signo}" title="Signo" required="true" class="maxsize"/>
 
-                        <p:outputLabel value="Titular Anterior:" for="tanteriorForm"/>                            
+                        <p:outputLabel value="Titular Anterior:" for="tanteriorForm"/>
                         <p:inputTextarea id="tanteriorForm" value="#{transferenciaBean.transferencia.titularAnterior}" title="Titular Anterior" required="true" class="maxsize"/>
 
-                        <p:outputLabel value="Titular Actual:" for="tactualForm"/>                            
+                        <p:outputLabel value="Titular Actual:" for="tactualForm"/>
                         <p:inputTextarea id="tactualForm" value="#{transferenciaBean.transferencia.titularActual}" title="Titular Actual" required="true" class="maxsize"/>
 
-                        <p:outputLabel value="Domicilio T. Actual:" for="dtactualForm" rendered="false"/>                            
-                        <p:inputTextarea id="dtactualForm" value="#{transferenciaBean.transferencia.domicilioTitularActual}" title="Domicilio Titular Actual" 
+                        <p:outputLabel value="Domicilio T. Actual:" for="dtactualForm" rendered="false"/>
+                        <p:inputTextarea id="dtactualForm" value="#{transferenciaBean.transferencia.domicilioTitularActual}" title="Domicilio Titular Actual"
                                          class="maxsize" rendered="false"/>
 
-                        <p:outputLabel value="Apoderado Representante:" for="aporeplegalForm"/>                            
-                        <p:inputTextarea id="aporeplegalForm" value="#{transferenciaBean.transferencia.apoderadoRepresentanteLegal}" title="Apoderado Representante Legal" 
+                        <p:outputLabel value="Apoderado Representante:" for="aporeplegalForm"/>
+                        <p:inputTextarea id="aporeplegalForm" value="#{transferenciaBean.transferencia.apoderadoRepresentanteLegal}" title="Apoderado Representante Legal"
                                          required="true" class="maxsize"/>
 
-                        <p:outputLabel value="F. Notificación:" for="fechaNotificacionForm"/>                            
+                        <p:outputLabel value="F. Notificación:" for="fechaNotificacionForm"/>
                         <p:calendar id="fechaNotificacionForm"  value="#{transferenciaBean.transferencia.fechaNotificacion}" timeZone="GMT-5"
                                     mask="true" pattern="yyyy-MM-dd" title="Fecha Notifición" inputStyleClass="maxsize" navigator="true"/>
 
                         <p:outputLabel value="Casillero SENADI:" for="casSenadiForm"/>
                         <h:panelGroup>
-                            <p:inputText id="casSenadiForm" value="#{transferenciaBean.transferencia.casilleroSenadi}" title="Casillero SENADI" 
+                            <p:inputText id="casSenadiForm" value="#{transferenciaBean.transferencia.casilleroSenadi}" title="Casillero SENADI"
                                          style="width: 85%; text-transform: uppercase" required="true"/>
                             <p:commandButton icon="pi pi-search" class="btn_peque"  style="position: absolute;" title="Buscar Casillero"
                                              actionListener="#{transferenciaBean.prepararBusquedaCasillero}"
                                              oncomplete="PF('dlgCasillero').show();" process="@this" update="mensajes allform:dlgCasillero"/>
                         </h:panelGroup>
 
-                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>                            
+                        <p:outputLabel value="Casillero JUDICIAL:" for="casJudicialForm"/>
                         <p:inputText id="casJudicialForm" value="#{transferenciaBean.transferencia.casilleroJudicial}" title="Casillero Judicial" class="maxsize"/>
 
-                        <p:outputLabel value="RO:" for="roForm"/>                            
+                        <p:outputLabel value="RO:" for="roForm"/>
                         <p:inputTextarea id="roForm" value="#{transferenciaBean.transferencia.ro}" title="RO" class="maxsize"/>
 
-                        <p:outputLabel value="Identificación:" for="identificacionForm"/>                            
+                        <p:outputLabel value="Identificación:" for="identificacionForm"/>
                         <p:inputText id="identificacionForm" value="#{transferenciaBean.transferencia.identificacion}" title="Identificación" class="maxsize"/>
 
                         <p:outputLabel value="Comprobante" for="comproForm"/>
                         <p:inputText id="comproForm" value="#{transferenciaBean.transferencia.comprobante}" title="comprobante" class="maxsize"/>
 
-                        <p:outputLabel value="Responsable:" for="responsableForm"/>                            
-                        <p:inputText id="responsableForm" value="#{transferenciaBean.transferencia.responsable}" title="Responsable" 
-                                     rendered="true" required="true" style="background: #E8F5E9 !important;" class="maxsize"/>                       
+                        <p:outputLabel value="Responsable:" for="responsableForm"/>
+                        <p:inputText id="responsableForm" value="#{transferenciaBean.transferencia.responsable}" title="Responsable"
+                                     rendered="true" required="true" style="background: #E8F5E9 !important;" class="maxsize"/>
 
                         <p:outputLabel value="Url: " style="float: right !important"/>
                         <p:commandLink value="Ruta Expediente" actionListener="#{transferenciaBean.prepararExpediente}" process="@this"

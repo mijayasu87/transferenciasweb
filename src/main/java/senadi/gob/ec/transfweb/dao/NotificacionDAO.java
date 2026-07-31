@@ -155,4 +155,12 @@ public class NotificacionDAO extends DAOAbstract<Notificacion> {
         return query.getResultList();
     }
 
+    public List<Notificacion> getProrrogasCandidatas() {
+        Query query = this.getEntityManager().createQuery(
+                "SELECT n FROM Notificacion n WHERE n.fechaPuestaProrroga IS NOT NULL"
+        );
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
+
 }

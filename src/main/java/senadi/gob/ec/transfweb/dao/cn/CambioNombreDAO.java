@@ -265,18 +265,17 @@ public class CambioNombreDAO extends DAOAbstract<CambioNombre> {
         Calendar cal = Calendar.getInstance();
         cal.setTime(fechaElaboracionDesistimiento);
         int yearActual = cal.get(Calendar.YEAR);
-
+        
         // buscamos el máximo número de resolución desistida del año actual
         Query query = this.getEntityManager().createQuery(
                 "SELECT MAX(n.resolucionDesistida) "
                 + "FROM CambioNombre n "
                 + "WHERE n.tipoEstado = 'DESISTIDA' "
-                + "AND FUNCTION('year', n.fechaDesistimiento) = :anio"
+                + "AND FUNCTION('year', n.fechaResolucionDesistida) = :anio"
         );
         query.setParameter("anio", yearActual);
 
         Integer maxNumero = (Integer) query.getSingleResult();
-
         if (maxNumero == null) {
             return 1; // primer desistimiento del año
         } else {
@@ -334,5 +333,36 @@ public class CambioNombreDAO extends DAOAbstract<CambioNombre> {
         query.setParameter("tipo", type);
         query.setParameter("fechaLimite", fechaLimiteDate);
         return query.getResultList();
+    }
+
+    public List<CambioNombre> getProrrogasCandidatas() {
+        Query query = this.getEntityManager().createQuery(
+                "SELECT n FROM CambioNombre n WHERE n.tipoEstado = 'NOTIFICADA' AND n.fechaPuestaProrroga IS NOT NULL AND n.fechaProrroga IS NULL"
+        );
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
+
+    public int getNextNumeroProrrogaCN(Date fechaElaboracion) {
+        Query query = this.getEntityManager().createQuery("Select n from CambioNombre n where n.tipoEstado = 'PRORROGA' and n.numeroProrroga = (Select MAX(n1.numeroProrroga) from CambioNombre n1 where n1.tipoEstado = 'PRORROGA')");
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+
+        List<CambioNombre> prorrogas = query.getResultList();
+        if (prorrogas.isEmpty()) {
+            return 1;
+        } else {
+            CambioNombre c = prorrogas.get(0);
+
+            int yearElPro = fechaElaboracion.getYear() + 1900;
+            int yearPro = c.getFechaProrroga() != null ? c.getFechaProrroga().getYear() + 1900 : yearElPro;
+
+            if (yearElPro == yearPro) {
+                return (c.getNumeroProrroga() == null ? 0 : c.getNumeroProrroga()) + 1;
+            } else if (yearElPro > yearPro) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
     }
 }

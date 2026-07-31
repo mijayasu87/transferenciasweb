@@ -65,6 +65,9 @@ public class ModificationScope implements Serializable {
     @Column(name = "attended_date")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date attendedDate;
+    
+    @Column(name = "application_type")
+    private String applicationType;
 
     /**
      * @return the id
@@ -260,6 +263,20 @@ public class ModificationScope implements Serializable {
      */
     public void setAttendedDate(Date attendedDate) {
         this.attendedDate = attendedDate;
+    }
+
+    /**
+     * @return the applicationType
+     */
+    public String getApplicationType() {
+        return applicationType;
+    }
+
+    /**
+     * @param applicationType the applicationType to set
+     */
+    public void setApplicationType(String applicationType) {
+        this.applicationType = applicationType;
     }
 
 }

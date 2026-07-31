@@ -718,7 +718,7 @@ public class Report implements Serializable {
             parametro.put("SUBREPORT_DIR", path + "/");
             parametro.put("tablabd", "caducada");
             SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-            String fechaFormateada = sdf.format(fechaElabora);            
+            String fechaFormateada = sdf.format(fechaElabora);
             parametro.put("fecha_elabora", fechaFormateada);
             switch (tipoTramite) {
                 case "TRANSFERENCIA":
@@ -768,13 +768,13 @@ public class Report implements Serializable {
             parametro.put("denosecre", secretaria.getDenominacion());
             parametro.put("SUBREPORT_DIR", path + "/");
             parametro.put("tablabd", "caducada");
-            
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-            String fechaFormateada = sdf.format(fechaElabora);            
+            String fechaFormateada = sdf.format(fechaElabora);
             parametro.put("fecha_elabora", fechaFormateada);
             switch (tipoTramite) {
                 case "TRANSFERENCIA":
-                    System.out.println("fecha Formateada: "+fechaFormateada);
+                    System.out.println("fecha Formateada: " + fechaFormateada);
                     parametro.put("tablabd", "notificacion");
                     break;
                 case "CAMBIO DE DOMICILIO":
@@ -957,8 +957,8 @@ public class Report implements Serializable {
     }
 
     /*Dibuja (arma) el reporte, para que esté listo para ser mostrado en pantalla*/
-    public byte[] viewAbandonoAllMasterBytes(String path, InputStream rutaJrxml, Integer id, String rutapdf,
-            String delegado, String delegacion, Delegado secretaria, String tipoMod) {
+    public byte[] viewAbandonoProrrogaAllMasterBytes(String path, InputStream rutaJrxml, Integer id, String rutapdf,
+            String delegado, String delegacion, Delegado secretaria, String tipoMod, Resolucion resnot) {
         JasperReport jasperReport;
         JasperPrint jasperPrint;
         try {
@@ -983,6 +983,9 @@ public class Report implements Serializable {
                 parametro.put("cambio", "SUBLICENCIA DE USO");
             }
 
+            if (resnot.getId() != null) {
+                parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
+            }
 //se carga el reporte
             jasperReport = JasperCompileManager.compileReport(rutaJrxml);
             //se procesa el archivo jasper
@@ -996,8 +999,8 @@ public class Report implements Serializable {
         }
     }
 
-    public FileInputStream viewAbandonoAll(String path, InputStream rutaJrxml, Integer id, String rutapdf,
-            String delegado, String delegacion, Delegado secretaria, String tipoMod) {
+    public FileInputStream viewAbandonoProrrogaAll(String path, InputStream rutaJrxml, Integer id, String rutapdf,
+            String delegado, String delegacion, Delegado secretaria, String tipoMod, Resolucion resnot) {
         try {
             FileInputStream entrada;
             JasperReport reportePrincipal = JasperCompileManager.compileReport(rutaJrxml);
@@ -1021,6 +1024,10 @@ public class Report implements Serializable {
                 parametro.put("cambio", "LICENCIA DE USO");
             } else {
                 parametro.put("cambio", "SUBLICENCIA DE USO");
+            }
+
+            if (resnot.getId() != null) {
+                parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
             }
 
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);

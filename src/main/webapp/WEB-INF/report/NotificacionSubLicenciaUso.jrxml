@@ -140,8 +140,8 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format($F
 "51 del Reglamento del Código Orgánico Administrativo. El presente acto administrativo "+
 "se emite en ejercicio de la facultad conferida mediante Acción de Personal Nro. "+$P{resolucionlic}+
 ". <style pdfFontName='Times-Bold'>Notifíquese.- "+$P{delegado}+", "+$P{delegacion}+"</style>.\n\n\n"+
-"<style pdfFontName='Times-Bold'>RAZÓN:</style> Lo que certifico, en virtud de la delegación de la Dirección General del Servicio Nacional de Derechos "+
-"Intelectuales conferida mediante Resolución Nro. "+$P{resolucionnot}+"."]]></variableExpression>
+"<style pdfFontName='Times-Bold'>RAZÓN:</style> Lo que certifico, por delegación de la directora general del Servicio Nacional de Derechos Intelectuales, "+
+"conferida mediante Resolución Nro. "+$P{resolucionnot}+"."]]></variableExpression>
 	</variable>
 	<variable name="parrafo_3" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>Razón:</style> Siento por tal que el día de hoy, "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format(new Date())+

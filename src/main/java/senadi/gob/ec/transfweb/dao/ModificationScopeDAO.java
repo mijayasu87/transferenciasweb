@@ -28,13 +28,13 @@ public class ModificationScopeDAO extends DAOAbstract<ModificationScope> {
     }
 
     public List<ModificationScope> getScopesSent() {
-        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.status = 'ENVIADO' order by CAST(m.scopeNumber AS UNSIGNED) desc");
+        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.status = 'ENVIADO' and m.applicationType = 'MODIFICACIONES' order by CAST(m.scopeNumber AS UNSIGNED) desc");
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         return query.setMaxResults(300).getResultList();
     }
 
     public List<ModificationScope> getScopesByCriterio(String criterio) {
-        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.scopeNumber like :criterio or m.affectedApplicationNumber like :criterio order by m.scopeNumber desc");
+        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.status = 'ENVIADO' and m.applicationType = 'MODIFICACIONES' and (m.scopeNumber like :criterio or m.affectedApplicationNumber like :criterio) order by m.scopeNumber desc");
         query.setParameter("criterio", "%" + criterio + "%");
         return query.setMaxResults(300).getResultList();
     }
@@ -57,7 +57,7 @@ public class ModificationScopeDAO extends DAOAbstract<ModificationScope> {
         Timestamp ini = new Timestamp(calIni.getTimeInMillis());
         Timestamp fin = new Timestamp(calFin.getTimeInMillis());
 
-        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.submissionDate between :ini and :fin");
+        Query query = this.getEntityManager().createQuery("Select m from ModificationScope m where m.status = 'ENVIADO' and m.applicationType = 'MODIFICACIONES' and m.submissionDate between :ini and :fin");
         query.setParameter("ini", ini);
         query.setParameter("fin", fin);
         return query.setMaxResults(300).getResultList();

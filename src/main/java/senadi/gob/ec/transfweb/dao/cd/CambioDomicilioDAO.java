@@ -272,4 +272,41 @@ public class CambioDomicilioDAO extends DAOAbstract<CambioDomicilio> {
         return query.getResultList();
     }
 
+    /**
+     * Notificaciones que fueron establecidas "para prórroga" (tienen
+     * fechaPuestaProrroga) y que aún no han sido pasadas a la pestaña de
+     * prórrogas (fechaProrroga nula). El vencimiento del plazo se evalúa por
+     * registro en el scheduler, ya que los días de prórroga son configurables.
+     */
+    public List<CambioDomicilio> getProrrogasCandidatas() {
+        Query query = this.getEntityManager().createQuery(
+                "SELECT n FROM CambioDomicilio n WHERE n.tipoEstado = 'NOTIFICADA' AND n.fechaPuestaProrroga IS NOT NULL AND n.fechaProrroga IS NULL"
+        );
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
+
+    public int getNextNumeroProrrogaCD(Date fechaElaboracion) {
+        Query query = this.getEntityManager().createQuery("Select n from CambioDomicilio n where n.tipoEstado = 'PRORROGA' and n.numeroProrroga = (Select MAX(n1.numeroProrroga) from CambioDomicilio n1 where n1.tipoEstado = 'PRORROGA')");
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+
+        List<CambioDomicilio> prorrogas = query.getResultList();
+        if (prorrogas.isEmpty()) {
+            return 1;
+        } else {
+            CambioDomicilio c = prorrogas.get(0);
+
+            int yearElPro = fechaElaboracion.getYear() + 1900;
+            int yearPro = c.getFechaProrroga() != null ? c.getFechaProrroga().getYear() + 1900 : yearElPro;
+
+            if (yearElPro == yearPro) {
+                return (c.getNumeroProrroga() == null ? 0 : c.getNumeroProrroga()) + 1;
+            } else if (yearElPro > yearPro) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
 }

@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
 	<property name="ireport.zoom" value="1.464100000000001"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="336"/>
+	<property name="ireport.y" value="432"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
 	<parameter name="delegado" class="java.lang.String"/>
 	<parameter name="delegacion" class="java.lang.String"/>
@@ -53,7 +53,7 @@
 	<field name="domicilio_titular_actual" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="tit_apod_repre" class="java.lang.String">
+	<field name="apoderado_representante_legal" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="notificada" class="java.lang.String">
@@ -169,9 +169,13 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format($F
 "del expediente respectivo, de conformidad con el artículo 51 del Reglamento del Código Orgánico "+
 "Administrativo. El presente acto administrativo se emite en ejercicio de la facultad conferida mediante Acción de Personal "+
 $P{resolucionpren}+". <style pdfFontName='Times-Bold'>Notifíquese.- "+
-$P{delegado}+", "+$P{delegacion}+"</style>.\n\n\n"+
-"Lo que certifico, en virtud "+
-"de la delegación de la Directora Nacional Encargada, conferida mediante Resolución Nro. "+$P{resolucionnot}+"."]]></variableExpression>
+$P{delegado}+", "+$P{delegacion}+"</style>.\n\n"+
+"<style pdfFontName='Times-Bold'>Razón:</style> Siento por tal que el día de hoy, "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format(new Date())+", notifiqué la providencia que antecede, "+ 
+"mediante boleta depositada en la casilla virtual "+$F{casillero_senadi}+"-"+$F{casillero_judicial}+
+", correspondiente a su apoderado/a "+$F{apoderado_representante_legal}+
+".- Lo que certifico, por delegación de la directora general del Servicio Nacional de Derechos Intelectuales, conferida mediante Resolución Nro. "+$P{resolucionnot}+"."+
+"\n\nToda contestación a la presente se la receptará exclusivamente a través del aplicativo de alcances a modificaciones correspondiente al dominio: \n\n"+
+"<style pdfFontName='Times-Bold'>https://buscadores.derechosintelectuales.gob.ec/alcancesenadi/login.xhtml</style>"]]></variableExpression>
 	</variable>
 	<variable name="parrafo_3" class="java.lang.String">
 		<variableExpression><![CDATA[]]></variableExpression>
@@ -320,7 +324,7 @@ $P{delegado}+", "+$P{delegacion}+"</style>.\n\n\n"+
 				<textFieldExpression><![CDATA[$P{secretaria}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="309" width="555" height="20" uuid="16ca0c1e-1c93-4d68-a88d-4649006c2ddc"/>
+				<reportElement x="40" y="309" width="488" height="46" uuid="16ca0c1e-1c93-4d68-a88d-4649006c2ddc"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>

@@ -159,7 +159,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy",new Locale("es", "ES")).format($F
 "se emite en ejercicio de la facultad conferida mediante Acción de Personal "+
 $P{resolucionlic}+". <style pdfFontName='Times-Bold'>Notifíquese.- "+
 $P{delegado}+", "+$P{delegacion}+"</style>.\n\n"+
-"Lo que certifico, en virtud de la delegación de la Dirección General del Servicio Nacional de Derechos Intelectuales "+
+"Lo que certifico, por delegación de la directora general del Servicio Nacional de Derechos Intelectuales, "+
 "conferida mediante Resolución Nro. "+$P{resolucionnot}+"."]]></variableExpression>
 	</variable>
 	<variable name="parrafo_3" class="java.lang.String">

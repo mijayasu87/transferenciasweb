@@ -130,6 +130,20 @@ public class Notificacion implements Serializable {
     @Column(name = "solicitante")
     private String solicitante;
 
+    @Column(name = "fecha_puesta_prorroga")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaPuestaProrroga;
+
+    @Column(name = "dias_prorroga")
+    private Integer diasProrroga;
+
+    @Column(name = "numero_alcance")
+    private String numeroAlcance;
+
+    @Column(name = "fecha_alcance")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaAlcance;
+
     /**
      * @return the id
      */
@@ -660,5 +674,37 @@ public class Notificacion implements Serializable {
      */
     public void setSolicitante(String solicitante) {
         this.solicitante = solicitante;
+    }
+
+    public Date getFechaPuestaProrroga() {
+        return fechaPuestaProrroga;
+    }
+
+    public void setFechaPuestaProrroga(Date fechaPuestaProrroga) {
+        this.fechaPuestaProrroga = fechaPuestaProrroga;
+    }
+
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
+    }
+
+    public String getNumeroAlcance() {
+        return numeroAlcance;
+    }
+
+    public void setNumeroAlcance(String numeroAlcance) {
+        this.numeroAlcance = numeroAlcance;
+    }
+
+    public Date getFechaAlcance() {
+        return fechaAlcance;
+    }
+
+    public void setFechaAlcance(Date fechaAlcance) {
+        this.fechaAlcance = fechaAlcance;
     }
 }

@@ -23,6 +23,7 @@
     <class>senadi.gob.ec.transfweb.model.CambioCasillero</class>
     <class>senadi.gob.ec.transfweb.model.Abandono</class>
     <class>senadi.gob.ec.transfweb.model.ModificationScope</class>
+    <class>senadi.gob.ec.transfweb.model.Prorroga</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties/>
   </persistence-unit>

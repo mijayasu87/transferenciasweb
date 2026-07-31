@@ -97,6 +97,7 @@ public class NotificacionLicenciaBean implements Serializable {
     private boolean abandonosS;
     private Date fechaPuestaAbandono;
     private String tipoAbandono;
+    private Integer diasProrroga;
 
     public NotificacionLicenciaBean() {
         loadNotificacionesLicencia();
@@ -937,17 +938,112 @@ public class NotificacionLicenciaBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
+    private String getSolicitudesParaProrroga() {
+        String paraProrroga = "";
+        for (int i = 0; i < selectedNotificaciones.size(); i++) {
+            LicenciaUso notaux = selectedNotificaciones.get(i);
+            if (notaux.getFechaPuestaProrroga() != null) {
+                paraProrroga += (paraProrroga.isEmpty() ? "" : ", ") + notaux.getSolicitud();
+            }
+        }
+        return paraProrroga;
+    }
+
+    public void prepararParaProrrogas() {
+        FacesMessage msg = null;
+        if (selectedNotificaciones.isEmpty()) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        } else {
+            String noEmitidas = "";
+            String paraAbandono = "";
+            for (int i = 0; i < selectedNotificaciones.size(); i++) {
+                LicenciaUso notaux = selectedNotificaciones.get(i);
+                if (!notaux.isNotificacionEmitida()) {
+                    noEmitidas += (noEmitidas.isEmpty() ? "" : ", ") + notaux.getSolicitud();
+                }
+                if (notaux.getFechaPuestaAbandono() != null) {
+                    paraAbandono += (paraAbandono.isEmpty() ? "" : ", ") + notaux.getSolicitud();
+                }
+            }
+            if (!noEmitidas.isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SOLO SE PUEDE ESTABLECER PARA PRÓRROGA NOTIFICACIONES YA EMITIDAS. REVISE: " + noEmitidas);
+            } else if (!paraAbandono.isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL/LOS TRÁMITE(S) " + paraAbandono + " ESTÁ(N) PARA ABANDONO, POR LO QUE NO SE PUEDE(N) ESTABLECER PARA PRÓRROGA");
+            } else {
+                String yaProrroga = getSolicitudesParaProrroga();
+                if (!yaProrroga.isEmpty()) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO",
+                            "LOS SIGUIENTES TRÁMITES YA FUERON ESTABLECIDOS PARA PRÓRROGA ANTERIORMENTE (SE ACTUALIZARÁN LOS DÍAS SI CONTINÚA): " + yaProrroga));
+                }
+                diasProrroga = 10;
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
+                PrimeFaces.current().ajax().addCallbackParam("proit", true);
+            }
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
+    public void paraProrrogas(ActionEvent ae) {
+        FacesMessage msg = null;
+        if (!selectedNotificaciones.isEmpty()) {
+            if (diasProrroga != null && diasProrroga > 0) {
+                Controlador c = new Controlador();
+                int n = 0;
+                for (int i = 0; i < selectedNotificaciones.size(); i++) {
+                    LicenciaUso notaux = selectedNotificaciones.get(i);
+                    if (!notaux.isNotificacionEmitida()) {
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "LA NOTIFICACIÓN " + notaux.getSolicitud() + " NO ESTÁ EMITIDA");
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        return;
+                    }
+                    if (notaux.getFechaPuestaAbandono() != null) {
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL TRÁMITE " + notaux.getSolicitud() + " ESTÁ PARA ABANDONO, POR LO QUE NO SE PUEDE ESTABLECER PARA PRÓRROGA");
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        return;
+                    }
+                    notaux.setFechaPuestaProrroga(new Date());
+                    notaux.setDiasProrroga(diasProrroga);
+                    if (!c.updateLicenciaUso(notaux)) {
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE PUDO ESTABLECER PARA PRÓRROGA A " + notaux.getSolicitud());
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        return;
+                    } else {
+                        c.saveHistorial("NOTIFICADAS", "NOTIFICADAS", notaux.getSolicitud(), "PARA PRÓRROGA (" + diasProrroga + " DÍAS)", loginBean.getUsuario().getId(), loginBean.getNombre());
+                        n++;
+                    }
+                }
+                if (n > 0) {
+                    loadNotificacionesLicencia();
+                    PrimeFaces.current().ajax().addCallbackParam("proit", true);
+                    msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "SE HA ESTABLECIDO SATISFACTORIAMENTE LOS NOTIFICADOS SELECCIONADOS PARA PRÓRROGA");
+                } else {
+                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL GUARDAR LAS PRÓRROGAS, CONSULTE AL ADMINISTRADOR DEL SISTEMA");
+                }
+            } else {
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "INGRESE UN NÚMERO DE DÍAS DE PRÓRROGA VÁLIDO");
+            }
+        } else {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
     public void prepararParaAbandonos() {
         FacesMessage msg = null;
         if (selectedNotificaciones.isEmpty()) {
             abandonosS = true;
             msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
         } else {
-            abandonosS = false;
-            fechaPuestaAbandono = new Date();
-            tipoAbandono = "";
-            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
-            PrimeFaces.current().ajax().addCallbackParam("abait", true);
+            String paraProrroga = getSolicitudesParaProrroga();
+            if (!paraProrroga.isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL/LOS TRÁMITE(S) " + paraProrroga + " ESTÁ(N) PARA PRÓRROGA, POR LO QUE NO SE PUEDE(N) ESTABLECER PARA ABANDONO");
+            } else {
+                abandonosS = false;
+                fechaPuestaAbandono = new Date();
+                tipoAbandono = "";
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
+                PrimeFaces.current().ajax().addCallbackParam("abait", true);
+            }
         }
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
@@ -958,10 +1054,15 @@ public class NotificacionLicenciaBean implements Serializable {
             abandonosS = true;
             msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
         } else {
-            abandonosS = false;
-            tipoAbandono = "";
-            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
-            PrimeFaces.current().ajax().addCallbackParam("abait", true);
+            String paraProrroga = getSolicitudesParaProrroga();
+            if (!paraProrroga.isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL/LOS TRÁMITE(S) " + paraProrroga + " ESTÁ(N) PARA PRÓRROGA, POR LO QUE NO SE PUEDE(N) PASAR A ABANDONO");
+            } else {
+                abandonosS = false;
+                tipoAbandono = "";
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
+                PrimeFaces.current().ajax().addCallbackParam("abait", true);
+            }
         }
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
@@ -975,6 +1076,11 @@ public class NotificacionLicenciaBean implements Serializable {
                 for (int i = 0; i < selectedNotificaciones.size(); i++) {
                     System.out.println(selectedNotificaciones.get(i).getSolicitud());
                     LicenciaUso notaux = selectedNotificaciones.get(i);
+                    if (notaux.getFechaPuestaProrroga() != null) {
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL TRÁMITE " + notaux.getSolicitud() + " ESTÁ PARA PRÓRROGA, POR LO QUE NO SE PUEDE PASAR A ABANDONO");
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                        return;
+                    }
                     notaux.setTipoAbandono(tipoAbandono);
                     notaux.setTipoEstado("ABANDONO");
                     notaux.setFechaAbandono(new Date());
@@ -1016,6 +1122,11 @@ public class NotificacionLicenciaBean implements Serializable {
                     int n = 0;
                     for (int i = 0; i < selectedNotificaciones.size(); i++) {
                         LicenciaUso notaux = selectedNotificaciones.get(i);
+                        if (notaux.getFechaPuestaProrroga() != null) {
+                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL TRÁMITE " + notaux.getSolicitud() + " ESTÁ PARA PRÓRROGA, POR LO QUE NO SE PUEDE ESTABLECER PARA ABANDONO");
+                            FacesContext.getCurrentInstance().addMessage(null, msg);
+                            return;
+                        }
                         notaux.setTipoAbandono(tipoAbandono);
                         notaux.setFechaPuestaAbandono(fechaPuestaAbandono);
                         if (!c.updateLicenciaUso(notaux)) {
@@ -1048,6 +1159,16 @@ public class NotificacionLicenciaBean implements Serializable {
     }
 
     public String getTooltipAbandono(LicenciaUso noti) {
+        if (noti.getFechaPuestaProrroga() != null && noti.getDiasProrroga() != null) {
+            LocalDate limiteProrroga = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(noti.getFechaPuestaProrroga(), noti.getDiasProrroga());
+            long faltanPro = ChronoUnit.DAYS.between(LocalDate.now(), limiteProrroga);
+            if (faltanPro >= 0) {
+                return "Faltan " + faltanPro + " días para pasar el trámite " + noti.getSolicitud() + " a prórroga";
+            } else {
+                return "La prórroga del trámite " + noti.getSolicitud() + " ya venció hace " + Math.abs(faltanPro) + " días";
+            }
+        }
+
         if (noti.getFechaPuestaAbandono() == null || noti.getTipoAbandono() == null) {
             return "";
         }
@@ -1607,6 +1728,14 @@ public class NotificacionLicenciaBean implements Serializable {
      */
     public void setTipoAbandono(String tipoAbandono) {
         this.tipoAbandono = tipoAbandono;
+    }
+
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
     }
 
 }

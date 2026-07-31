@@ -217,6 +217,31 @@ public class PrendaComercial implements Serializable {
 
     @Column(name = "abandono_notificado")
     private boolean abandonoNotificado;
+
+    @Column(name = "fecha_puesta_prorroga")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaPuestaProrroga;
+
+    @Column(name = "fecha_prorroga")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaProrroga;
+
+    @Column(name = "prorroga_notificada")
+    private Boolean prorrogaNotificada;
+
+    @Column(name = "dias_prorroga")
+    private Integer diasProrroga;
+
+    @Column(name = "numero_prorroga")
+    private Integer numeroProrroga;
+
+    @Column(name = "numero_alcance")
+    private String numeroAlcance;
+
+    @Column(name = "fecha_alcance")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaAlcance;
+
     /**
      * @return the id
      */
@@ -1055,6 +1080,62 @@ public class PrendaComercial implements Serializable {
      */
     public void setAbandonoNotificado(boolean abandonoNotificado) {
         this.abandonoNotificado = abandonoNotificado;
+    }
+
+    public Date getFechaPuestaProrroga() {
+        return fechaPuestaProrroga;
+    }
+
+    public void setFechaPuestaProrroga(Date fechaPuestaProrroga) {
+        this.fechaPuestaProrroga = fechaPuestaProrroga;
+    }
+
+    public Date getFechaProrroga() {
+        return fechaProrroga;
+    }
+
+    public void setFechaProrroga(Date fechaProrroga) {
+        this.fechaProrroga = fechaProrroga;
+    }
+
+    public Boolean getProrrogaNotificada() {
+        return prorrogaNotificada;
+    }
+
+    public void setProrrogaNotificada(Boolean prorrogaNotificada) {
+        this.prorrogaNotificada = prorrogaNotificada;
+    }
+
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
+    }
+
+    public Integer getNumeroProrroga() {
+        return numeroProrroga;
+    }
+
+    public void setNumeroProrroga(Integer numeroProrroga) {
+        this.numeroProrroga = numeroProrroga;
+    }
+
+    public String getNumeroAlcance() {
+        return numeroAlcance;
+    }
+
+    public void setNumeroAlcance(String numeroAlcance) {
+        this.numeroAlcance = numeroAlcance;
+    }
+
+    public Date getFechaAlcance() {
+        return fechaAlcance;
+    }
+
+    public void setFechaAlcance(Date fechaAlcance) {
+        this.fechaAlcance = fechaAlcance;
     }
 
 }

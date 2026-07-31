@@ -59,6 +59,7 @@ and open the template in the editor.
                 <a class="itemm" href="resolucioncd.xhtml" title="Desistimientos" >RESOLUCIONES</a>
                 <a class="activo" href="#" title="Caducada" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistidacd.xhtml" title="Desistidas" >DESISTIDAS</a>
+                <a class="itemm" href="prorrogacd.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificadacd.xhtml" title="Notificadas" >NOTIFICADAS</a>
                 <a class="itemm" href="certificadocd.xhtml" title="Certificado Cambio Domicilio" >CERTIFICADO C. DOMICILIO</a>
                 
@@ -224,7 +225,7 @@ and open the template in the editor.
                 </p:panel>
             </h:panelGrid>
 
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true"
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice dlg-cd"
                       header="#{caducadacdBean.dialogTitle}" fitViewport="true" width="80%"
                       widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                       hideEffect="explode" closeOnEscape="true">
@@ -239,7 +240,7 @@ and open the template in the editor.
                             <p:inputText id="solicitudForm" value="#{caducadacdBean.caducada.solicitud}" title="Solicitud" required="true" 
                                          style="background: #aed581 !important; width: 85%; text-transform: uppercase"/>
                             <p:commandButton icon="pi pi-search" class="btn_peque" style="position: absolute;" actionListener="#{caducadacdBean.buscarTramite}"
-                                             rendered="#{caducadacdBean.dialogTitle eq 'NUEVO CADUCADA-NEGADO CAMBIO DE DOMICILIO'?true:false}" process="@parent" update="mensajes frmNuevaT:datosNuevaT"/>
+                                             rendered="#{caducadacdBean.dialogTitle eq 'NUEVO CADUCADA-NEGADO CAMBIO DE DOMICILIO'?true:false}" process="@parent" update="mensajes frmNuevaT:datosNuevaT frmNuevaT:cvTitCancelado" oncomplete="if(args.cancelado){PF('cvTitCancelado').show();}"/>
                         </h:panelGroup>
 
                         <p:outputLabel value="F. Presentacion" for="fpresentacionForm"/>                            
@@ -327,7 +328,15 @@ and open the template in the editor.
                         </p:commandButton>
                         <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar"/>                            
                     </p:panelGrid>
-                </h:form>
+                                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
+                                     header="TÍTULO CANCELADO" severity="alert"
+                                     message="#{caducadacdBean.mensajeCancelado}"
+                                     showEffect="explode" hideEffect="explode">
+                        <p:commandButton value="SÍ, REGISTRAR" type="button" onclick="PF('cvTitCancelado').hide();" class="btn_peque"/>
+                        <p:commandButton value="NO" actionListener="#{caducadacdBean.descartarTramite}" process="@this"
+                                         update="frmNuevaT:datosNuevaT" oncomplete="PF('cvTitCancelado').hide();" class="btn_cerrar"/>
+                    </p:confirmDialog>
+</h:form>
             </p:dialog>
             <p:dialog id="dlgExpediente" modal="true" resizable="true"
                       header="#{caducadacdBean.dialogTitle}" fitViewport="true"

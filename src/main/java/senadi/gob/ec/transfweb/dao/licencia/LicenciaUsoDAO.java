@@ -126,24 +126,25 @@ public class LicenciaUsoDAO extends DAOAbstract<LicenciaUso> {
         Query query = this.getEntityManager().createQuery("Select c from LicenciaUso c where c.tipoEstado = '" + tipo + "' ORDER BY c.fechaResolucion desc, c.resolucionNo desc");
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         int current_year = new Date().getYear() + 1900;
-        if (query.getResultList().isEmpty()) {
-            return 1;
-        } else {
-            LicenciaUso lic = (LicenciaUso) query.getResultList().get(0);
-
+        List<LicenciaUso> resultados = query.getResultList();
+        for (LicenciaUso lic : resultados) {
+            if (lic.getFechaResolucion() == null || lic.getResolucionNo() == null) {
+                continue;
+            }
             int year = lic.getFechaResolucion().getYear() + 1900;
-
             if (current_year == year) {
                 return lic.getResolucionNo() + 1;
             } else {
                 return 1;
             }
         }
+        return 1;
     }
 
     public int getNextLicenciaTerminacionNo(Date fecha) {
         int year = fecha.getYear() + 1900;
-        Query query = this.getEntityManager().createQuery("Select l from LicenciaUso l where l.tipoEstado = 'TERMINACION' and YEAR(l.fechaTerminacion) = :year and l.terminacionNo = (SELECT MAX(l1.terminacionNo) FROM LicenciaUso l1 WHERE l1.tipoEstado = 'TERMINACION' AND YEAR(l1.fechaTerminacion) = :year)");
+//        Query query = this.getEntityManager().createQuery("Select l from LicenciaUso l where l.tipoEstado = 'TERMINACION' and YEAR(l.fechaTerminacion) = :year and l.terminacionNo = (SELECT MAX(l1.terminacionNo) FROM LicenciaUso l1 WHERE l1.tipoEstado = 'TERMINACION' AND YEAR(l1.fechaTerminacion) = :year)");
+        Query query = this.getEntityManager().createQuery("SELECT l FROM LicenciaUso l WHERE l.tipoEstado = 'TERMINACION' AND FUNCTION('YEAR', l.fechaTerminacion) = :year AND l.terminacionNo = (SELECT MAX(l1.terminacionNo) FROM LicenciaUso l1 WHERE l1.tipoEstado = 'TERMINACION' AND FUNCTION('YEAR', l1.fechaTerminacion) = :year)");        
         query.setParameter("year", year);
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
 
@@ -160,19 +161,19 @@ public class LicenciaUsoDAO extends DAOAbstract<LicenciaUso> {
         query.setParameter("tipo", tipo);
         query.setHint("javax.persistence.cache.storeMode", "REFRESH");
         int current_year = new Date().getYear() + 1900;
-        if (query.getResultList().isEmpty()) {
-            return 1;
-        } else {
-            LicenciaUso lic = (LicenciaUso) query.getResultList().get(0);
-
+        List<LicenciaUso> resultados = query.getResultList();
+        for (LicenciaUso lic : resultados) {
+            if (lic.getFechaResolucionCaducada() == null || lic.getResolucionNo() == null) {
+                continue;
+            }
             int year = lic.getFechaResolucionCaducada().getYear() + 1900;
-
             if (current_year == year) {
                 return lic.getResolucionNo() + 1;
             } else {
                 return 1;
             }
         }
+        return 1;
     }
 
     public boolean validarExistenciaLicenciaUso(LicenciaUso licencia) {
@@ -301,6 +302,37 @@ public class LicenciaUsoDAO extends DAOAbstract<LicenciaUso> {
         query.setParameter("tipo", type);
         query.setParameter("fechaLimite", fechaLimiteDate);
         return query.getResultList();
+    }
+
+    public List<LicenciaUso> getProrrogasCandidatas() {
+        Query query = this.getEntityManager().createQuery(
+                "SELECT n FROM LicenciaUso n WHERE n.tipoEstado = 'NOTIFICADA' AND n.fechaPuestaProrroga IS NOT NULL AND n.fechaProrroga IS NULL"
+        );
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
+
+    public int getNextNumeroProrrogaLicencia(Date fechaElaboracion) {
+        Query query = this.getEntityManager().createQuery("Select n from LicenciaUso n where n.tipoEstado = 'PRORROGA' and n.numeroProrroga = (Select MAX(n1.numeroProrroga) from LicenciaUso n1 where n1.tipoEstado = 'PRORROGA')");
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+
+        List<LicenciaUso> prorrogas = query.getResultList();
+        if (prorrogas.isEmpty()) {
+            return 1;
+        } else {
+            LicenciaUso c = prorrogas.get(0);
+
+            int yearElPro = fechaElaboracion.getYear() + 1900;
+            int yearPro = c.getFechaProrroga() != null ? c.getFechaProrroga().getYear() + 1900 : yearElPro;
+
+            if (yearElPro == yearPro) {
+                return (c.getNumeroProrroga() == null ? 0 : c.getNumeroProrroga()) + 1;
+            } else if (yearElPro > yearPro) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
     }
 
 }

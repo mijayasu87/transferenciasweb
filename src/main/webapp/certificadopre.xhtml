@@ -58,6 +58,7 @@ and open the template in the editor.
                 <a class="itemm" href="caducadaprenda.xhtml" title="CADUCADA NEGADA" >CADUCADA NEGADA</a>
                 <a class="itemm" href="desistidaprenda.xhtml" title="Desistida" >DESISTIDAS</a>
                 <a class="itemm" href="levanprenda.xhtml" title="Levantamiento Prenda" >LEVANTAMIENTO</a>
+                <a class="itemm" href="prorrogaprenda.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificadapre.xhtml" title="Notificaciones" >NOTIFICADAS</a> 
                 <a class="activo" href="#" title="CERTIFICADO" >CERTIFICADO P. COMERCIAL</a>
                 <a class="itemm" href="prendrez.xhtml" title="REZAGO" style="display: #{loginBean.lectura eq true?'none':'inline-block'}" >REZAGO</a>
@@ -288,7 +289,7 @@ and open the template in the editor.
                 </p:panel>              
 
             </h:panelGrid>
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true" 
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice dlg-prenda" 
                       header="#{certificadoPrendaBean.dialogTitle}" fitViewport="true"
                       widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                       hideEffect="explode" closeOnEscape="true" width="80%">

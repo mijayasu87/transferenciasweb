@@ -15,8 +15,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import org.primefaces.component.api.UIData;
 import org.primefaces.event.TabChangeEvent;
+import senadi.gob.ec.transfweb.model.Abandono;
 import senadi.gob.ec.transfweb.model.Caducada;
 import senadi.gob.ec.transfweb.model.Desistimiento;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.model.Notificacion;
 import senadi.gob.ec.transfweb.model.ReporteModificacion;
 import senadi.gob.ec.transfweb.model.Transferencia;
@@ -163,7 +165,16 @@ public class ReporteBean implements Serializable {
         List<LicenciaUso> licencias = c.getLicenciasUsoByTitular(titular);
         List<SubLicenciaUso> sublicencias = c.getSublicenciasUsoByTitular(titular);
 
+        List<Abandono> abandonos = c.getAbandonosByTitular(titular);
+        List<Prorroga> prorrogas = c.getProrrogasByTitular(titular);
+
         addsModificaciones(transferencias, notificaciones, desistidas, caducadas, nombres, domicilios, prendas, licencias, sublicencias);
+        for (int i = 0; i < abandonos.size(); i++) {
+            addAbandono(abandonos.get(i));
+        }
+        for (int i = 0; i < prorrogas.size(); i++) {
+            addProrroga(prorrogas.get(i));
+        }
     }
 
     public void buscarTramitesPorFecha(ActionEvent ae) {
@@ -247,7 +258,16 @@ public class ReporteBean implements Serializable {
         List<LicenciaUso> licencias = c.getLicenciasUsoByFecha(fechaInicio, fechaFin);
         List<SubLicenciaUso> sublicencias = c.getSublicenciasUsoByFecha(fechaInicio, fechaFin);
 
+        List<Abandono> abandonos = c.getAbandonosByFecha(fechaInicio, fechaFin);
+        List<Prorroga> prorrogas = c.getProrrogasByFecha(fechaInicio, fechaFin);
+
         addsModificaciones(transferencias, notificaciones, desistidas, caducadas, nombres, domicilios, prendas, licencias, sublicencias);
+        for (int i = 0; i < abandonos.size(); i++) {
+            addAbandono(abandonos.get(i));
+        }
+        for (int i = 0; i < prorrogas.size(); i++) {
+            addProrroga(prorrogas.get(i));
+        }
     }
 
     public void putModificacionesIntoReporteByDenominacion() {
@@ -263,7 +283,16 @@ public class ReporteBean implements Serializable {
         List<LicenciaUso> licencias = c.getLicenciasUsoByDenominacion(denominacion);
         List<SubLicenciaUso> sublicencias = c.getSublicenciasUsoByDenominacion(denominacion);
 
+        List<Abandono> abandonos = c.getAbandonosByDenominacion(denominacion);
+        List<Prorroga> prorrogas = c.getProrrogasByDenominacion(denominacion);
+
         addsModificaciones(transferencias, notificaciones, desistidas, caducadas, nombres, domicilios, prendas, licencias, sublicencias);
+        for (int i = 0; i < abandonos.size(); i++) {
+            addAbandono(abandonos.get(i));
+        }
+        for (int i = 0; i < prorrogas.size(); i++) {
+            addProrroga(prorrogas.get(i));
+        }
     }
 
     public void addsModificaciones(List<Transferencia> transferencias, List<Notificacion> notificaciones,
@@ -321,6 +350,9 @@ public class ReporteBean implements Serializable {
         LicenciaUso lic = c.getLicenciaUsoBySolicitud(tramite);
         SubLicenciaUso sub = c.getSublicenciaUsoBySolicitud(tramite);
 
+        Abandono abandono = c.getAbandonoBySolicitud(tramite);
+        Prorroga prorroga = c.getProrrogaBySolicitud(tramite);
+
         addTransferencia(transferencia);
         addNotificacion(notificacion);
         addDesistida(desistida);
@@ -330,6 +362,8 @@ public class ReporteBean implements Serializable {
         addPrendaComercial(pren);
         addLicenciaUso(lic);
         addSublicencia(sub);
+        addAbandono(abandono);
+        addProrroga(prorroga);
     }
 
     public String validarModificacion(String solicitud, String titulo, int bandera) {
@@ -483,6 +517,62 @@ public class ReporteBean implements Serializable {
         }
     }
 
+    public void addAbandono(Abandono abandono) {
+        if (abandono.getId() != null) {
+            ReporteModificacion rep = new ReporteModificacion();
+            rep.setSolicitud(abandono.getSolicitud());
+            rep.setDenominacion(abandono.getDenominacion());
+            rep.setTipo("TRANSFERENCIA");
+            rep.setEstado("ABANDONO");
+            rep.setCasillero(abandono.getCasilleroSenadi());
+            rep.setFechaPresentacion(abandono.getFechaPresentacion());
+            rep.setFechaRegistro(abandono.getFechaRegistro());
+            rep.setRegistro(abandono.getRegistro());
+            rep.setResponsable(abandono.getResponsable());
+            rep.setSigno(abandono.getSigno());
+
+            rep.setActor1(abandono.getTitularActual());
+            rep.setActor2(abandono.getTitularAnterior());
+
+            rep.setTipoActor1("Titular Actual");
+            rep.setTipoActor2("Titular Anterior");
+
+            rep.setNumDocumento(abandono.getNumeroAbandono() + "");
+            rep.setFechaDocumento(abandono.getFechaAbandono());
+
+            rep.setDocumentoEmitido(abandono.isAbandonoNotificado());
+            reportes.add(rep);
+        }
+    }
+
+    public void addProrroga(Prorroga prorroga) {
+        if (prorroga.getId() != null) {
+            ReporteModificacion rep = new ReporteModificacion();
+            rep.setSolicitud(prorroga.getSolicitud());
+            rep.setDenominacion(prorroga.getDenominacion());
+            rep.setTipo("TRANSFERENCIA");
+            rep.setEstado("PRORROGA");
+            rep.setCasillero(prorroga.getCasilleroSenadi());
+            rep.setFechaPresentacion(prorroga.getFechaPresentacion());
+            rep.setFechaRegistro(prorroga.getFechaRegistro());
+            rep.setRegistro(prorroga.getRegistro());
+            rep.setResponsable(prorroga.getResponsable());
+            rep.setSigno(prorroga.getSigno());
+
+            rep.setActor1(prorroga.getTitularActual());
+            rep.setActor2(prorroga.getTitularAnterior());
+
+            rep.setTipoActor1("Titular Actual");
+            rep.setTipoActor2("Titular Anterior");
+
+            rep.setNumDocumento(prorroga.getNumeroProrroga() + "");
+            rep.setFechaDocumento(prorroga.getFechaProrroga());
+
+            rep.setDocumentoEmitido(prorroga.getProrrogaNotificada() != null && prorroga.getProrrogaNotificada());
+            reportes.add(rep);
+        }
+    }
+
     public void addCambioNombre(CambioNombre cnombre) {
         if (cnombre.getId() != null) {
             ReporteModificacion rep = new ReporteModificacion();
@@ -512,6 +602,12 @@ public class ReporteBean implements Serializable {
             } else if (rep.getEstado().equals("DESISTIDA")) {
                 rep.setNumDocumento(cnombre.getResolucionDesistida() + "");
                 rep.setFechaDocumento(cnombre.getFechaResolucionDesistida());
+            } else if (rep.getEstado().equals("PRORROGA")) {
+                rep.setNumDocumento(cnombre.getNumeroProrroga() + "");
+                rep.setFechaDocumento(cnombre.getFechaProrroga());
+            } else if (rep.getEstado().equals("ABANDONO")) {
+                rep.setNumDocumento(cnombre.getNumeroAbandono() + "");
+                rep.setFechaDocumento(cnombre.getFechaAbandono());
             } else {
                 rep.setNumDocumento(cnombre.getResolucionCaducada() + "");
                 rep.setFechaDocumento(cnombre.getFechaResolucionCaducada());
@@ -556,6 +652,12 @@ public class ReporteBean implements Serializable {
             } else if (rep.getEstado().equals("DESISTIDA")) {
                 rep.setNumDocumento(cdomic.getResolucionDesistida() + "");
                 rep.setFechaDocumento(cdomic.getFechaResolucionDesistida());
+            } else if (rep.getEstado().equals("PRORROGA")) {
+                rep.setNumDocumento(cdomic.getNumeroProrroga() + "");
+                rep.setFechaDocumento(cdomic.getFechaProrroga());
+            } else if (rep.getEstado().equals("ABANDONO")) {
+                rep.setNumDocumento(cdomic.getNumeroAbandono() + "");
+                rep.setFechaDocumento(cdomic.getFechaAbandono());
             } else {
                 rep.setNumDocumento(cdomic.getResolucionCaducada() + "");
                 rep.setFechaDocumento(cdomic.getFechaResolucionCaducada());
@@ -599,6 +701,12 @@ public class ReporteBean implements Serializable {
             } else if (rep.getEstado().equals("NOTIFICADA")) {
                 rep.setNumDocumento(pren.getNotificacion() + "");
                 rep.setFechaDocumento(pren.getFechaNotificacion());
+            } else if (rep.getEstado().equals("PRORROGA")) {
+                rep.setNumDocumento(pren.getNumeroProrroga() + "");
+                rep.setFechaDocumento(pren.getFechaProrroga());
+            } else if (rep.getEstado().equals("ABANDONO")) {
+                rep.setNumDocumento(pren.getNumeroAbandono() + "");
+                rep.setFechaDocumento(pren.getFechaAbandono());
             } else {
                 rep.setNumDocumento(pren.getResolucionNo() + "");
                 rep.setFechaDocumento(pren.getFechaResolucion());
@@ -642,6 +750,12 @@ public class ReporteBean implements Serializable {
             } else if (rep.getEstado().equals("NOTIFICADA")) {
                 rep.setNumDocumento(lic.getNotificacion() + "");
                 rep.setFechaDocumento(lic.getFechaNotificacion());
+            } else if (rep.getEstado().equals("PRORROGA")) {
+                rep.setNumDocumento(lic.getNumeroProrroga() + "");
+                rep.setFechaDocumento(lic.getFechaProrroga());
+            } else if (rep.getEstado().equals("ABANDONO")) {
+                rep.setNumDocumento(lic.getNumeroAbandono() + "");
+                rep.setFechaDocumento(lic.getFechaAbandono());
             } else {
                 rep.setNumDocumento(lic.getResolucionNo() + "");
                 rep.setFechaDocumento(lic.getFechaResolucion());
@@ -685,6 +799,12 @@ public class ReporteBean implements Serializable {
             } else if (rep.getEstado().equals("NOTIFICADA")) {
                 rep.setNumDocumento(sub.getNotificacion() + "");
                 rep.setFechaDocumento(sub.getFechaNotificacion());
+            } else if (rep.getEstado().equals("PRORROGA")) {
+                rep.setNumDocumento(sub.getNumeroProrroga() + "");
+                rep.setFechaDocumento(sub.getFechaProrroga());
+            } else if (rep.getEstado().equals("ABANDONO")) {
+                rep.setNumDocumento(sub.getNumeroAbandono() + "");
+                rep.setFechaDocumento(sub.getFechaAbandono());
             } else {
                 rep.setNumDocumento(sub.getResolucionNo() + "");
                 rep.setFechaDocumento(sub.getFechaResolucion());

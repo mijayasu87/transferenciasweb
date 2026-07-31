@@ -341,11 +341,11 @@ public class DesistimientoCNBean implements Serializable {
         saveEdit = "GUARDAR";
         mensajeConfirmacion = "¿Seguro de guardar el Nuevo Desistimiento Cambio de Nombre?";
         desistimiento = new CambioNombre();
-        Controlador c = new Controlador();
-        desistimiento.setResolucionDesistida(c.getNextNumeroDesistimientoCN());
+        Controlador c = new Controlador();        
+        desistimiento.setResolucionDesistida(c.getNextNumeroDesistimientoCN());        
         desistimiento.setTipoEstado("DESISTIDA");
         desistimiento.setResponsable(loginBean.getUsuario().getAlias());
-        edicion = false;
+        edicion = false;        
         if (desistimiento != null) {
             PrimeFaces.current().ajax().addCallbackParam("doit", true);
         }

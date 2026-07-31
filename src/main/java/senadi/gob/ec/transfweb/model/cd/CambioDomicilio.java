@@ -162,7 +162,30 @@ public class CambioDomicilio implements Serializable {
     
     @Column(name = "abandono_notificado")
     private boolean abandonoNotificado;
+    
+    @Column(name = "fecha_puesta_prorroga")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaPuestaProrroga;
+    
+    @Column(name = "fecha_prorroga")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaProrroga;
+    
+    @Column(name = "prorroga_notificada")
+    private Boolean prorrogaNotificada;
 
+    @Column(name = "dias_prorroga")
+    private Integer diasProrroga;
+    
+    @Column(name = "numero_prorroga")
+    private Integer numeroProrroga;
+
+    @Column(name = "numero_alcance")
+    private String numeroAlcance;
+    
+    @Column(name = "fecha_alcance")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaAlcance;
     /**
      * @return the id
      */
@@ -777,5 +800,103 @@ public class CambioDomicilio implements Serializable {
      */
     public void setAbandonoNotificado(boolean abandonoNotificado) {
         this.abandonoNotificado = abandonoNotificado;
+    }
+
+    /**
+     * @return the fechaPuestaProrroga
+     */
+    public Date getFechaPuestaProrroga() {
+        return fechaPuestaProrroga;
+    }
+
+    /**
+     * @param fechaPuestaProrroga the fechaPuestaProrroga to set
+     */
+    public void setFechaPuestaProrroga(Date fechaPuestaProrroga) {
+        this.fechaPuestaProrroga = fechaPuestaProrroga;
+    }
+
+    /**
+     * @return the fechaProrroga
+     */
+    public Date getFechaProrroga() {
+        return fechaProrroga;
+    }
+
+    /**
+     * @param fechaProrroga the fechaProrroga to set
+     */
+    public void setFechaProrroga(Date fechaProrroga) {
+        this.fechaProrroga = fechaProrroga;
+    }
+
+    /**
+     * @return the prorrogaNotificada
+     */
+    public Boolean getProrrogaNotificada() {
+        return prorrogaNotificada;
+    }
+
+    /**
+     * @param prorrogaNotificada the prorrogaNotificada to set
+     */
+    public void setProrrogaNotificada(Boolean prorrogaNotificada) {
+        this.prorrogaNotificada = prorrogaNotificada;
+    }
+
+    /**
+     * @return the diasProrroga
+     */
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    /**
+     * @param diasProrroga the diasProrroga to set
+     */
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
+    }
+
+    /**
+     * @return the numeroProrroga
+     */
+    public Integer getNumeroProrroga() {
+        return numeroProrroga;
+    }
+
+    /**
+     * @param numeroProrroga the numeroProrroga to set
+     */
+    public void setNumeroProrroga(Integer numeroProrroga) {
+        this.numeroProrroga = numeroProrroga;
+    }
+
+    /**
+     * @return the numeroAlcance
+     */
+    public String getNumeroAlcance() {
+        return numeroAlcance;
+    }
+
+    /**
+     * @param numeroAlcance the numeroAlcance to set
+     */
+    public void setNumeroAlcance(String numeroAlcance) {
+        this.numeroAlcance = numeroAlcance;
+    }
+
+    /**
+     * @return the fechaAlcance
+     */
+    public Date getFechaAlcance() {
+        return fechaAlcance;
+    }
+
+    /**
+     * @param fechaAlcance the fechaAlcance to set
+     */
+    public void setFechaAlcance(Date fechaAlcance) {
+        this.fechaAlcance = fechaAlcance;
     }
 }

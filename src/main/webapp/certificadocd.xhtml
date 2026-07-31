@@ -58,6 +58,7 @@ and open the template in the editor.
                 <a class="itemm" href="resolucioncd.xhtml" title="Resoluciones" >RESOLUCIONES</a>
                 <a class="itemm" href="caducadacd.xhtml" title="Caducada" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistidacd.xhtml" title="Desistidas" >DESISTIDAS</a>
+                <a class="itemm" href="prorrogacd.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificadacd.xhtml" title="Notificadas" >NOTIFICADAS</a>
                 <a class="activo" href="#" title="CERTIFICADO" >CERTIFICADO C. DOMICILIO</a>
                 <a class="itemm" href="cdomrez.xhtml" title="REZAGO" style="display: #{loginBean.lectura eq true?'none':'inline-block'}" >REZAGO</a>
@@ -274,7 +275,7 @@ and open the template in the editor.
                 </p:panel>              
 
             </h:panelGrid>
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true" 
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice dlg-cd" 
                       header="#{certificadocdBean.dialogTitle}" fitViewport="true"
                       widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                       hideEffect="explode" closeOnEscape="true" width="80%">

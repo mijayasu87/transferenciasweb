@@ -21,6 +21,7 @@ import senadi.gob.ec.transfweb.model.cd.CambioDomicilio;
 import senadi.gob.ec.transfweb.model.cn.CambioNombre;
 import senadi.gob.ec.transfweb.model.licencia.LicenciaUso;
 import senadi.gob.ec.transfweb.model.licencia.SubLicenciaUso;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.model.prenda.PrendaComercial;
 import senadi.gob.ec.transfweb.util.LDAP;
 
@@ -60,6 +61,9 @@ public class LoginBean implements Serializable {
 
     private SubLicenciaUso sublicencia;
     private List<SubLicenciaUso> sublicencias;
+
+    private Prorroga prorroga;
+    private List<Prorroga> prorrogas;
 
     private Usuario usuario;
 
@@ -589,6 +593,22 @@ public class LoginBean implements Serializable {
      */
     public void setAbandonos(List<Abandono> abandonos) {
         this.abandonos = abandonos;
+    }
+
+    public Prorroga getProrroga() {
+        return prorroga;
+    }
+
+    public void setProrroga(Prorroga prorroga) {
+        this.prorroga = prorroga;
+    }
+
+    public List<Prorroga> getProrrogas() {
+        return prorrogas;
+    }
+
+    public void setProrrogas(List<Prorroga> prorrogas) {
+        this.prorrogas = prorrogas;
     }
 
     /**

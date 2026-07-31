@@ -258,4 +258,35 @@ public class SublicenciaUsoDAO extends DAOAbstract<SubLicenciaUso> {
         return query.getResultList();
     }
 
+    public List<SubLicenciaUso> getProrrogasCandidatas() {
+        Query query = this.getEntityManager().createQuery(
+                "SELECT n FROM SubLicenciaUso n WHERE n.tipoEstado = 'NOTIFICADA' AND n.fechaPuestaProrroga IS NOT NULL AND n.fechaProrroga IS NULL"
+        );
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        return query.getResultList();
+    }
+
+    public int getNextNumeroProrrogaSublicencia(Date fechaElaboracion) {
+        Query query = this.getEntityManager().createQuery("Select n from SubLicenciaUso n where n.tipoEstado = 'PRORROGA' and n.numeroProrroga = (Select MAX(n1.numeroProrroga) from SubLicenciaUso n1 where n1.tipoEstado = 'PRORROGA')");
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+
+        List<SubLicenciaUso> prorrogas = query.getResultList();
+        if (prorrogas.isEmpty()) {
+            return 1;
+        } else {
+            SubLicenciaUso c = prorrogas.get(0);
+
+            int yearElPro = fechaElaboracion.getYear() + 1900;
+            int yearPro = c.getFechaProrroga() != null ? c.getFechaProrroga().getYear() + 1900 : yearElPro;
+
+            if (yearElPro == yearPro) {
+                return (c.getNumeroProrroga() == null ? 0 : c.getNumeroProrroga()) + 1;
+            } else if (yearElPro > yearPro) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
 }

@@ -21,6 +21,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import senadi.gob.ec.transfweb.bean.LoginBean;
 import senadi.gob.ec.transfweb.dao.AbandonoDAO;
+import senadi.gob.ec.transfweb.dao.ProrrogaDAO;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.dao.CaducadaDAO;
 import senadi.gob.ec.transfweb.dao.CambioCasilleroDAO;
 import senadi.gob.ec.transfweb.dao.DelegacionDAO;
@@ -1372,6 +1374,153 @@ public class Controlador {
     public int getNextNumeroAbandonoCD(Date fechaElaboracion) {
         CambioDomicilioDAO cd = new CambioDomicilioDAO(null);
         return cd.getNextNumeroAbandonoCD(fechaElaboracion);
+    }
+
+    public List<Notificacion> getProrrogasCandidatasTransf() {
+        NotificacionDAO nd = new NotificacionDAO(null);
+        return nd.getProrrogasCandidatas();
+    }
+
+    public List<Abandono> getAbandonosByDenominacion(String denominacion) {
+        AbandonoDAO ad = new AbandonoDAO(null);
+        return ad.getAbandonosByDenominacion(denominacion);
+    }
+
+    public List<Abandono> getAbandonosByTitular(String titular) {
+        AbandonoDAO ad = new AbandonoDAO(null);
+        return ad.getAbandonoByTitular(titular);
+    }
+
+    public Abandono getAbandonoBySolicitud(String solicitud) {
+        AbandonoDAO ad = new AbandonoDAO(null);
+        return ad.getAbandonoBySolicitud(solicitud);
+    }
+
+    public List<Prorroga> getProrrogasByDenominacion(String denominacion) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogasByDenominacion(denominacion);
+    }
+
+    public List<Prorroga> getProrrogasByTitular(String titular) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogaByTitular(titular);
+    }
+
+    public boolean saveProrroga(Prorroga prorroga) {
+        ProrrogaDAO pd = new ProrrogaDAO(prorroga);
+        try {
+            pd.persist();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Error al guardar prorroga: " + ex);
+            return false;
+        }
+    }
+
+    public boolean updateProrroga(Prorroga prorroga) {
+        ProrrogaDAO pd = new ProrrogaDAO(prorroga);
+        try {
+            pd.update();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Error al editar prorroga: " + ex);
+            return false;
+        }
+    }
+
+    public boolean removeProrroga(Prorroga prorroga) {
+        ProrrogaDAO pd = new ProrrogaDAO(prorroga);
+        try {
+            if (!pd.getEntityManager().contains(prorroga)) {
+                prorroga = pd.getEntityManager().merge(prorroga);
+                pd = new ProrrogaDAO(prorroga);
+            }
+            pd.remove();
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Error al remover prorroga: " + ex);
+            return false;
+        }
+    }
+
+    public List<Prorroga> getProrrogas() {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.buscarTodos();
+    }
+
+    public List<Prorroga> getProrrogasByCriteria(String text) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogaByCriteria(text);
+    }
+
+    public List<Prorroga> getProrrogasByFecha(Date ini, Date fin) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogaByFecha(ini, fin);
+    }
+
+    public int getNextNumeroProrrogaTransf(Date fechaProrroga) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getNextNumeroProrroga(fechaProrroga);
+    }
+
+    public boolean validarExistenciaProrroga(Prorroga p) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.validarExistenciaProrroga(p);
+    }
+
+    public Prorroga getProrrogaBySolicitud(String solicitud) {
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogaBySolicitud(solicitud);
+    }
+
+    public List<CambioDomicilio> getProrrogasCandidatasCD() {
+        CambioDomicilioDAO cd = new CambioDomicilioDAO(null);
+        return cd.getProrrogasCandidatas();
+    }
+
+    public int getNextNumeroProrrogaCD(Date fechaElaboracion) {
+        CambioDomicilioDAO cd = new CambioDomicilioDAO(null);
+        return cd.getNextNumeroProrrogaCD(fechaElaboracion);
+    }
+
+    public List<CambioNombre> getProrrogasCandidatasCN() {
+        CambioNombreDAO cn = new CambioNombreDAO(null);
+        return cn.getProrrogasCandidatas();
+    }
+
+    public int getNextNumeroProrrogaCN(Date fechaElaboracion) {
+        CambioNombreDAO cn = new CambioNombreDAO(null);
+        return cn.getNextNumeroProrrogaCN(fechaElaboracion);
+    }
+
+    public List<PrendaComercial> getProrrogasCandidatasPrenda() {
+        PrendaComercialDAO pc = new PrendaComercialDAO(null);
+        return pc.getProrrogasCandidatas();
+    }
+
+    public int getNextNumeroProrrogaPrenda(Date fechaElaboracion) {
+        PrendaComercialDAO pc = new PrendaComercialDAO(null);
+        return pc.getNextNumeroProrrogaPrenda(fechaElaboracion);
+    }
+
+    public List<LicenciaUso> getProrrogasCandidatasLicencia() {
+        LicenciaUsoDAO ld = new LicenciaUsoDAO(null);
+        return ld.getProrrogasCandidatas();
+    }
+
+    public int getNextNumeroProrrogaLicencia(Date fechaElaboracion) {
+        LicenciaUsoDAO ld = new LicenciaUsoDAO(null);
+        return ld.getNextNumeroProrrogaLicencia(fechaElaboracion);
+    }
+
+    public List<SubLicenciaUso> getProrrogasCandidatasSublicencia() {
+        SublicenciaUsoDAO sd = new SublicenciaUsoDAO(null);
+        return sd.getProrrogasCandidatas();
+    }
+
+    public int getNextNumeroProrrogaSublicencia(Date fechaElaboracion) {
+        SublicenciaUsoDAO sd = new SublicenciaUsoDAO(null);
+        return sd.getNextNumeroProrrogaSublicencia(fechaElaboracion);
     }
 
     public int getNextNumeroAbandonoCN(Date fechaElaboracion) {

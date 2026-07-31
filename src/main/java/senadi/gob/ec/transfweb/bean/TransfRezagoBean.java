@@ -412,7 +412,7 @@ public class TransfRezagoBean implements Serializable {
 
     public void cargarRezago(ActionEvent ae) {
         Controlador c = new Controlador();
-        List<RenewalForm> renewals = c.getRenewalsRezagoBytType("TRANSFERENCIA", "23");
+        List<RenewalForm> renewals = c.getRenewalsRezagoBytType("TRANSFERENCIA", "23,24");
         transferencias = c.loadTransferenciasFromRenewals(renewals);
         botonpasar = !transferencias.isEmpty();
         numRegistros = "Número Registros Mostrados: " + transferencias.size();
@@ -422,7 +422,7 @@ public class TransfRezagoBean implements Serializable {
         FacesMessage msg = null;
         if (!criterio.trim().isEmpty() && criterio.trim().length() > 3) {
             Controlador c = new Controlador();
-            List<RenewalForm> renewals = c.getRenewalsRezagoBytTypeAndCriterio("TRANSFERENCIA", "23", criterio.trim().toUpperCase());
+            List<RenewalForm> renewals = c.getRenewalsRezagoBytTypeAndCriterio("TRANSFERENCIA", "23,24", criterio.trim().toUpperCase());
             transferencias = c.loadTransferenciasFromRenewals(renewals);
             botonpasar = !transferencias.isEmpty();
             numRegistros = "Número Registros Mostrados: " + transferencias.size();

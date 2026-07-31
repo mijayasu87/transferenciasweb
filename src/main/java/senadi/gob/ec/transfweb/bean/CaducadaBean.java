@@ -22,6 +22,7 @@ import senadi.gob.ec.transfweb.model.Caducada;
 import senadi.gob.ec.transfweb.model.Documento;
 import senadi.gob.ec.transfweb.model.Historial;
 import senadi.gob.ec.transfweb.model.TituloCancelado;
+import senadi.gob.ec.transfweb.model.Transferencia;
 import senadi.gob.ec.transfweb.model.iepdep.HallmarkForms;
 import senadi.gob.ec.transfweb.model.iepform.ModificacionApp;
 import senadi.gob.ec.transfweb.model.iepform.PaymentReceipt;
@@ -56,11 +57,13 @@ public class CaducadaBean implements Serializable {
     private String dialogTitle;
     private String saveEdit;
     private String mensajeConfirmacion;
+    private String mensajeCancelado;
     private boolean edicion;
 
     private String numRegistros;
 
     private Caducada caducada;
+    private String estadoTemp;
     private String historial;
 
     private String exportName;
@@ -148,6 +151,7 @@ public class CaducadaBean implements Serializable {
 
         saveEdit = "EDITAR";
         edicion = true;
+        estadoTemp = null;
 
         FacesMessage msg = null;
         caducada = (Caducada) caducadaDataTable.getRowData();
@@ -173,6 +177,7 @@ public class CaducadaBean implements Serializable {
         saveEdit = "GUARDAR";
         mensajeConfirmacion = "¿Seguro de guardar el Nuevo Caducada-Negado?";
         caducada = new Caducada();
+        estadoTemp = null;
         edicion = false;
         if (caducada != null) {
             PrimeFaces.current().ajax().addCallbackParam("doit", true);
@@ -184,16 +189,66 @@ public class CaducadaBean implements Serializable {
         if (caducada != null) {
             Controlador c = new Controlador();
             if (caducada.getId() != null) {
-                //Editar Caducada
-                if (c.validarExistenciaCaducada(caducada)) {
-                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
+                if (estadoTemp != null && !estadoTemp.trim().isEmpty()) {
+                    if (estadoTemp.equals("TRANSFERENCIAS")) {
+                        Transferencia transferencia = new Transferencia();
+                        transferencia.setSolicitud(caducada.getSolicitud().toUpperCase());
+                        transferencia.setFechaPresentacion(caducada.getFechaPresentacion());
+                        transferencia.setCertificado(c.getNextNumeroCertificadoTransferencia());
+                        transferencia.setFechaCertificado(new Date());
+                        transferencia.setRegistro(caducada.getRegistro());
+                        transferencia.setFechaRegistro(caducada.getFechaRegistro());
+                        transferencia.setDenominacion(caducada.getDenominacion());
+                        transferencia.setSigno(caducada.getSigno());
+                        transferencia.setTitularAnterior(caducada.getTitularAnterior());
+                        transferencia.setTitularActual(caducada.getTitularActual());
+                        transferencia.setApoderadoRepresentanteLegal(caducada.getApoderadoRepresetante());
+                        transferencia.setFechaNotificacion(caducada.getFechaNotificacion());
+                        transferencia.setRo(caducada.getRo());
+                        transferencia.setCasilleroSenadi(caducada.getCasilleroSenadi());
+                        transferencia.setCasilleroJudicial(caducada.getCasilleroJudicial());
+                        transferencia.setResponsable(caducada.getResponsable());
+                        transferencia.setIdentificacion(caducada.getIdentificacion());
+                        transferencia.setEmail(caducada.getEmail());
+                        transferencia.setComprobante(caducada.getComprobante());
+                        transferencia.setCancelado(caducada.getCancelado());
+                        transferencia.setSolicitante(caducada.getSolicitante());
+
+                        if (c.validarExistenciaTransferencia(transferencia.getSolicitud())) {
+                            PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "EXISTENCIA", "Ya existe un trámite en transferencias con el mismo número de solicitud");
+                        } else {
+                            if (c.saveTransferencia(transferencia)) {
+                                c = new Controlador();
+                                Caducada caducadaActual = c.getCaducadaBySolSenadi(transferencia.getSolicitud());
+
+                                if (c.removeCaducada(caducadaActual)) {
+                                    c.saveHistorial("TRANSFERENCIAS", "CADUCADAS-NEGADAS", transferencia.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                                    loadCaducadas();
+                                    PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "TRANSFERENCIA DE DATOS SATISFACTORIA");
+                                } else {
+                                    PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE HA PODIDO REMOVER LA CADUCADA");
+                                }
+                            } else {
+                                PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN ERROR, INTÉNTELO MÁS TARDE.");
+                            }
+                        }
+                    }
                 } else {
-                    caducada.setSolicitud(caducada.getSolicitud());
-                    if (c.updateCaducada(caducada)) {
-                        PrimeFaces.current().ajax().addCallbackParam("saved", true);
-                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "CADUCADA EDITADA CON ÉXITO");
+                    //Editar Caducada
+                    if (c.validarExistenciaCaducada(caducada)) {
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
                     } else {
-                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "INFORMACIÓN", "HUBO UN PROBLEMA AL EDITAR EL CADUCADA");
+                        caducada.setSolicitud(caducada.getSolicitud());
+                        if (c.updateCaducada(caducada)) {
+                            PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "CADUCADA EDITADA CON ÉXITO");
+                        } else {
+                            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "INFORMACIÓN", "HUBO UN PROBLEMA AL EDITAR EL CADUCADA");
+                        }
                     }
                 }
 
@@ -211,21 +266,9 @@ public class CaducadaBean implements Serializable {
                                 && caducada.getRegistro() != null && !caducada.getRegistro().trim().isEmpty()) {
                             if (c.existsTituloCanceladoByTituloAndDenominacion(caducada.getRegistro(), caducada.getDenominacion(), false)) {
                                 TituloCancelado titca = c.getTituloCanceladoByTituloAndDenoninacion(caducada.getRegistro(), caducada.getDenominacion());
-                                if (titca.getId() != null && titca.getTipoCancelacion().contains("TOTAL")) {
-                                    msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN '"
-                                            + caducada.getDenominacion() + "' SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-                                    caducada = new Caducada();
-                                    habilitado = false;
-                                } else if (titca.getId() != null && titca.getTipoCancelacion().contains("PARCIAL")) {
-                                    caducada.setCancelado(titca.getTipoCancelacion());
-                                    msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN '"
-                                            + caducada.getDenominacion() + "' SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-                                } else {
-                                    msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN '"
-                                            + caducada.getDenominacion() + "' SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-                                    caducada = new Caducada();
-                                    habilitado = false;
-                                }
+                                caducada.setCancelado(titca.getTipoCancelacion());
+                                mensajeConfirmacion = "EL TÍTULO " + caducada.getRegistro() + " ESTÁ CANCELADO DE MANERA " + titca.getTipoCancelacion() + ". ¿DESEA REGISTRARLO DE TODAS MANERAS?";
+                                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " ESTÁ CANCELADO; CONFIRME SI DESEA REGISTRARLO DE TODAS MANERAS");
                             } else {
                                 habilitado = true;
                             }
@@ -370,55 +413,29 @@ public class CaducadaBean implements Serializable {
                                             caducada.setApoderadoRepresetante(c.getNamesPersonRenewalTextTypeByIdRenewal(rf.getId(), "AGENT"));
                                         }
 
-//                                        if (caducada.getRegistro() != null && !caducada.getRegistro().trim().isEmpty()) {
-//                                            if (caducada.getDenominacion() != null && !caducada.getDenominacion().trim().isEmpty()) {
-//                                                if (rf.getExpedient() != null && !rf.getExpedient().trim().isEmpty()) {
-//                                                    if (c.existsTituloCanceladoByTituloAndExpediente(caducada.getRegistro(), rf.getExpedient(), false)) {
-//                                                        TituloCancelado titca = c.getTituloCanceladoByTituloAndExpediente(caducada.getRegistro(), rf.getExpedient());
-//                                                        if (titca.getId() != null && titca.getTipoCancelacion().contains("TOTAL")) {
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                            caducada = new Caducada();
-//                                                        } else if (titca.getId() != null && titca.getTipoCancelacion().equals("PARCIAL")) {
-//                                                            caducada.setCancelado(titca.getTipoCancelacion());
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                        } else {
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                            caducada = new Caducada();
-//                                                        }
-//                                                    } else {
-//                                                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "DATOS CARGADOS CORRECTAMENTE");
-//                                                    }
-//                                                } else {
-//                                                    if (c.existsTituloCanceladoByTituloAndDenominacion(caducada.getRegistro(), caducada.getDenominacion(), false)) {
-//                                                        TituloCancelado titca = c.getTituloCanceladoByTituloAndDenoninacion(caducada.getRegistro(), caducada.getDenominacion());
-//                                                        if (titca.getId() != null && titca.getTipoCancelacion().equals("TOTAL")) {
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                            caducada = new Caducada();
-//                                                        } else if (titca.getId() != null && titca.getTipoCancelacion().equals("PARCIAL")) {
-//                                                            caducada.setCancelado(titca.getTipoCancelacion());
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                        } else {
-//                                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " CON DENOMINACIÓN "
-//                                                                    + caducada.getDenominacion() + " SE ENCUENTRA CANCELADO DE MANERA " + titca.getTipoCancelacion() + "; CONSULTE EN EL LISTADO DE TÍTULOS CANCELADOS");
-//                                                            caducada = new Caducada();
-//                                                        }
-//                                                    } else {
-                                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "DATOS CARGADOS CORRECTAMENTE");
-//                                                    }
-//                                                }
-//
-//                                            } else {
-//                                                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DATOS CARGADOS, PERO NO SE ENCONTRÓ LA DENOMINACIÓN");
-//                                            }
-//
-//                                        } else {
-//                                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DATOS CARGADOS, PERO NO SE ENCONTRÓ EL NÚMERO DE TÍTULO");
-//                                        }
+                                        if (caducada.getRegistro() != null && !caducada.getRegistro().trim().isEmpty()
+                                                && caducada.getDenominacion() != null && !caducada.getDenominacion().trim().isEmpty()) {
+                                            boolean cancelado = false;
+                                            TituloCancelado titca = null;
+                                            if (rf.getExpedient() != null && !rf.getExpedient().trim().isEmpty()
+                                                    && c.existsTituloCanceladoByTituloAndExpediente(caducada.getRegistro(), rf.getExpedient(), false)) {
+                                                titca = c.getTituloCanceladoByTituloAndExpediente(caducada.getRegistro(), rf.getExpedient());
+                                                cancelado = true;
+                                            } else if (c.existsTituloCanceladoByTituloAndDenominacion(caducada.getRegistro(), caducada.getDenominacion(), false)) {
+                                                titca = c.getTituloCanceladoByTituloAndDenoninacion(caducada.getRegistro(), caducada.getDenominacion());
+                                                cancelado = true;
+                                            }
+                                            if (cancelado && titca != null && titca.getTipoCancelacion() != null) {
+                                                caducada.setCancelado(titca.getTipoCancelacion());
+                                                mensajeCancelado = "EL TÍTULO " + caducada.getRegistro() + " ESTÁ CANCELADO DE MANERA " + titca.getTipoCancelacion() + ". ¿DESEA REGISTRARLO DE TODAS MANERAS?";
+                                                PrimeFaces.current().ajax().addCallbackParam("cancelado", true);
+                                                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "EL TÍTULO " + caducada.getRegistro() + " ESTÁ CANCELADO; CONFIRME SI DESEA REGISTRARLO DE TODAS MANERAS");
+                                            } else {
+                                                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "DATOS CARGADOS CORRECTAMENTE");
+                                            }
+                                        } else {
+                                            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "DATOS CARGADOS CORRECTAMENTE");
+                                        }
 
                                     } else {
                                         msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "TRÁMITE ENCONTRADO PERO NO ES UNA TRANSFERENCIA, SINO " + t.getName());
@@ -691,6 +708,18 @@ public class CaducadaBean implements Serializable {
         this.mensajeConfirmacion = mensajeConfirmacion;
     }
 
+    public String getMensajeCancelado() {
+        return mensajeCancelado;
+    }
+
+    public void setMensajeCancelado(String mensajeCancelado) {
+        this.mensajeCancelado = mensajeCancelado;
+    }
+
+    public void descartarTramite() {
+        caducada = new Caducada();
+    }
+
     /**
      * @return the edicion
      */
@@ -738,6 +767,20 @@ public class CaducadaBean implements Serializable {
      */
     public String getHistorial() {
         return historial;
+    }
+
+    /**
+     * @return the estadoTemp
+     */
+    public String getEstadoTemp() {
+        return estadoTemp;
+    }
+
+    /**
+     * @param estadoTemp the estadoTemp to set
+     */
+    public void setEstadoTemp(String estadoTemp) {
+        this.estadoTemp = estadoTemp;
     }
 
     /**

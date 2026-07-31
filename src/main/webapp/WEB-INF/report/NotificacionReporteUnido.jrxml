@@ -81,9 +81,9 @@
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format(new Date())+", notifiqué la providencia que antecede, a: "+
 $F{titular_actual}.replace("&","&amp;")+", mediante boleta depositada en la casilla virtual "+
 $F{casillero_senadi}+"-"+$F{casillero_judicial}+", correspondiente a su apoderado/a "+$F{apoderado_representante_legal}+
-".- Lo que certifico, en virtud de la delegación de la Directora de Gestión Institucional conferida mediante Resolución Nro. "+$P{resolucionnot}+"."+
+".- Lo que certifico, por delegación de la directora general del Servicio Nacional de Derechos Intelectuales, conferida mediante Resolución Nro. "+$P{resolucionnot}+"."+
 "\n\nToda contestación a la presente se la receptará exclusivamente a través del aplicativo de alcances a modificaciones correspondiente al dominio: \n\n"+
-"<style pdfFontName='Times-Bold'>https://buscadores.derechosintelectuales.gob.ec/alcancesmodificaciones/login.xhtml</style>"]]></variableExpression>
+"<style pdfFontName='Times-Bold'>https://buscadores.derechosintelectuales.gob.ec/alcancesenadi/login.xhtml</style>"]]></variableExpression>
 	</variable>
 	<background>
 		<band height="802" splitType="Stretch">

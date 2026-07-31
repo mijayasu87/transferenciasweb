@@ -4,6 +4,7 @@
  */
 package senadi.gob.ec.transfweb.cron;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Schedule;
@@ -12,6 +13,7 @@ import javax.ejb.Startup;
 import javax.transaction.Transactional;
 import senadi.gob.ec.transfweb.model.Abandono;
 import senadi.gob.ec.transfweb.model.Notificacion;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.model.cd.CambioDomicilio;
 import senadi.gob.ec.transfweb.model.cn.CambioNombre;
 import senadi.gob.ec.transfweb.model.licencia.LicenciaUso;
@@ -43,6 +45,184 @@ public class PasarAbandonoScheduler {
         createAbandonosPrendaComercial(erjafe, coa, reglamento);
         createAbandonosLicenciaUso(erjafe, coa, reglamento);
         createAbandonosSubLicenciaUso(erjafe, coa, reglamento);
+
+        createProrrogasCambioDomicilio();
+        createProrrogasCambioNombre();
+        createProrrogasPrendaComercial();
+        createProrrogasLicenciaUso();
+        createProrrogasSubLicenciaUso();
+        createProrrogasTransferencia();
+    }
+
+    public void createProrrogasTransferencia() {
+        Controlador c = new Controlador();
+        List<Notificacion> candidatas = c.getProrrogasCandidatasTransf();
+        for (int i = 0; i < candidatas.size(); i++) {
+            Notificacion notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                Prorroga prorroga = new Prorroga();
+                prorroga.setSolicitud(notaux.getSolicitud());
+                prorroga.setFechaPresentacion(notaux.getFechaPresentacion());
+                prorroga.setNotificacion(notaux.getNotificacion());
+                prorroga.setFechaNotificacion(notaux.getFechaNotificacion());
+                prorroga.setRegistro(notaux.getRegistro());
+                prorroga.setFechaRegistro(notaux.getFechaRegistro());
+                prorroga.setDenominacion(notaux.getDenominacion());
+                prorroga.setSigno(notaux.getSigno());
+                prorroga.setTitularAnterior(notaux.getTitularAnterior());
+                prorroga.setTitularActual(notaux.getTitularActual());
+                prorroga.setApeApodRepre(notaux.getApeApodRepre());
+                prorroga.setRo(notaux.getRo());
+                prorroga.setCasilleroSenadi(notaux.getCasilleroSenadi());
+                prorroga.setCasilleroJudicial(notaux.getCasilleroJudicial());
+                prorroga.setResponsable(notaux.getResponsable());
+                prorroga.setIdentificacion(notaux.getIdentificacion());
+                prorroga.setDomicilioTitularActual(notaux.getDomicilioTitularActual());
+                prorroga.setFechaElaboraNotificacion(notaux.getFechaElaboraNotificacion());
+                prorroga.setEmail(notaux.getEmail());
+                prorroga.setFechaCertificado(notaux.getFechaCertificado());
+                prorroga.setComprobante(notaux.getComprobante());
+                prorroga.setCertificado(notaux.getCertificado());
+                prorroga.setCertificadoEmitido(notaux.isCertificadoEmitido());
+                prorroga.setNotificacionEmitida(notaux.isNotificacionEmitida());
+                prorroga.setCancelado(notaux.getCancelado());
+                prorroga.setSolicitante(notaux.getSolicitante());
+                prorroga.setFechaPuestaProrroga(notaux.getFechaPuestaProrroga());
+                prorroga.setDiasProrroga(notaux.getDiasProrroga());
+                prorroga.setNumeroAlcance(notaux.getNumeroAlcance());
+                prorroga.setFechaAlcance(notaux.getFechaAlcance());
+                prorroga.setFechaProrroga(new Date());
+                prorroga.setNumeroProrroga(c.getNextNumeroProrrogaTransf(new Date()));
+                if (!c.saveProrroga(prorroga)) {
+                    System.out.println("No se pudo pasar la notificación transf " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                } else {
+                    if (c.removeNotificacion(notaux)) {
+                        c.saveHistorial("PRORROGA", "NOTIFICADAS", prorroga.getSolicitud(), "PASADO A", 0, "modificaciones");
+                    }
+                }
+            }
+        }
+    }
+
+    public void createProrrogasLicenciaUso() {
+        Controlador c = new Controlador();
+        List<LicenciaUso> candidatas = c.getProrrogasCandidatasLicencia();
+        for (int i = 0; i < candidatas.size(); i++) {
+            LicenciaUso notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                notaux.setTipoEstado("PRORROGA");
+                notaux.setFechaProrroga(new Date());
+                notaux.setNumeroProrroga(c.getNextNumeroProrrogaLicencia(new Date()));
+                if (c.updateLicenciaUso(notaux)) {
+                    c.saveHistorial("PRORROGA", "NOTIFICADAS", notaux.getSolicitud(), "PASADO A", 0, "modificaciones");
+                } else {
+                    System.out.println("No se pudo pasar la notificación licencia " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                }
+            }
+        }
+    }
+
+    public void createProrrogasSubLicenciaUso() {
+        Controlador c = new Controlador();
+        List<SubLicenciaUso> candidatas = c.getProrrogasCandidatasSublicencia();
+        for (int i = 0; i < candidatas.size(); i++) {
+            SubLicenciaUso notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                notaux.setTipoEstado("PRORROGA");
+                notaux.setFechaProrroga(new Date());
+                notaux.setNumeroProrroga(c.getNextNumeroProrrogaSublicencia(new Date()));
+                if (c.updateSublicenciaUso(notaux)) {
+                    c.saveHistorial("PRORROGA", "NOTIFICADAS", notaux.getSolicitud(), "PASADO A", 0, "modificaciones");
+                } else {
+                    System.out.println("No se pudo pasar la notificación sublicencia " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                }
+            }
+        }
+    }
+
+    public void createProrrogasPrendaComercial() {
+        Controlador c = new Controlador();
+        List<PrendaComercial> candidatas = c.getProrrogasCandidatasPrenda();
+        for (int i = 0; i < candidatas.size(); i++) {
+            PrendaComercial notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                notaux.setTipoEstado("PRORROGA");
+                notaux.setFechaProrroga(new Date());
+                notaux.setNumeroProrroga(c.getNextNumeroProrrogaPrenda(new Date()));
+                if (c.updatePrendaComercial(notaux)) {
+                    c.saveHistorial("PRORROGA", "NOTIFICADAS", notaux.getSolicitud(), "PASADO A", 0, "modificaciones");
+                } else {
+                    System.out.println("No se pudo pasar la notificación prenda " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                }
+            }
+        }
+    }
+
+    public void createProrrogasCambioDomicilio() {
+        Controlador c = new Controlador();
+        List<CambioDomicilio> candidatas = c.getProrrogasCandidatasCD();
+        for (int i = 0; i < candidatas.size(); i++) {
+            CambioDomicilio notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            // Se pasa a prórroga cuando ya se cumplió el plazo (hoy no es anterior a la fecha límite)
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                notaux.setTipoEstado("PRORROGA");
+                notaux.setFechaProrroga(new Date());
+                notaux.setNumeroProrroga(c.getNextNumeroProrrogaCD(new Date()));
+                if (c.updateCambioDomicilio(notaux)) {
+                    c.saveHistorial("PRORROGA", "NOTIFICADAS", notaux.getSolicitud(), "PASADO A", 0, "modificaciones");
+                } else {
+                    System.out.println("No se pudo pasar la notificación cd " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                }
+            }
+        }
+    }
+
+    public void createProrrogasCambioNombre() {
+        Controlador c = new Controlador();
+        List<CambioNombre> candidatas = c.getProrrogasCandidatasCN();
+        for (int i = 0; i < candidatas.size(); i++) {
+            CambioNombre notaux = candidatas.get(i);
+            if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) {
+                continue;
+            }
+            LocalDate fechaLimite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
+            if (!LocalDate.now().isBefore(fechaLimite)) {
+                notaux.setTipoEstado("PRORROGA");
+                notaux.setFechaProrroga(new Date());
+                notaux.setNumeroProrroga(c.getNextNumeroProrrogaCN(new Date()));
+                if (c.updateCambioNombre(notaux)) {
+                    c.saveHistorial("PRORROGA", "NOTIFICADAS", notaux.getSolicitud(), "PASADO A", 0, "modificaciones");
+                } else {
+                    System.out.println("No se pudo pasar la notificación cn " + notaux.getSolicitud() + " a prórroga");
+                    return;
+                }
+            }
+        }
     }
 
     public void createAbandonosSubLicenciaUso(int erjafe, int coa, int reglamento) {
@@ -206,7 +386,7 @@ public class PasarAbandonoScheduler {
             abandono.setFechaAbandono(new Date());
             abandono.setNumeroAbandono(c.getNextNumeroAbandono(abandono.getFechaAbandono()));
 
-            abandono.setFechaElaboraNotificacion(new Date());
+            abandono.setFechaElaboraNotificacion(notaux.getFechaNotificacion());
             abandono.setNotificacion(notaux.getNotificacion());
             abandono.setFechaNotificacion(notaux.getFechaNotificacion());
             abandono.setRegistro(notaux.getRegistro());

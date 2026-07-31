@@ -60,6 +60,7 @@ and open the template in the editor.
                 <a class="activo" href="#" title="Caducadas" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistidalic.xhtml" title="Caducadas" >DESISTIDAS</a>                
                 <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a> 
+                <a class="itemm" href="prorrogalic.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificadalic.xhtml" title="Notificada licencia" >NOTIFICADAS</a> 
                 <a class="itemm" href="certificadolic.xhtml" title="Certificado Cambio Nombre" >CERTIFICADO LICENCIA</a>
             </div>
@@ -225,7 +226,7 @@ and open the template in the editor.
                 </p:panel>
             </h:panelGrid>
 
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true"
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice dlg-lic"
                       header="#{caducadaLicenciaBean.dialogTitle}" fitViewport="true" width="80%"
                       widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                       hideEffect="explode" closeOnEscape="true">
@@ -240,7 +241,7 @@ and open the template in the editor.
                             <p:inputText id="solicitudForm" value="#{caducadaLicenciaBean.caducada.solicitud}" title="Solicitud" required="true" 
                                          style="background: #aed581 !important; width: 85%; text-transform: uppercase"/>
                             <p:commandButton icon="pi pi-search" class="btn_peque" style="position: absolute;" actionListener="#{caducadaLicenciaBean.buscarTramite}"
-                                             rendered="#{caducadaLicenciaBean.dialogTitle eq 'NUEVO CADUCADA-NEGADO LICENCIA'?true:false}" process="@parent" update="mensajes frmNuevaT:datosNuevaT"/>
+                                             rendered="#{caducadaLicenciaBean.dialogTitle eq 'NUEVO CADUCADA-NEGADO LICENCIA'?true:false}" process="@parent" update="mensajes frmNuevaT:datosNuevaT frmNuevaT:cvTitCancelado" oncomplete="if(args.cancelado){PF('cvTitCancelado').show();}"/>
                         </h:panelGroup>
 
                         <p:outputLabel value="F. Presentacion" for="fpresentacionForm"/>                            
@@ -316,7 +317,15 @@ and open the template in the editor.
                         </p:commandButton>
                         <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar"/>                            
                     </p:panelGrid>
-                </h:form>
+                                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
+                                     header="TÍTULO CANCELADO" severity="alert"
+                                     message="#{caducadaLicenciaBean.mensajeCancelado}"
+                                     showEffect="explode" hideEffect="explode">
+                        <p:commandButton value="SÍ, REGISTRAR" type="button" onclick="PF('cvTitCancelado').hide();" class="btn_peque"/>
+                        <p:commandButton value="NO" actionListener="#{caducadaLicenciaBean.descartarTramite}" process="@this"
+                                         update="frmNuevaT:datosNuevaT" oncomplete="PF('cvTitCancelado').hide();" class="btn_cerrar"/>
+                    </p:confirmDialog>
+</h:form>
             </p:dialog>
             
             <p:dialog id="dlgExpediente" modal="true" resizable="true"

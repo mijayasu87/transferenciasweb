@@ -57,6 +57,7 @@ and open the template in the editor.
                 <a class="itemm" href="abandonocn.xhtml" title="Abandono" >ABANDONO</a>
                 <a class="itemm" href="caducadacn.xhtml" title="Caducadas" >CADUCADAS-NEGADAS</a> 
                 <a class="itemm" href="desistidacn.xhtml" title="Desistidas" >DESISTIDAS</a> 
+                <a class="itemm" href="prorrogacn.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="notificadacn.xhtml" title="Notificaciones" >NOTIFICADAS</a>
                 <a class="activo" href="#" title="CERTIFICADO" >CERTIFICADO C. NOMBRE</a>
                 <a class="itemm" href="cnomrez.xhtml" title="REZAGO" style="display: #{loginBean.lectura eq true?'none':'inline-block'}" >REZAGO</a>
@@ -278,7 +279,7 @@ and open the template in the editor.
                 </p:panel>              
 
             </h:panelGrid>
-            <p:dialog id="dlgNuevaT" modal="true" resizable="true" 
+            <p:dialog id="dlgNuevaT" modal="true" resizable="true" styleClass="dlgFormNice dlg-cn" 
                       header="#{certificadocnBean.dialogTitle}" fitViewport="true"
                       widgetVar="dlgNuevaT" style="font-size: 11px; margin-bottom: 10px" showEffect="explode" 
                       hideEffect="explode" closeOnEscape="true" width="80%">
