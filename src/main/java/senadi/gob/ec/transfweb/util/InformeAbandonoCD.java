@@ -114,7 +114,7 @@ public class InformeAbandonoCD extends HttpServlet {
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/AbandonoReportCOAO.jrxml");
                         nombre = abandono.getSolicitud() + "_ab_coa_cd_" + abandono.getNumeroAbandono();
                     }
-                    arb = report.viewAbandonoProrrogaAllMasterBytes(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio", new Resolucion());
+                    arb = report.viewAbandonoAllMasterBytes(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio", new Resolucion());
                     File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                     FileOutputStream outs = new FileOutputStream(fileTemp);
                     outs.write(arb);
@@ -150,21 +150,21 @@ public class InformeAbandonoCD extends HttpServlet {
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/AbandonoReportREGLAMENTOO.jrxml");
-                        in = report.viewAbandonoProrrogaAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
+                        in = report.viewAbandonoAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
                     } else if (abandono.getTipoAbandono().equals("ERJAFE")) {
                         System.out.println("erjafe");
                         nombre = abandono.getSolicitud() + "_abandono_cd_erj_" + abandono.getNumeroAbandono();
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/AbandonoReportERJAFEO.jrxml");
-                        in = report.viewAbandonoProrrogaAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
+                        in = report.viewAbandonoAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
                     } else {
                         System.out.println("coa");
                         nombre = abandono.getSolicitud() + "_abandono_cd_coa_" + abandono.getNumeroAbandono();
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/AbandonoReportCOAO.jrxml");
-                        in = report.viewAbandonoProrrogaAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
+                        in = report.viewAbandonoAll(path, is, abandono.getId(), "archivo.xls", delegado, delegacion, secretaria, "cambio_domicilio",new Resolucion());
                     }
                 }
                 int bit;

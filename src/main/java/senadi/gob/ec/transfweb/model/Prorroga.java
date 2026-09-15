@@ -58,8 +58,11 @@ public class Prorroga implements Serializable {
     @Column(name = "titular_actual")
     private String titularActual;
 
-    @Column(name = "apoderado_representante_legal")
+    @Column(name = "ape_apod_repre")
     private String apeApodRepre;
+    
+    @Column(name = "apoderado_representante_legal")
+    private String apoderadoRepresentanteLegal;
 
     @Column(name = "ro")
     private String ro;
@@ -674,6 +677,20 @@ public class Prorroga implements Serializable {
      */
     public void setFechaAlcance(Date fechaAlcance) {
         this.fechaAlcance = fechaAlcance;
+    }
+
+    /**
+     * @return the apoderadoRepresentanteLegal
+     */
+    public String getApoderadoRepresentanteLegal() {
+        return apoderadoRepresentanteLegal;
+    }
+
+    /**
+     * @param apoderadoRepresentanteLegal the apoderadoRepresentanteLegal to set
+     */
+    public void setApoderadoRepresentanteLegal(String apoderadoRepresentanteLegal) {
+        this.apoderadoRepresentanteLegal = apoderadoRepresentanteLegal;
     }
 
 }

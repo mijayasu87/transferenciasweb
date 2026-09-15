@@ -490,7 +490,7 @@ public class TransferenciaBean implements Serializable {
                             notificacion.setCasilleroJudicial(transferencia.getCasilleroJudicial());
                             notificacion.setResponsable(transferencia.getResponsable());
                             notificacion.setIdentificacion(transferencia.getIdentificacion());
-                            notificacion.setCertificado(transferencia.getCertificado() + "");
+                            notificacion.setCertificado(transferencia.getCertificado() == null ? null : transferencia.getCertificado() + "");
                             notificacion.setFechaCertificado(transferencia.getFechaCertificado());
                             notificacion.setDomicilioTitularActual(transferencia.getDomicilioTitularActual());
                             notificacion.setComprobante(transferencia.getComprobante());
@@ -524,7 +524,7 @@ public class TransferenciaBean implements Serializable {
                             Desistimiento desist = new Desistimiento();
                             desist.setSolicitud(transferencia.getSolicitud().toUpperCase());
                             desist.setFechaSolicitud(transferencia.getFechaPresentacion());
-                            desist.setResolucion(transferencia.getCertificado() + "");
+                            desist.setResolucion(transferencia.getCertificado() == null ? null : transferencia.getCertificado() + "");
                             desist.setFechaResolucion(transferencia.getFechaCertificado());
                             desist.setTitulo(transferencia.getRegistro());
                             desist.setFechaTitulo(transferencia.getFechaRegistro());
@@ -571,7 +571,7 @@ public class TransferenciaBean implements Serializable {
                             Caducada caducada = new Caducada();
                             caducada.setSolicitud(transferencia.getSolicitud().toUpperCase());
                             caducada.setFechaPresentacion(transferencia.getFechaPresentacion()); //<-----------
-                            caducada.setResolucion(transferencia.getCertificado() + "");
+                            caducada.setResolucion(transferencia.getCertificado() == null ? null : transferencia.getCertificado() + "");
                             caducada.setFechaResolucion(transferencia.getFechaCertificado());
                             caducada.setRegistro(transferencia.getRegistro());
                             caducada.setFechaRegistro(transferencia.getFechaRegistro());

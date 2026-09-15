@@ -26,7 +26,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
  * @author Michael Yanangómez
  */
 public class Operaciones {
-    
+
     //produccion
     public static String user = "root";
     public static String pass = "B8GJuaxu4Y:2020";
@@ -38,11 +38,10 @@ public class Operaciones {
 //    public static String pass = "MichaRoot6*";
 //    public static String basd = "senadi_transferencia";
 //    public static String host = "localhost";
-    
     //Producción    
     public static String USER = "iepi-solicitudes";
     public static String PASSWORD = "5ad0d5c3fced39d5048f";
-    public static String iepi_formularios = "jdbc:mysql://10.0.20.130:3306/iepi_formularios";   
+    public static String iepi_formularios = "jdbc:mysql://10.0.20.130:3306/iepi_formularios";
     public static String iepi_depurar = "jdbc:mysql://10.0.20.130:3306/iepi_depurar";
     public static String iepi_casilleros = "jdbc:mysql://10.0.20.130:3306/iepi_casilleros";
     public static String iepi_admin = "jdbc:mysql://10.0.20.130:3306/iepi_admin";
@@ -54,10 +53,7 @@ public class Operaciones {
 //    public static String iepi_depurar = "jdbc:mysql://10.0.26.130:3306/iepi_depurar";
 //    public static String iepi_casilleros = "jdbc:mysql://10.0.26.130:3306/iepi_casilleros";
 //    public static String iepi_admin = "jdbc:mysql://10.0.26.130:3306/iepi_admin";
-    
-    public static String RUTA_RENEWAL = "https://registro.propiedadintelectual.gob.ec/solicitudes/media/files/renewal_forms/";    
-
-    
+    public static String RUTA_RENEWAL = "https://registro.propiedadintelectual.gob.ec/solicitudes/media/files/renewal_forms/";
 
     public static String getCurrentTimeStamp() {
         Date dt = new Date();
@@ -369,6 +365,21 @@ public class Operaciones {
         return fecha;
     }
 
+    public static boolean esSolicitudIepi(String solicitud) {
+        return solicitud != null && solicitud.trim().toUpperCase().startsWith("IEPI");
+    }
+
+    /**
+     * Fecha límite de una prórroga. En los trámites SENADI el plazo se cuenta en días laborables
+     * y en los trámites IEPI en días de corrido.
+     */
+    public static LocalDate calcularFechaLimiteProrroga(String solicitud, Date fechaInicio, int dias) {
+        if (esSolicitudIepi(solicitud)) {
+            return fechaInicio.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(dias);
+        }
+        return calcularFechaLimiteExcluyendoFinesSemana(fechaInicio, dias);
+    }
+
     public static LocalDate calcularFechaLimiteExcluyendoFinesSemana(int diasHabiles) {
         LocalDate fecha = LocalDate.now();
         int cont = 0;
@@ -382,6 +393,104 @@ public class Operaciones {
         }
 
         return fecha;
+    }
+
+    private static final String[] UNIDADES = {
+        "", "uno", "dos", "tres", "cuatro", "cinco",
+        "seis", "siete", "ocho", "nueve"
+    };
+
+    private static final String[] DECENAS = {
+        "diez", "once", "doce", "trece", "catorce", "quince",
+        "dieciséis", "diecisiete", "dieciocho", "diecinueve"
+    };
+
+    private static final String[] DIEZ_DIEZ = {
+        "", "", "veinte", "treinta", "cuarenta",
+        "cincuenta", "sesenta", "setenta", "ochenta", "noventa"
+    };
+
+    private static final String[] CENTENAS = {
+        "", "ciento", "doscientos", "trescientos",
+        "cuatrocientos", "quinientos", "seiscientos",
+        "setecientos", "ochocientos", "novecientos"
+    };
+
+    public static String convertir(int numero) {
+
+        if (numero == 0) {
+            return "cero";
+        }
+
+        if (numero < 0) {
+            return "menos " + convertir(-numero);
+        }
+
+        return convertirNumero(numero).trim();
+    }
+
+    public static String convertirNumero(int numero) {
+
+        if (numero < 10) {
+            return UNIDADES[numero];
+        }
+
+        if (numero < 20) {
+            return DECENAS[numero - 10];
+        }
+
+        if (numero < 30) {
+            if (numero == 20) {
+                return "veinte";
+            }
+            return "veinti" + UNIDADES[numero % 10];
+        }
+
+        if (numero < 100) {
+            String texto = DIEZ_DIEZ[numero / 10];
+            if (numero % 10 != 0) {
+                texto += " y " + UNIDADES[numero % 10];
+            }
+            return texto;
+        }
+
+        if (numero == 100) {
+            return "cien";
+        }
+
+        if (numero < 1000) {
+            String texto = CENTENAS[numero / 100];
+            if (numero % 100 != 0) {
+                texto += " " + convertirNumero(numero % 100);
+            }
+            return texto;
+        }
+
+        if (numero < 2000) {
+            return "mil" + (numero % 1000 != 0 ? " " + convertirNumero(numero % 1000) : "");
+        }
+
+        if (numero < 1000000) {
+            String texto = convertirNumero(numero / 1000) + " mil";
+            if (numero % 1000 != 0) {
+                texto += " " + convertirNumero(numero % 1000);
+            }
+            return texto;
+        }
+
+        if (numero < 2000000) {
+            return "un millón" + (numero % 1000000 != 0 ? " " + convertirNumero(numero % 1000000) : "");
+        }
+
+        if (numero < 1000000000) {
+            String texto = convertirNumero(numero / 1000000) + " millones";
+            if (numero % 1000000 != 0) {
+                texto += " " + convertirNumero(numero % 1000000);
+            }
+            return texto;
+        }
+
+        return String.valueOf(numero);
     }
 
 }

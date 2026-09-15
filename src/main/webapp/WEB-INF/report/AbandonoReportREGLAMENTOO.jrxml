@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
 	<property name="ireport.zoom" value="1.331000000000001"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="624"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
 	<parameter name="nombrePersona" class="java.lang.String"/>
 	<parameter name="delegacion" class="java.lang.String"/>
@@ -122,8 +122,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 "., presentó solicitud de "+$P{cambio}+", "+$F{solicitud}+", de la "+$F{signo}+", correspondiente a la denominación "+
 $F{denominacion}.replace("&","&amp;")+", con número de registro No. "+$F{registro}+", otorgado el "+
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_registro})+".\n\n"+
-
-"2. Con "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+", mediante notificación No. "+
+"2. Con fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+", mediante notificación No. "+
 $F{notificacion}+", se solicitó "+$F{motivo}+"\n"]]></variableExpression>
 	</variable>
 	<variable name="parrafo_3" class="java.lang.String">
@@ -255,11 +254,12 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_abandono})+
 				<textFieldExpression><![CDATA[$F{solicitante}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="17">
+		<band height="17" splitType="Stretch">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="50" y="0" width="479" height="17" uuid="ab7e5387-8cd5-4568-94c2-055d19eade42"/>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="50" y="0" width="479" height="17" uuid="ab7e5387-8cd5-4568-94c2-055d19eade42"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
+					<paragraph tabStopWidth="50"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_2}]]></textFieldExpression>
 			</textField>

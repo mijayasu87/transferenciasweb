@@ -110,12 +110,21 @@ public class NotificacionDAO extends DAOAbstract<Notificacion> {
      * @return el siguiente número de notificación
      */
     public int getNextNumeroNotificacion(Date fechaElaboraNotificacion) {
-        Query query = this.getEntityManager().createQuery("Select n from Notificacion n where n.id = (Select MAX(n1.id) from Notificacion n1)");
+        // Se toma la última notificación que realmente tenga número: a notificadas también llegan
+        // trámites devueltos desde caducadas o prórrogas, que entran sin numerar.
+        Query query = this.getEntityManager().createQuery("Select n from Notificacion n where n.notificacion is not null order by n.id DESC");
+        query.setHint("javax.persistence.cache.storeMode", "REFRESH");
+        query.setMaxResults(1);
 
-        Notificacion n = (Notificacion) query.getSingleResult();
+        List<Notificacion> notificaciones = query.getResultList();
+        if (notificaciones.isEmpty()) {
+            return 1;
+        }
+        Notificacion n = notificaciones.get(0);
 
+        Date ultima = n.getFechaElaboraNotificacion() != null ? n.getFechaElaboraNotificacion() : n.getFechaNotificacion();
         int yearElNot = fechaElaboraNotificacion.getYear() + 1900;
-        int yearNot = n.getFechaElaboraNotificacion().getYear() + 1900;
+        int yearNot = ultima != null ? ultima.getYear() + 1900 : yearElNot;
 
         if (yearElNot == yearNot) {
             return n.getNotificacion() + 1;

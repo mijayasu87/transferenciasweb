@@ -443,6 +443,10 @@ public class CertificadoCNBean implements Serializable {
                     } else if (estadoTemp.equals("CADUCADAS")) {
                         certificado.setTipoEstado("CADUCADA");
                     }
+                    if(certificado.getApeApodRepre() != null && !certificado.getApeApodRepre().trim().isEmpty()
+                            && (certificado.getNomApodRepre() == null || certificado.getNomApodRepre().trim().isEmpty())){
+                        certificado.setNomApodRepre(certificado.getApeApodRepre());
+                    }
                     if (c.updateCambioNombre(certificado)) {
                         c.saveHistorial(certificado.getTipoEstado() + "_CN", "CERTIFICADO_CN", certificado.getSolicitud(), "EDITADO", loginBean.getUsuario().getId(), loginBean.getNombre());
                         loadCertificadosCN();

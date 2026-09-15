@@ -6,6 +6,8 @@
 package senadi.gob.ec.transfweb.bean;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +18,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.api.UIData;
+import senadi.gob.ec.transfweb.model.Abandono;
 import senadi.gob.ec.transfweb.model.Documento;
 import senadi.gob.ec.transfweb.model.Historial;
 import senadi.gob.ec.transfweb.model.UploadNotificacion;
@@ -66,6 +69,8 @@ public class ProrrogaTransfBean implements Serializable {
 
     private List<Documento> archivos;
 
+    private String alertaVencidas;
+
     public ProrrogaTransfBean() {
         loadProrrogasTransf();
         selectedProrrogas = new ArrayList<>();
@@ -98,7 +103,8 @@ public class ProrrogaTransfBean implements Serializable {
     }
 
     private boolean faltanDatosAlcance(Prorroga p) {
-        return p.getNumeroProrroga() == null || p.getNumeroAlcance() == null || p.getNumeroAlcance().trim().isEmpty() || p.getFechaAlcance() == null;
+        return p.getNumeroProrroga() == null || p.getNumeroAlcance() == null || p.getNumeroAlcance().trim().isEmpty() || p.getFechaAlcance() == null
+                || p.getSolicitante() == null || p.getSolicitante().trim().isEmpty();
     }
 
     public void viewProrroga(ActionEvent ae) {
@@ -106,7 +112,7 @@ public class ProrrogaTransfBean implements Serializable {
         prorroga = (Prorroga) prorrogaDataTable.getRowData();
         if (prorroga != null && prorroga.getId() != null) {
             if (faltanDatosAlcance(prorroga)) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE) Y LA FECHA DEL ESCRITO PARA VER EL PDF DEL TRÁMITE " + prorroga.getSolicitud());
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE), LA FECHA DEL ESCRITO Y EL SOLICITANTE PARA VER EL PDF DEL TRÁMITE " + prorroga.getSolicitud());
             } else {
                 loginBean.setVarious(false);
                 loginBean.setProrroga(prorroga);
@@ -131,7 +137,7 @@ public class ProrrogaTransfBean implements Serializable {
                 }
             }
             if (!faltan.isEmpty()) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE) Y LA FECHA DEL ESCRITO PARA VER EL PDF DE: " + faltan);
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE), LA FECHA DEL ESCRITO Y EL SOLICITANTE PARA VER EL PDF DE: " + faltan);
             } else {
                 loginBean.setProrroga(null);
                 loginBean.setProrrogas(selectedProrrogas);
@@ -149,8 +155,71 @@ public class ProrrogaTransfBean implements Serializable {
         Controlador c = new Controlador();
         prorrogas = c.getProrrogas();
         numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
         exportName = "prorroga_transf_" + Operaciones.formatDate(new Date());
         loginBean = c.getLogin();
+    }
+
+    public boolean isProrrogaVencida(Prorroga p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return false;
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        return !LocalDate.now().isBefore(limite);
+    }
+
+    public String getEstiloProrroga(Prorroga p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        return isProrrogaVencida(p) ? "row-prorroga-vencida" : "row-prorroga";
+    }
+
+    public String getDiasRestantes(Prorroga p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        long faltan = ChronoUnit.DAYS.between(LocalDate.now(), limite);
+        if (faltan > 0) {
+            return "Faltan " + faltan + (faltan == 1 ? " día" : " días");
+        }
+        if (faltan == 0) {
+            return "Vence hoy";
+        }
+        return "Vencida hace " + Math.abs(faltan) + (Math.abs(faltan) == 1 ? " día" : " días");
+    }
+
+    public String getTooltipProrroga(Prorroga p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        long faltan = ChronoUnit.DAYS.between(LocalDate.now(), limite);
+        String tipoPlazo = Operaciones.esSolicitudIepi(p.getSolicitud()) ? "días de corrido" : "días laborables";
+        if (faltan > 0) {
+            return "Faltan " + faltan + " días para que venza la prórroga del trámite " + p.getSolicitud()
+                    + " (plazo de " + p.getDiasProrroga() + " " + tipoPlazo + ")";
+        }
+        if (faltan == 0) {
+            return "La prórroga del trámite " + p.getSolicitud() + " vence hoy";
+        }
+        return "La prórroga del trámite " + p.getSolicitud() + " venció hace " + Math.abs(faltan)
+                + " días. Revise el expediente y remítalo a Certificados, Notificaciones o Abandonos";
+    }
+
+    private void calcularAlertaVencidas() {
+        int vencidas = 0;
+        for (int i = 0; prorrogas != null && i < prorrogas.size(); i++) {
+            if (isProrrogaVencida(prorrogas.get(i))) {
+                vencidas++;
+            }
+        }
+        if (vencidas > 0) {
+            alertaVencidas = "ALERTA: " + vencidas + " PRÓRROGA(S) CON EL PLAZO VENCIDO. REVISE EL EXPEDIENTE Y REMÍTALO A CERTIFICADOS, NOTIFICACIONES O ABANDONOS";
+        } else {
+            alertaVencidas = "";
+        }
     }
 
     public void buscarProrroga(ActionEvent ae) {
@@ -161,6 +230,7 @@ public class ProrrogaTransfBean implements Serializable {
             Controlador c = new Controlador();
             prorrogas = c.getProrrogasByCriteria(criterio);
             numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
             if (prorrogas.isEmpty()) {
                 msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "NO SE ENCONTRARON RESULTADOS");
             } else {
@@ -186,6 +256,7 @@ public class ProrrogaTransfBean implements Serializable {
             Controlador c = new Controlador();
             prorrogas = c.getProrrogasByFecha(fechaInicio, fechaFin);
             numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
             if (prorrogas.isEmpty()) {
                 msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "NO SE ENCONTRARON RESULTADOS");
             } else {
@@ -245,6 +316,11 @@ public class ProrrogaTransfBean implements Serializable {
         FacesMessage msg = null;
         if (prorroga != null && prorroga.getId() != null) {
             Controlador c = new Controlador();
+            if (prorroga.getSolicitante() == null || prorroga.getSolicitante().trim().isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR EL SOLICITANTE PARA EDITAR LA PRÓRROGA");
+                FacesContext.getCurrentInstance().addMessage(null, msg);
+                return;
+            }
             if (estadoTemp != null && !estadoTemp.trim().isEmpty()) {
                 boolean movido;
                 String destino;
@@ -278,6 +354,43 @@ public class ProrrogaTransfBean implements Serializable {
                     t.setCancelado(prorroga.getCancelado());
                     t.setSolicitante(prorroga.getSolicitante());
                     movido = c.saveTransferencia(t);
+                } else if (estadoTemp.equals("ABANDONO")) {
+                    destino = "ABANDONO";
+                    Abandono a = new Abandono();
+                    a.setSolicitud(prorroga.getSolicitud());
+                    a.setFechaPresentacion(prorroga.getFechaPresentacion());
+                    a.setFechaAbandono(new Date());
+                    a.setNumeroAbandono(c.getNextNumeroAbandono(new Date()));
+                    a.setNotificacion(prorroga.getNotificacion());
+                    a.setFechaNotificacion(prorroga.getFechaNotificacion());
+                    a.setRegistro(prorroga.getRegistro());
+                    a.setFechaRegistro(prorroga.getFechaRegistro());
+                    a.setDenominacion(prorroga.getDenominacion());
+                    a.setSigno(prorroga.getSigno());
+                    a.setTitularAnterior(prorroga.getTitularAnterior());
+                    a.setTitularActual(prorroga.getTitularActual());
+                    a.setApeApodRepre(prorroga.getApeApodRepre());
+                    a.setRo(prorroga.getRo());
+                    a.setCasilleroSenadi(prorroga.getCasilleroSenadi());
+                    a.setCasilleroJudicial(prorroga.getCasilleroJudicial());
+                    a.setResponsable(prorroga.getResponsable());
+                    a.setIdentificacion(prorroga.getIdentificacion());
+                    a.setDomicilioTitularActual(prorroga.getDomicilioTitularActual());
+                    a.setFechaElaboraNotificacion(prorroga.getFechaElaboraNotificacion());
+                    a.setEmail(prorroga.getEmail());
+                    a.setFechaCertificado(prorroga.getFechaCertificado());
+                    a.setComprobante(prorroga.getComprobante());
+                    a.setCertificado(prorroga.getCertificado());
+                    a.setCertificadoEmitido(prorroga.isCertificadoEmitido());
+                    a.setNotificacionEmitida(prorroga.isNotificacionEmitida());
+                    a.setCancelado(prorroga.getCancelado());
+                    a.setSolicitante(prorroga.getSolicitante());
+                    a.setFechaVencimientoMarca(prorroga.getFechaVencimientoMarca());
+                    a.setNumeroAlcance(prorroga.getNumeroAlcance());
+                    a.setFechaAlcance(prorroga.getFechaAlcance());
+                    a.setFechaPuestaProrroga(prorroga.getFechaPuestaProrroga());
+                    a.setDiasProrroga(prorroga.getDiasProrroga());
+                    movido = c.saveAbandono(a);
                 } else {
                     destino = "NOTIFICADA";
                     Notificacion n = new Notificacion();
@@ -298,7 +411,11 @@ public class ProrrogaTransfBean implements Serializable {
                     n.setResponsable(prorroga.getResponsable());
                     n.setIdentificacion(prorroga.getIdentificacion());
                     n.setDomicilioTitularActual(prorroga.getDomicilioTitularActual());
-                    n.setFechaElaboraNotificacion(prorroga.getFechaElaboraNotificacion());
+                    n.setFechaElaboraNotificacion(prorroga.getFechaElaboraNotificacion() != null
+                            ? prorroga.getFechaElaboraNotificacion() : new Date());
+                    if (n.getNotificacion() == null) {
+                        n.setNotificacion(c.getNextNumeroNotificacion(n.getFechaElaboraNotificacion()));
+                    }
                     n.setEmail(prorroga.getEmail());
                     n.setFechaCertificado(prorroga.getFechaCertificado());
                     n.setComprobante(prorroga.getComprobante());
@@ -624,5 +741,19 @@ public class ProrrogaTransfBean implements Serializable {
 
     public void setEstadoTemp(String estadoTemp) {
         this.estadoTemp = estadoTemp;
+    }
+
+    /**
+     * @return the alertaVencidas
+     */
+    public String getAlertaVencidas() {
+        return alertaVencidas;
+    }
+
+    /**
+     * @param alertaVencidas the alertaVencidas to set
+     */
+    public void setAlertaVencidas(String alertaVencidas) {
+        this.alertaVencidas = alertaVencidas;
     }
 }

@@ -10,31 +10,37 @@ proyecto de modificaciones al registro, para replicarla en un proyecto cuya estr
 
 ---
 
-## 0. Concepto del flujo (idéntico al de abandono)
+## 0. Concepto del flujo
 
-1. En la pantalla de **NOTIFICADAS**, el usuario **selecciona** registros ya emitidos
-   (`notificacion_emitida = true`) y pulsa **PARA PRÓRROGA**.
+> **Nota (jul-2026):** la dirección requirente pidió mover la opción a **ABANDONOS** (es ahí donde
+> el analista determina la procedencia de la prórroga) y que el paso sea **inmediato**, no diferido
+> por scheduler. Lo que sigue describe el flujo vigente.
+
+1. En la pantalla de **ABANDONOS**, el usuario **selecciona** registros y pulsa **PARA PRÓRROGA**.
 2. Se abre un **diálogo** con los seleccionados; permite indicar **días de prórroga**
    (default **10**) y, **por fila**, `numero_alcance` (No. de escrito) y `fecha_alcance`.
-3. Al confirmar, cada registro se marca en la **tabla de notificadas** con
-   `fecha_puesta_prorroga`, `dias_prorroga`, `numero_alcance`, `fecha_alcance`
-   (sigue en NOTIFICADAS, resaltado en ámbar, con conteo de días).
-4. Un **scheduler** diario evalúa `fecha_puesta_prorroga + dias_prorroga` en **días hábiles**;
-   al cumplirse, **copia** el registro a la tabla dedicada **`prorroga`** (fija `fecha_prorroga`
-   y `numero_prorroga`) y **elimina** el registro de notificadas.
-5. La tabla `prorroga` se lista en una **pestaña PRÓRROGAS** propia (buscar, editar, historial,
-   expediente, eliminar, y **descarga de PDF** individual y múltiple).
+3. Al confirmar, cada trámite pasa **inmediatamente** al estado de prórroga, fijando
+   `fecha_puesta_prorroga = hoy`, `dias_prorroga`, `fecha_prorroga = hoy` y `numero_prorroga`
+   (secuencia anual). En transferencias se **copia** a la tabla `prorroga` y se **elimina** de
+   `abandono`; en los módulos de tabla única basta con `tipo_estado = 'PRORROGA'`.
+4. La pestaña **PRÓRROGAS** cuenta el plazo desde `fecha_puesta_prorroga` en **días hábiles**.
+   Mientras está en plazo la fila se resalta en **ámbar**; al vencer pasa a **rojo**, el tooltip
+   indica los días vencidos y aparece un **banner de alerta** con el total de prórrogas vencidas.
+5. Con esa alerta, el analista abre **EDITAR → PASAR A** y remite el trámite a **Certificados**,
+   **Notificaciones** o **Abandonos**.
 6. Al **notificar** el PDF de la prórroga (subida de certificados), se marca
-   `prorroga_notificada = true` en el registro de `prorroga`; en la pestaña, el **número de
-   prórroga** se vuelve un **enlace** al PDF notificado.
+   `prorroga_notificada = true`; en la pestaña, el **número de prórroga** se vuelve un **enlace**
+   al PDF notificado.
 
 **Reglas de negocio:**
-- Solo se puede poner para prórroga lo que esté **notificado/emitido** (si no, alerta).
-- **Exclusión mutua** con abandono: si está "para abandono" no se puede "para prórroga" y viceversa.
-- `numero_prorroga`: **secuencia anual incremental**, obligatoria; la asigna el scheduler (o el
-  guardar/editar si viniera nula).
+- `numero_prorroga`: **secuencia anual incremental**, obligatoria; se asigna al pasar a prórroga
+  (o al guardar/editar si viniera nula).
+- No se puede pasar a prórroga un trámite cuya solicitud ya exista en prórroga.
 - Para **ver el PDF** son indispensables `numero_prorroga`, `numero_alcance` y `fecha_alcance`
   (si faltan, se lanza aviso y no se abre).
+- Al remitir una prórroga a **Abandonos** se fija `fecha_abandono = hoy` y un `numero_abandono`
+  nuevo. En transferencias el `tipo_abandono` queda vacío (la tabla `prorroga` no lo guarda) y
+  el analista debe elegirlo al editar el abandono.
 
 ---
 
@@ -58,16 +64,19 @@ numero_alcance        VARCHAR(255),
 fecha_alcance         DATE
 ```
 
-### 1.2 Columnas "pendiente" en la tabla de notificadas
-En la tabla que hace de **NOTIFICADAS** (equivalente a `notificacion` en transferencias):
+### 1.2 Columnas "pendiente" en la tabla de abandonos
+En la tabla que hace de **ABANDONOS** (equivalente a `abandono` en transferencias). Sirven para
+bindear el diálogo por fila y para arrastrar los datos al pasar a prórroga:
 
 ```sql
-ALTER TABLE <tabla_notificadas>
+ALTER TABLE <tabla_abandonos>
     ADD COLUMN fecha_puesta_prorroga DATE,
     ADD COLUMN dias_prorroga         INTEGER,
     ADD COLUMN numero_alcance        VARCHAR(255),
     ADD COLUMN fecha_alcance         DATE;
 ```
+
+En los módulos de **tabla única** (`tipo_estado`) no hace falta nada: son la misma tabla.
 
 ---
 
@@ -80,8 +89,8 @@ Clonar la entidad `Abandono` (misma tabla-forma), renombrar `@Table(name="prorro
 `numeroProrroga` (Integer), `numeroAlcance` (String), `fechaAlcance` (Date).
 Registrar la clase en `persistence.xml` (mismo persistence-unit que las demás entidades del módulo).
 
-### 2.2 Entidad de NOTIFICADAS
-Añadir a la entidad de notificadas los 4 campos "pendiente" con sus getters/setters:
+### 2.2 Entidad de ABANDONOS
+Añadir a la entidad de abandonos los 4 campos "pendiente" con sus getters/setters:
 `fechaPuestaProrroga` (Date), `diasProrroga` (Integer), `numeroAlcance` (String),
 `fechaAlcance` (Date).
 
@@ -101,16 +110,6 @@ Métodos:
 - `getNextNumeroProrroga(Date fecha)` → `SELECT MAX(n.numeroProrroga) ...`, con reinicio por año
   (comparar `fecha.getYear()` vs el año de la última `fechaProrroga`).
 
-### 3.2 DAO de NOTIFICADAS — añadir candidatas
-```java
-public List<Notificada> getProrrogasCandidatas() {
-    Query q = getEntityManager().createQuery(
-        "SELECT n FROM Notificada n WHERE n.fechaPuestaProrroga IS NOT NULL");
-    q.setHint("javax.persistence.cache.storeMode", "REFRESH");
-    return q.getResultList();
-}
-```
-
 ---
 
 ## 4. Controlador (fachada) — wrappers
@@ -122,96 +121,46 @@ getProrrogasByCriteria / getProrrogasByFecha / getProrrogasByDenominacion / getP
 getProrrogaBySolicitud
 getNextNumeroProrroga(Date)
 validarExistenciaProrroga(Prorroga)
-getProrrogasCandidatas()        // desde el DAO de notificadas
 ```
 Patrón de save/update/remove idéntico a `saveAbandono/updateAbandono/removeAbandono`
 (el remove hace `merge` si el entity no está managed).
 
 ---
 
-## 5. Bean de NOTIFICADAS — botón "PARA PRÓRROGA"
-Agregar (junto a la lógica de abandono existente):
+## 5. Bean de ABANDONOS — botón "PARA PRÓRROGA"
+Agregar:
 
 - Campo `private Integer diasProrroga;` + getter/setter.
-- Helper `getSolicitudesParaProrroga()` → lista (coma-separada) de seleccionados con
-  `fechaPuestaProrroga != null`.
-- `prepararParaProrrogas()`:
-  - valida selección no vacía;
-  - valida que **todos** estén emitidos (`isNotificacionEmitida()`), si no → aviso listando;
-  - valida que **ninguno** esté para abandono (`fechaPuestaAbandono != null`) → aviso "está para abandono";
-  - avisa si alguno ya estaba para prórroga (se actualizarán días);
-  - `diasProrroga = 10`; callback `proit=true` para abrir el diálogo.
-- `paraProrrogas()`:
-  - por cada seleccionado: re-valida emitido y no-abandono (red de seguridad);
-  - `setFechaPuestaProrroga(new Date())`, `setDiasProrroga(diasProrroga)` (los `numeroAlcance`/
-    `fechaAlcance` se bindean por fila en el diálogo);
-  - `updateNotificada(...)` + `saveHistorial(... "PARA PRÓRROGA (N DÍAS)")`;
-  - recarga y callback `proit=true`.
-- **Exclusión mutua**: en `prepararParaAbandonos()` / `prepararPasarAbandonos()` agregar, antes de
-  abrir sus diálogos, el chequeo `getSolicitudesParaProrroga()` → si no vacío, aviso
-  "está para prórroga, no se puede para abandono". Y red de seguridad dentro de
-  `paraAbandonos()`/`pasarAAbandonos()`.
-- **Tooltip**: en `getTooltipAbandono(...)` (o el método de tooltip de fila), al inicio:
-  ```java
-  if (noti.getFechaPuestaProrroga() != null && noti.getDiasProrroga() != null) {
-      LocalDate limite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(
-          noti.getFechaPuestaProrroga(), noti.getDiasProrroga());
-      long faltan = ChronoUnit.DAYS.between(LocalDate.now(), limite);
-      return faltan >= 0
-          ? "Faltan " + faltan + " días para pasar el trámite " + noti.getSolicitud() + " a prórroga"
-          : "La prórroga del trámite " + noti.getSolicitud() + " ya venció hace " + Math.abs(faltan) + " días";
-  }
-  ```
+- `prepararParaProrrogas()`: valida selección no vacía, pone `diasProrroga = 10` y lanza el
+  callback `proit=true` para abrir el diálogo.
+- `paraProrrogas(ActionEvent)`: valida selección y `diasProrroga > 0`; por cada seleccionado
+  (los `numeroAlcance`/`fechaAlcance` vienen bindeados por fila desde el diálogo):
+  - **tabla única**: `setTipoEstado("PRORROGA")`, `setFechaPuestaProrroga(new Date())`,
+    `setDiasProrroga(diasProrroga)`, `setFechaProrroga(new Date())`, `setNumeroProrroga(...)`
+    si viene nulo, y `updateXxx(...)`;
+  - **tablas separadas** (transferencias): verifica con `getProrrogaBySolicitud` que no exista ya,
+    crea la `Prorroga` copiando todos los campos base, fija los de prórroga, `saveProrroga(...)`
+    y `removeAbandono(...)`;
+  - `saveHistorial(... "PASADO A PRÓRROGA (N DÍAS)")`, recarga y callback `proit=true`.
 
----
-
-## 6. Página de NOTIFICADAS (.xhtml)
-- Botón **PARA PRÓRROGA** junto a PARA ABANDONO:
+## 6. Página de ABANDONOS (.xhtml)
+- Botón **PARA PRÓRROGA** sobre la tabla:
   `oncomplete="if(args.proit){PF('dlgParaProrroga').show();}"`, `update="mensajes dlgParaProrroga paraProForm"`.
-- **Leyenda** "PARA PRÓRROGA" (caja ámbar) junto a las demás.
-- **rowStyleClass**: prioriza prórroga:
-  `#{notificacion.fechaPuestaProrroga ne null ? 'row-prorroga' : (<lo de abandono existente>)}`.
-- **Enlace de menú** PRÓRROGAS → `prorrogaren.xhtml`.
-- **Diálogo `dlgParaProrroga`** (form `paraProForm`): tabla de seleccionados con columnas
-  Solicitud / Denominación / Notificación / F. Notificación / **Escrito No. (Alcance)** (inputText a
-  `#{item.numeroAlcance}`) / **Fecha Escrito** (calendar a `#{item.fechaAlcance}`); debajo, input
-  **Días de Prórroga** (`#{bean.diasProrroga}`, required); botones CERRAR y **PARA PRÓRROGA**
-  (`actionListener=#{bean.paraProrrogas}`, `oncomplete="if(args.proit){PF('dlgParaProrroga').hide();}"`).
-
-CSS de la fila (en style.css, si no existe):
-```css
-.row-prorroga { border: solid #ff9800 !important; background: #fff3e0 !important; }
-```
+- **Diálogo `dlgParaProrroga`** (form `paraProForm`): tabla de seleccionados
+  (`#{bean.selectedAbandonos}`) con columnas Solicitud / Denominación / Abandono / F. Abandono /
+  **Escrito No. (Alcance)** (inputText a `#{item.numeroAlcance}`) / **Fecha Escrito** (calendar a
+  `#{item.fechaAlcance}`); debajo, input **Días de Prórroga** (`#{bean.diasProrroga}`, required);
+  botones CERRAR y **PASAR A PRÓRROGA** (`actionListener=#{bean.paraProrrogas}`,
+  `oncomplete="if(args.proit){PF('dlgParaProrroga').hide();}"`, y en `update` el id real de la
+  tabla — `tablaDeDatos` o `tablaDeAbandonos` según la página).
+- **Enlace de menú** PRÓRROGAS → `prorroga<modulo>.xhtml`.
 
 ---
 
-## 7. Scheduler — pasar de notificadas a `prorroga`
-En el singleton `@Schedule` que mueve abandonos, agregar `createProrrogasRenovacion()` y llamarlo:
-
-```java
-public void createProrrogasRenovacion() {
-    Controlador c = new Controlador();
-    List<Notificada> candidatas = c.getProrrogasCandidatas();
-    for (Notificada notaux : candidatas) {
-        if (notaux.getFechaPuestaProrroga() == null || notaux.getDiasProrroga() == null) continue;
-        LocalDate limite = Operaciones.calcularFechaLimiteExcluyendoFinesSemana(
-            notaux.getFechaPuestaProrroga(), notaux.getDiasProrroga());
-        if (!LocalDate.now().isBefore(limite)) {         // hoy >= límite (días hábiles)
-            Prorroga p = new Prorroga();
-            // ... copiar TODOS los campos base desde notaux (igual que createAbandonos copia a Abandono)
-            p.setFechaPuestaProrroga(notaux.getFechaPuestaProrroga());
-            p.setDiasProrroga(notaux.getDiasProrroga());
-            p.setNumeroAlcance(notaux.getNumeroAlcance());
-            p.setFechaAlcance(notaux.getFechaAlcance());
-            p.setFechaProrroga(new Date());
-            p.setNumeroProrroga(c.getNextNumeroProrroga(new Date()));
-            if (c.saveProrroga(p) && c.removeNotificada(notaux)) {
-                c.saveHistorial("PRORROGA", "NOTIFICADAS", p.getSolicitud(), "PASADO A", 0, "modificaciones");
-            }
-        }
-    }
-}
-```
+## 7. Scheduler — sin intervención
+El paso a prórroga es **inmediato**, así que el scheduler de abandonos **no** participa. Si vienes
+de una versión que copiaba de notificadas a prórroga con `createProrrogas*()`, elimina esos métodos
+y sus llamadas.
 
 ---
 
@@ -228,8 +177,30 @@ public void createProrrogasRenovacion() {
   `otherpage(args.view)`), botón **Descargar** por fila (ícono PDF → servlet), botón **Descargar
   Seleccionados** dentro del `<f:facet name="footer">` de la tabla (¡importante que esté dentro para
   que `process="tablaDeDatos"` lo procese!), diálogo de edición con `Escrito No.`/`Fecha Escrito`/
-  `N. Prórroga` (readonly). Campo `numeroProrroga` de solo-lectura.
+  `N. Prórroga` (readonly) y **Solicitante** (`required="true"`). Campo `numeroProrroga` de solo-lectura.
   Enlaces de menú PRÓRROGAS en todas las páginas del módulo.
+- **Solicitante obligatorio**: además del `required` de la vista, `guardarProrroga` corta con aviso si
+  viene vacío, y `faltanDatosAlcance(...)` lo exige junto a `numeroProrroga`/`numeroAlcance`/`fechaAlcance`
+  para poder abrir el PDF (individual y múltiple).
+
+### 8.1 Alerta de plazo vencido
+En el bean: `isProrrogaVencida(p)` (hoy no es anterior al límite, en días laborables si es SENADI
+o de corrido si es IEPI),
+`getEstiloProrroga(p)` → `row-prorroga` / `row-prorroga-vencida`, `getTooltipProrroga(p)` (días que
+faltan o que lleva vencida) y `calcularAlertaVencidas()` llamado en cada carga/búsqueda para llenar
+`alertaVencidas`.
+En la página: `rowStyleClass="#{bean.getEstiloProrroga(prorroga)}"`, `title="#{bean.getTooltipProrroga(prorroga)}"`
+en Solicitud y Días, columna **Días Restantes** (`getDiasRestantes(p)` → "Faltan N días" / "Vence hoy" /
+"Vencida hace N días", en ámbar o rojo según el estado), leyendas EN PLAZO / PLAZO VENCIDO, y un
+`<p:outputPanel id="alerta_pro">` con el banner rojo (incluirlo en el `update` de las búsquedas, el
+guardar y el eliminar).
+CSS: `.row-prorroga-vencida { border: solid #f44336 !important; background: #ffebee !important; }`
+
+### 8.2 Destino ABANDONO en "PASAR A"
+El `selectOneMenu` de la edición ofrece NOTIFICADAS / CERTIFICADO / **ABANDONO**. En `guardarProrroga`:
+- **tabla única**: `setTipoEstado("ABANDONO")`, `setFechaAbandono(new Date())` y `numeroAbandono` nuevo si es nulo;
+- **tablas separadas**: crear el `Abandono` copiando los campos, `fechaAbandono = hoy`,
+  `numeroAbandono = getNextNumeroAbandono(...)`, `saveAbandono` + `removeProrroga`.
 
 ---
 
@@ -284,26 +255,31 @@ por módulo con una clase extra (`dlgFormNice dlg-ren`) que sobreescriba
 
 ## Checklist de implementación
 
-- [ ] BD: tabla `prorroga` (forma de `abandono` + 7 col. prórroga) + 4 col. "pendiente" en notificadas
+- [ ] BD: tabla `prorroga` (forma de `abandono` + 7 col. prórroga) + 4 col. "pendiente" en abandonos
 - [ ] Entidad `Prorroga` + registro en `persistence.xml`
-- [ ] 4 campos "pendiente" en entidad de notificadas
-- [ ] `ProrrogaDAO` + `getProrrogasCandidatas()` en DAO de notificadas
-- [ ] Wrappers en Controlador (save/update/remove/get.../numeración/validar/candidatas)
-- [ ] Bean notificadas: diasProrroga, prepararParaProrrogas, paraProrrogas, exclusión mutua, tooltip
-- [ ] Página notificadas: botón + diálogo + rowStyle + leyenda + enlace de menú
-- [ ] Scheduler: `createProrrogas...` (copiar → `prorroga`, eliminar de notificadas)
+- [ ] 4 campos "pendiente" en entidad de abandonos
+- [ ] `ProrrogaDAO`
+- [ ] Wrappers en Controlador (save/update/remove/get.../numeración/validar)
+- [ ] Bean abandonos: diasProrroga, prepararParaProrrogas, paraProrrogas (paso inmediato)
+- [ ] Página abandonos: botón + diálogo + enlace de menú
 - [ ] `ProrrogaRenBean` + `prorrogaren.xhtml` + enlaces de menú
+- [ ] Alerta de vencimiento: estilo de fila, tooltip, banner
+- [ ] Solicitante obligatorio para editar y para generar el PDF
+- [ ] Destino ABANDONO en el "PASAR A" de la pestaña PRÓRROGAS
 - [ ] LoginBean flotante `Prorroga` + servlet `InformeProrrogaRen`
 - [ ] Marcar `prorroga_notificada` en el flujo de notificación de PDFs
 - [ ] (opcional) reporte consolidado: addProrroga
 - [ ] (opcional) estilo `dlgFormNice` con color
-- [ ] Compilar y probar: poner para prórroga → esperar/forzar scheduler → ver en pestaña → descargar PDF
+- [ ] Compilar y probar: abandono → para prórroga → ver en pestaña → alerta al vencer → remitir → PDF
 
 ---
 
 ### Notas clave aprendidas
-- El plazo se calcula en **días hábiles** con `Operaciones.calcularFechaLimiteExcluyendoFinesSemana(Date, int)`.
-- El **scheduler** persiste cada registro antes del siguiente, así la numeración anual no se repite.
+- El plazo se calcula con `Operaciones.calcularFechaLimiteProrroga(solicitud, Date, int)`: en trámites
+  **SENADI-XXXX-XXXX** cuenta **días laborables** (excluye sábados y domingos) y en trámites
+  **IEPI-XXXX-XXXX** cuenta **días de corrido**. El discriminante es el prefijo de la solicitud
+  (`Operaciones.esSolicitudIepi`), el mismo criterio con el que el reporte cambia de formato.
+- Persistir cada registro antes de pasar al siguiente, así la numeración anual no se repite.
 - El botón "Descargar Seleccionados" **debe ir dentro del `<f:facet name="footer">`** de la tabla
   para que `process="tablaDeDatos"` lo ejecute (si va fuera, no dispara la acción ni muestra mensajes).
 - En Java no confundir `&&` con la entidad HTML (`&amp;&amp;`).

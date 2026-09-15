@@ -140,6 +140,11 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format(new java.util.Date())+", 
 			</textField>
 		</band>
 	</title>
+	<pageHeader>
+		<band height="70">
+			<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+		</band>
+	</pageHeader>
 	<columnHeader>
 		<band height="9" splitType="Stretch"/>
 	</columnHeader>
@@ -278,7 +283,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format(new java.util.Date())+", 
 		<band height="15" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="8" splitType="Stretch"/>
+		<band height="69" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="7" splitType="Stretch"/>

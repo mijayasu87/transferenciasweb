@@ -409,7 +409,7 @@ public class ReporteBean implements Serializable {
             rep.setRegistro(transferencia.getRegistro());
             rep.setResponsable(transferencia.getResponsable());
             rep.setSigno(transferencia.getSigno());
-            rep.setNumDocumento(transferencia.getCertificado() + "");
+            rep.setNumDocumento(transferencia.getCertificado() == null ? "" : transferencia.getCertificado() + "");
             rep.setFechaDocumento(transferencia.getFechaCertificado());
 
             rep.setActor1(transferencia.getTitularActual());
@@ -594,7 +594,7 @@ public class ReporteBean implements Serializable {
             rep.setTipoActor2("Titular Anterior");
 
             if (rep.getEstado().equals("CERTIFICADO")) {
-                rep.setNumDocumento(cnombre.getCertificado() + "");
+                rep.setNumDocumento(cnombre.getCertificado() == null ? "" : cnombre.getCertificado() + "");
                 rep.setFechaDocumento(cnombre.getFechaCertificado());
             } else if (rep.getEstado().equals("NOTIFICADA")) {
                 rep.setNumDocumento(cnombre.getNotificacion() + "");
@@ -644,7 +644,7 @@ public class ReporteBean implements Serializable {
             rep.setTipoActor1("Titular Actual");
 
             if (rep.getEstado().equals("CERTIFICADO")) {
-                rep.setNumDocumento(cdomic.getCertificado() + "");
+                rep.setNumDocumento(cdomic.getCertificado() == null ? "" : cdomic.getCertificado() + "");
                 rep.setFechaDocumento(cdomic.getFechaCertificado());
             } else if (rep.getEstado().equals("NOTIFICADA")) {
                 rep.setNumDocumento(cdomic.getNotificacion() + "");

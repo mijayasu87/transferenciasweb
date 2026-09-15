@@ -12,6 +12,7 @@
 	<parameter name="denosecre" class="java.lang.String"/>
 	<parameter name="tipo_mod" class="java.lang.String"/>
 	<parameter name="cambio" class="java.lang.String"/>
+	<parameter name="dias_letras" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT a.*, 
 GROUP_CONCAT(r.ro SEPARATOR ', ') AS motivo 
@@ -63,9 +64,6 @@ a.id]]>
 	<field name="ro" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="tipo_estado" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
 	<field name="notificacion" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
@@ -81,22 +79,10 @@ a.id]]>
 	<field name="cancelado" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="numero_abandono" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="fecha_abandono" class="java.sql.Date">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
 	<field name="solicitante" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="fecha_vencimiento" class="java.sql.Date">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="tipo_abandono" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="fecha_puesta_abandono" class="java.sql.Date">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="fecha_puesta_prorroga" class="java.sql.Date">
@@ -131,29 +117,27 @@ a.id]]>
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>SERVICIO NACIONAL DE DERECHOS INTELECTUALES - "+
 "DIRECCIÓN TÉCNICA DE MODIFICACIONES AL REGISTRO.-</style> Quito, D.M., "+
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_prorroga})+
-", a las 10h30.- \n\n"]]></variableExpression>
+", a las 10h30.- \n"]]></variableExpression>
 	</variable>
 	<variable name="parrafo_2" class="java.lang.String">
 		<variableExpression><![CDATA["Dentro del trámite Nro. "+$F{solicitud}+", se agrega al expediente administrativo el escrito No. "+$F{numero_alcance}+", "+
-"de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_alcance})+",  respecto de la solicitud de "+
-"ampliación al término otorgado.\n\n"+
-"Esta autoridad, al amparo de lo dispuesto en el art. 161 del Código Orgánico Administrativo, y encontrándose dentro del "+
+"de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_alcance})+", respecto de la solicitud de "+
+"ampliación al "+($F{solicitud}.contains("SENADI")?"término":"plazo")+" otorgado.\n\n"+
+"Esta autoridad, al amparo de lo dispuesto en el art. "+($F{solicitud}.contains("SENADI")?"161 del Código Orgánico Administrativo"
+:"119 del Estatuto del Régimen Jurídico Administrativo de la Función Ejecutiva")+", y encontrándose dentro del "+
 "término que se encuentra recurriendo, procede a amplicar el mismo, que fue otorgado mediante Notificación No. "+
 $F{notificacion}+" notificada el "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+"; "+
-"esto es, el término de cinco (5) días.\n"]]></variableExpression>
+"esto es, el "+($F{solicitud}.contains("SENADI")?"término":"plazo")+" de "+$P{dias_letras}+" ("+$F{dias_prorroga}+") días.\n"]]></variableExpression>
 	</variable>
 	<variable name="parrafo_3" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>Notifíquese.- </style> "+$P{nombrePersona}+", "+
 "<style pdfFontName='Times-Bold'>"+$P{delegacion}+".</style>\n"]]></variableExpression>
 	</variable>
-	<variable name="titulo_prorroga" class="java.lang.String">
-		<variableExpression><![CDATA["Resolución No. "+$F{numero_abandono}+"-"+new SimpleDateFormat("yyyy").format(new java.util.Date())+"-SENADI"]]></variableExpression>
-	</variable>
 	<variable name="parrafo_4" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>RAZÓN.-</style> Siento por tal que el día de hoy "+
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format(new java.util.Date())+ ", notifiqué "+
 "con la resolución que antecede a "+$F{solicitante}+", en el casillero virtual Nro. "+$F{casillero_senadi}+
-"correspondiente a su apoderado/a "+$F{ape_apod_repre}+".- lo que certifico por delegación de la directora "+
+" correspondiente a su apoderado/a "+$F{ape_apod_repre}+".- lo que certifico por delegación de la directora "+
 "general del Servicio Nacional de Derechos Intelectuales, conferido mediante Resolución Nro. "+$P{resolucionnot}+"."]]></variableExpression>
 	</variable>
 	<background>

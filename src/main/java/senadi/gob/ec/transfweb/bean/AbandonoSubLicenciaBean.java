@@ -93,6 +93,8 @@ public class AbandonoSubLicenciaBean implements Serializable {
 
     private List<Documento> archivos;
 
+    private Integer diasProrroga;
+
     public AbandonoSubLicenciaBean() {
         loadAbandonosSubLicencia();
     }
@@ -251,7 +253,7 @@ public class AbandonoSubLicenciaBean implements Serializable {
         if (abandono != null) {
             Controlador c = new Controlador();
             abandono = c.getSublicenciaUsoBySolicitud(abandono.getSolicitud());
-            c.refreshSubLicenciaUso(abandono);
+//            c.refreshSubLicenciaUso(abandono);
 
             roselectable = false;
             dialogTitle = "EDITAR ABANDONO SUBLICENCIA " + abandono.getSolicitud();
@@ -265,6 +267,55 @@ public class AbandonoSubLicenciaBean implements Serializable {
         } else {
             msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "PROBLEMA AL CARGAR ABANDONO_SUBLICENCIA");
             PrimeFaces.current().ajax().addCallbackParam("peditar", false);
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
+    public void prepararParaProrrogas() {
+        FacesMessage msg = null;
+        if (selectedAbandonos == null || selectedAbandonos.isEmpty()) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        } else {
+            diasProrroga = 10;
+            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
+            PrimeFaces.current().ajax().addCallbackParam("proit", true);
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
+    public void paraProrrogas(ActionEvent ae) {
+        FacesMessage msg = null;
+        if (selectedAbandonos == null || selectedAbandonos.isEmpty()) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        } else if (diasProrroga == null || diasProrroga <= 0) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "INGRESE UN NÚMERO DE DÍAS DE PRÓRROGA VÁLIDO");
+        } else {
+            Controlador c = new Controlador();
+            int n = 0;
+            for (int i = 0; i < selectedAbandonos.size(); i++) {
+                SubLicenciaUso abaaux = selectedAbandonos.get(i);
+                abaaux.setTipoEstado("PRORROGA");
+                abaaux.setFechaPuestaProrroga(new Date());
+                abaaux.setDiasProrroga(diasProrroga);
+                abaaux.setFechaProrroga(new Date());
+                if (abaaux.getNumeroProrroga() == null) {
+                    abaaux.setNumeroProrroga(c.getNextNumeroProrrogaSublicencia(new Date()));
+                }
+                if (!c.updateSublicenciaUso(abaaux)) {
+                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE PUDO PASAR A PRÓRROGA EL TRÁMITE " + abaaux.getSolicitud());
+                    FacesContext.getCurrentInstance().addMessage(null, msg);
+                    return;
+                }
+                c.saveHistorial("PRORROGA_SUBLICENCIA", "ABANDONO_SUBLICENCIA", abaaux.getSolicitud(), "PASADO A PRÓRROGA (" + diasProrroga + " DÍAS)", loginBean.getUsuario().getId(), loginBean.getNombre());
+                n++;
+            }
+            if (n > 0) {
+                loadAbandonosSubLicencia();
+                PrimeFaces.current().ajax().addCallbackParam("proit", true);
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "LOS TRÁMITES SELECCIONADOS PASARON A PRÓRROGA");
+            } else {
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL PASAR LOS TRÁMITES A PRÓRROGA, CONSULTE AL ADMINISTRADOR DEL SISTEMA");
+            }
         }
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
@@ -1387,4 +1438,18 @@ public class AbandonoSubLicenciaBean implements Serializable {
         this.archivos = archivos;
     }
 
+
+    /**
+     * @return the diasProrroga
+     */
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    /**
+     * @param diasProrroga the diasProrroga to set
+     */
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
+    }
 }

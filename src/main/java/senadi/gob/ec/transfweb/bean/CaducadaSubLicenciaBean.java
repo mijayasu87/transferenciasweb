@@ -65,6 +65,8 @@ public class CaducadaSubLicenciaBean implements Serializable {
 
     private List<Documento> archivos;
 
+    private String estadoTemp;
+
     public CaducadaSubLicenciaBean() {
         loadCaducadasSubLicencia();
     }
@@ -143,6 +145,7 @@ public class CaducadaSubLicenciaBean implements Serializable {
     public void prepararEditar(ActionEvent ae) {
 
         saveEdit = "EDITAR";
+        estadoTemp = null;
         edicion = true;
 
         FacesMessage msg = null;
@@ -167,6 +170,7 @@ public class CaducadaSubLicenciaBean implements Serializable {
     public void prepararNuevo(ActionEvent ae) {
         dialogTitle = "NUEVO CADUCADA-NEGADO SUBLICENCIA";
         saveEdit = "GUARDAR";
+        estadoTemp = null;
         mensajeConfirmacion = "¿Seguro de guardar el Nuevo Caducada-Negado?";
         Controlador c = new Controlador();
         caducada = new SubLicenciaUso();
@@ -184,8 +188,20 @@ public class CaducadaSubLicenciaBean implements Serializable {
         if (caducada != null) {
             Controlador c = new Controlador();
             if (caducada.getId() != null) {
-                //Editar Caducada
-                if (c.validarExistenciaSublicenciaUso(caducada)) {
+                if (estadoTemp != null && estadoTemp.equals("NOTIFICADA")) {
+                    //Pasar a Notificadas
+                    caducada.setTipoEstado("NOTIFICADA");
+                    caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
+                    if (c.updateSublicenciaUso(caducada)) {
+                        c.saveHistorial("NOTIFICADA_SUBLICENCIA", "CADUCADA_SUBLICENCIA", caducada.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                        loadCaducadasSubLicencia();
+                        PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "LA CADUCADA-NEGADA SE HA PASADO A NOTIFICADAS SATISFACTORIAMENTE");
+                    } else {
+                        PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL PASAR LA CADUCADA-NEGADA A NOTIFICADAS");
+                    }
+                } else if (c.validarExistenciaSublicenciaUso(caducada)) {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
                 } else {
                     caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
@@ -647,5 +663,19 @@ public class CaducadaSubLicenciaBean implements Serializable {
      */
     public void setArchivos(List<Documento> archivos) {
         this.archivos = archivos;
+    }
+
+    /**
+     * @return the estadoTemp
+     */
+    public String getEstadoTemp() {
+        return estadoTemp;
+    }
+
+    /**
+     * @param estadoTemp the estadoTemp to set
+     */
+    public void setEstadoTemp(String estadoTemp) {
+        this.estadoTemp = estadoTemp;
     }
 }

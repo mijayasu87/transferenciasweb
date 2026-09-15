@@ -56,11 +56,11 @@ and open the template in the editor.
                 </div>
 
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogalic.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonolic.xhtml" title="Abandonos" >ABANDONOS</a>
                 <a class="activo" href="#" title="Caducadas" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistidalic.xhtml" title="Caducadas" >DESISTIDAS</a>                
-                <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a> 
-                <a class="itemm" href="prorrogalic.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a>                 
                 <a class="itemm" href="notificadalic.xhtml" title="Notificada licencia" >NOTIFICADAS</a> 
                 <a class="itemm" href="certificadolic.xhtml" title="Certificado Cambio Nombre" >CERTIFICADO LICENCIA</a>
             </div>
@@ -78,7 +78,7 @@ and open the template in the editor.
                     <p:commandButton id="nuevo_registro" value="NUEVO CADUCADA-NEGADO LICENCIA" 
                                      style="font-size: 12px; float: left"
                                      actionListener="#{caducadaLicenciaBean.prepararNuevo}"
-                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn"
+                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn"
                                      oncomplete="if(args.doit){PF('dlgNuevaT').show()};" process="@this" class="btn_peque" rendered="#{!loginBean.lectura}"/>
                     <p:tabView style="font-size: 12px; margin: 0 auto; width: 50%" >
                         <p:tab title="Búsqueda por Criterio" >
@@ -132,9 +132,9 @@ and open the template in the editor.
                                              style="width:300px" placeholder="Escriba aquí"/>
                             </p:outputPanel>
                         </f:facet>
-                        
+
                         <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{!loginBean.lectura}" exportable="false"/>
-                        
+
                         <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{caducada.solicitud}" >
                             <h:outputText value="#{caducada.solicitud}" />
                         </p:column>
@@ -177,7 +177,7 @@ and open the template in the editor.
                         <p:column id="editar" headerText="Acción"  exportable="false" style="margin: 0 auto; width: 150px;" rendered="#{!loginBean.lectura}">                            
                             <p:commandLink class="link"
                                            actionListener="#{caducadaLicenciaBean.prepararEditar}"
-                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn "
+                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn "
                                            oncomplete="if(args.peditar){PF('dlgNuevaT').show()};"
                                            process="@this"
                                            title="Editar" >
@@ -256,24 +256,24 @@ and open the template in the editor.
                         <p:outputLabel value="F. Resolución" for="fresolForm"/>
                         <p:calendar id="fresolForm"  value="#{caducadaLicenciaBean.caducada.fechaResolucionCaducada}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha Resolución" inputStyleClass="maxsize"/>                        
-                        
+
                         <p:outputLabel value="Registro:" for="registroForm"/>
                         <p:inputText id="registroForm" value="#{caducadaLicenciaBean.caducada.registro}" title="Registro" required="true" class="maxsize"/>
 
                         <p:outputLabel value="F. Registro" for="fregistroForm"/>
                         <p:calendar id="fregistroForm"  value="#{caducadaLicenciaBean.caducada.fechaRegistro}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"/>
-                        
+
                         <p:outputLabel value="Solicitante" for="solicForm"/>
                         <p:inputText id="solicForm" value="#{caducadaLicenciaBean.caducada.solicitante}" title="Solicitante" required="true" class="maxsize"/>
-                        
+
                         <p:outputLabel value="Denominación:" for="denominacionForm"/>                            
                         <p:inputTextarea id="denominacionForm" value="#{caducadaLicenciaBean.caducada.denominacion}" title="Denominación" 
                                          required="true" class="maxsize"/>
 
                         <p:outputLabel value="Signo:" for="signoForm"/>                            
                         <p:inputText id="signoForm" value="#{caducadaLicenciaBean.caducada.signo}" title="Signo" required="true" class="maxsize"/>                        
-                        
+
                         <p:outputLabel value="Licenciante:" for="licencianteForm"/>                            
                         <p:inputTextarea id="licencianteForm" value="#{caducadaLicenciaBean.caducada.licenciante}" title="Licenciante" 
                                          required="true" class="maxsize"/>
@@ -294,7 +294,7 @@ and open the template in the editor.
 
                         <p:outputLabel value="Responsable:" for="responsableForm"/>                            
                         <p:inputText id="responsableForm" value="#{caducadaLicenciaBean.caducada.responsable}" title="Responsable" class="maxsize"/>
-                        
+
                         <p:outputLabel value="Observación" for="obsForm"/>                            
                         <p:inputTextarea id="obsForm" value="#{caducadaLicenciaBean.caducada.observacion}" title="Observación" class="maxsize" required="true"/>
 
@@ -307,6 +307,7 @@ and open the template in the editor.
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>                       
                     </p:panelGrid>
 
+
                     <p:panelGrid id="guardarBtn" columns="2" styleClass="ui-noborder" style="float: right">                            
 
                         <p:commandButton value="#{caducadaLicenciaBean.saveEdit}" actionListener="#{caducadaLicenciaBean.guardarCaducada}"
@@ -317,7 +318,17 @@ and open the template in the editor.
                         </p:commandButton>
                         <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar"/>                            
                     </p:panelGrid>
-                                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
+                    <p:panelGrid id="pasarBtn" columns="2" styleClass="ui-noborder" style="float: right; margin-right: 100px;">
+                        <p:outputLabel value="PASAR A: "
+                                       style="white-space: nowrap; text-align: right; padding-top: 6px;"
+                                       rendered="#{caducadaLicenciaBean.saveEdit eq 'EDITAR'}"/>
+                        <p:selectOneMenu id="estadoRegistro" style="width: 180px;" value="#{caducadaLicenciaBean.estadoTemp}"
+                                         rendered="#{caducadaLicenciaBean.saveEdit eq 'EDITAR'}">
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADA"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
                                      header="TÍTULO CANCELADO" severity="alert"
                                      message="#{caducadaLicenciaBean.mensajeCancelado}"
                                      showEffect="explode" hideEffect="explode">
@@ -325,9 +336,9 @@ and open the template in the editor.
                         <p:commandButton value="NO" actionListener="#{caducadaLicenciaBean.descartarTramite}" process="@this"
                                          update="frmNuevaT:datosNuevaT" oncomplete="PF('cvTitCancelado').hide();" class="btn_cerrar"/>
                     </p:confirmDialog>
-</h:form>
+                </h:form>
             </p:dialog>
-            
+
             <p:dialog id="dlgExpediente" modal="true" resizable="true"
                       header="#{caducadaLicenciaBean.dialogTitle}" fitViewport="true"
                       widgetVar="dlgExpediente" style="font-size: 11px;" showEffect="explode" 
@@ -350,7 +361,7 @@ and open the template in the editor.
                     </p:dataTable>
                 </h:form>
             </p:dialog>
-            
+
             <p:dialog id="dlgHistorial" modal="true" resizable="true"
                       header="HISTORIAL #{caducadaLicenciaBean.caducada.solicitud}" fitViewport="true"
                       widgetVar="dlgHistorial" style="font-size: 11px;" showEffect="explode" 
@@ -368,9 +379,9 @@ and open the template in the editor.
 
             <br/>
         </h:form>
-        
+
         <div id="footer"></div>
-        
+
         <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
             <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
                     oncomplete="PF('idleDialog').show()" />
@@ -404,7 +415,7 @@ and open the template in the editor.
                 $('h1').css('color', '#222222');
                 $("#footer").load("footer.html");
             }, 150);
-            
+
             $("#menuside").load("menusidebar.html", function () {
                 jQuery('#cad_lic').addClass('activomenu');
                 jQuery('#licentitul').removeClass('sideinactivo').addClass('sideactivo');

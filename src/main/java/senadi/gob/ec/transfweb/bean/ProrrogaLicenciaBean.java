@@ -6,6 +6,8 @@
 package senadi.gob.ec.transfweb.bean;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,6 +66,8 @@ public class ProrrogaLicenciaBean implements Serializable {
 
     private List<Documento> archivos;
 
+    private String alertaVencidas;
+
     public ProrrogaLicenciaBean() {
         loadProrrogasLicencia();
         selectedProrrogas = new ArrayList<>();
@@ -96,7 +100,8 @@ public class ProrrogaLicenciaBean implements Serializable {
     }
 
     private boolean faltanDatosAlcance(LicenciaUso p) {
-        return p.getNumeroProrroga() == null || p.getNumeroAlcance() == null || p.getNumeroAlcance().trim().isEmpty() || p.getFechaAlcance() == null;
+        return p.getNumeroProrroga() == null || p.getNumeroAlcance() == null || p.getNumeroAlcance().trim().isEmpty() || p.getFechaAlcance() == null
+                || p.getSolicitante() == null || p.getSolicitante().trim().isEmpty();
     }
 
     public void viewProrroga(ActionEvent ae) {
@@ -104,7 +109,7 @@ public class ProrrogaLicenciaBean implements Serializable {
         prorroga = (LicenciaUso) prorrogaDataTable.getRowData();
         if (prorroga != null && prorroga.getId() != null) {
             if (faltanDatosAlcance(prorroga)) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE) Y LA FECHA DEL ESCRITO PARA VER EL PDF DEL TRÁMITE " + prorroga.getSolicitud());
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE), LA FECHA DEL ESCRITO Y EL SOLICITANTE PARA VER EL PDF DEL TRÁMITE " + prorroga.getSolicitud());
             } else {
                 loginBean.setVarious(false);
                 loginBean.setLicencia(prorroga);
@@ -129,7 +134,7 @@ public class ProrrogaLicenciaBean implements Serializable {
                 }
             }
             if (!faltan.isEmpty()) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE) Y LA FECHA DEL ESCRITO PARA VER EL PDF DE: " + faltan);
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "SE NECESITAN EL NÚMERO DE PRÓRROGA, EL NÚMERO DE ESCRITO (ALCANCE), LA FECHA DEL ESCRITO Y EL SOLICITANTE PARA VER EL PDF DE: " + faltan);
             } else {
                 loginBean.setLicencia(null);
                 loginBean.setLicencias(selectedProrrogas);
@@ -147,8 +152,71 @@ public class ProrrogaLicenciaBean implements Serializable {
         Controlador c = new Controlador();
         prorrogas = c.getLicenciasUsoByTipo("PRORROGA");
         numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
         exportName = "prorroga_licencia_" + Operaciones.formatDate(new Date());
         loginBean = c.getLogin();
+    }
+
+    public boolean isProrrogaVencida(LicenciaUso p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return false;
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        return !LocalDate.now().isBefore(limite);
+    }
+
+    public String getEstiloProrroga(LicenciaUso p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        return isProrrogaVencida(p) ? "row-prorroga-vencida" : "row-prorroga";
+    }
+
+    public String getDiasRestantes(LicenciaUso p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        long faltan = ChronoUnit.DAYS.between(LocalDate.now(), limite);
+        if (faltan > 0) {
+            return "Faltan " + faltan + (faltan == 1 ? " día" : " días");
+        }
+        if (faltan == 0) {
+            return "Vence hoy";
+        }
+        return "Vencida hace " + Math.abs(faltan) + (Math.abs(faltan) == 1 ? " día" : " días");
+    }
+
+    public String getTooltipProrroga(LicenciaUso p) {
+        if (p == null || p.getFechaPuestaProrroga() == null || p.getDiasProrroga() == null) {
+            return "";
+        }
+        LocalDate limite = Operaciones.calcularFechaLimiteProrroga(p.getSolicitud(), p.getFechaPuestaProrroga(), p.getDiasProrroga());
+        long faltan = ChronoUnit.DAYS.between(LocalDate.now(), limite);
+        String tipoPlazo = Operaciones.esSolicitudIepi(p.getSolicitud()) ? "días de corrido" : "días laborables";
+        if (faltan > 0) {
+            return "Faltan " + faltan + " días para que venza la prórroga del trámite " + p.getSolicitud()
+                    + " (plazo de " + p.getDiasProrroga() + " " + tipoPlazo + ")";
+        }
+        if (faltan == 0) {
+            return "La prórroga del trámite " + p.getSolicitud() + " vence hoy";
+        }
+        return "La prórroga del trámite " + p.getSolicitud() + " venció hace " + Math.abs(faltan)
+                + " días. Revise el expediente y remítalo a Certificados, Notificaciones o Abandonos";
+    }
+
+    private void calcularAlertaVencidas() {
+        int vencidas = 0;
+        for (int i = 0; prorrogas != null && i < prorrogas.size(); i++) {
+            if (isProrrogaVencida(prorrogas.get(i))) {
+                vencidas++;
+            }
+        }
+        if (vencidas > 0) {
+            alertaVencidas = "ALERTA: " + vencidas + " PRÓRROGA(S) CON EL PLAZO VENCIDO. REVISE EL EXPEDIENTE Y REMÍTALO A CERTIFICADOS, NOTIFICACIONES O ABANDONOS";
+        } else {
+            alertaVencidas = "";
+        }
     }
 
     public void buscarProrroga(ActionEvent ae) {
@@ -159,6 +227,7 @@ public class ProrrogaLicenciaBean implements Serializable {
             Controlador c = new Controlador();
             prorrogas = c.getLicenciasUsoByCriteriaAndType(criterio, "PRORROGA");
             numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
             if (prorrogas.isEmpty()) {
                 msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "NO SE ENCONTRARON RESULTADOS");
             } else {
@@ -184,6 +253,7 @@ public class ProrrogaLicenciaBean implements Serializable {
             Controlador c = new Controlador();
             prorrogas = c.getLicenciasUsoByFechaAndType(fechaInicio, fechaFin, "PRORROGA");
             numRegistros = "Número Registros Mostrados: " + prorrogas.size();
+        calcularAlertaVencidas();
             if (prorrogas.isEmpty()) {
                 msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "NO SE ENCONTRARON RESULTADOS");
             } else {
@@ -243,6 +313,11 @@ public class ProrrogaLicenciaBean implements Serializable {
         FacesMessage msg = null;
         if (prorroga != null && prorroga.getId() != null) {
             Controlador c = new Controlador();
+            if (prorroga.getSolicitante() == null || prorroga.getSolicitante().trim().isEmpty()) {
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "DEBE INGRESAR EL SOLICITANTE PARA EDITAR LA PRÓRROGA");
+                FacesContext.getCurrentInstance().addMessage(null, msg);
+                return;
+            }
             if (c.validarExistenciaLicenciaUso(prorroga)) {
                 msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
             } else {
@@ -254,6 +329,12 @@ public class ProrrogaLicenciaBean implements Serializable {
                     if (estadoTemp.equals("CERTIFICADO")) {
                         prorroga.setTipoEstado("LICENCIA");
                         prorroga.setLicenciaNo(c.getNextLicenciaUsoNo());
+                    } else if (estadoTemp.equals("ABANDONO")) {
+                        prorroga.setTipoEstado("ABANDONO");
+                        prorroga.setFechaAbandono(new Date());
+                        if (prorroga.getNumeroAbandono() == null) {
+                            prorroga.setNumeroAbandono(c.getNextNumeroAbandonoLicencia(new Date()));
+                        }
                     } else {
                         prorroga.setTipoEstado("NOTIFICADA");
                     }
@@ -456,5 +537,19 @@ public class ProrrogaLicenciaBean implements Serializable {
 
     public void setEstadoTemp(String estadoTemp) {
         this.estadoTemp = estadoTemp;
+    }
+
+    /**
+     * @return the alertaVencidas
+     */
+    public String getAlertaVencidas() {
+        return alertaVencidas;
+    }
+
+    /**
+     * @param alertaVencidas the alertaVencidas to set
+     */
+    public void setAlertaVencidas(String alertaVencidas) {
+        this.alertaVencidas = alertaVencidas;
     }
 }

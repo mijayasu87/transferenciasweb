@@ -55,10 +55,10 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogatransf.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonotra.xhtml" title="Abandonos" >ABANDONOS</a>
                 <a class="activo" href="#" title="Caducadas" >CADUCADAS - NEGADAS</a> 
-                <a class="itemm" href="desistimientos.xhtml" title="Desistimientos" >DESISTIMIENTO</a> 
-                <a class="itemm" href="prorrogatransf.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="desistimientos.xhtml" title="Desistimientos" >DESISTIMIENTO</a>                 
                 <a class="itemm" href="notificaciones.xhtml" title="Notificaciones" >NOTIFICACIONES</a> 
                 <a class="itemm" href="index.xhtml" title="Transferencias" >TRANSFERENCIAS</a>
             </div>
@@ -340,7 +340,8 @@ and open the template in the editor.
                                          rendered="#{caducadaBean.dialogTitle eq 'NUEVO CADUCADA-NEGADO' ? false : true}">
                             <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
                             <f:selectItem itemLabel="TRANSFERENCIAS" itemValue="TRANSFERENCIAS"/>
-                        </p:selectOneMenu>                                                   
+                            <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADAS"/>
+                        </p:selectOneMenu>                                                 
                     </p:panelGrid>                                                                               
                                     <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
                                      header="TÍTULO CANCELADO" severity="alert"

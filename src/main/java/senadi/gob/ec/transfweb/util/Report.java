@@ -31,6 +31,7 @@ import senadi.gob.ec.transfweb.model.CambioCasillero;
 import senadi.gob.ec.transfweb.model.Delegado;
 import senadi.gob.ec.transfweb.model.Desistimiento;
 import senadi.gob.ec.transfweb.model.Notificacion;
+import senadi.gob.ec.transfweb.model.Prorroga;
 import senadi.gob.ec.transfweb.model.RazonCorreccion;
 import senadi.gob.ec.transfweb.model.Resolucion;
 import senadi.gob.ec.transfweb.model.Transferencia;
@@ -620,7 +621,7 @@ public class Report implements Serializable {
 
     /*Dibuja (arma) el reporte, para que esté listo para ser mostrado en pantalla*/
     public byte[] viewCaducadaMasterBytes(String path, InputStream rutaJrxml, Date fechaPresentacion, Integer idCaducada,
-            String delegado, String delegacion, Delegado secretaria, String tipoTramite) {
+            String delegado, String delegacion, Delegado secretaria, String tipoTramite, String resnot, String fecharesnot) {
         JasperReport jasperReport;
         JasperPrint jasperPrint;
         try {
@@ -688,6 +689,8 @@ public class Report implements Serializable {
             parametro.put("tipotramite", el_la + tipoTramite);
             parametro.put("SUBREPORT_DIR", path + "/");
             parametro.put("id", idCaducada);
+            parametro.put("resolucionnot", resnot);
+            parametro.put("fecharesolnot", fecharesnot);
 
 //se carga el reporte
             jasperReport = JasperCompileManager.compileReport(rutaJrxml);
@@ -820,7 +823,7 @@ public class Report implements Serializable {
     }
 
     public FileInputStream viewCaducada(String path, InputStream rutaJrxml, Date fechaPresentacion, Integer idCaducada, String rutapdf,
-            String delegado, String delegacion, Delegado secretaria, String tipoTramite) {
+            String delegado, String delegacion, Delegado secretaria, String tipoTramite, String resnot, String fecharesnot) {
         try {
             FileInputStream entrada;
             JasperReport reportePrincipal = JasperCompileManager.compileReport(rutaJrxml);
@@ -888,6 +891,9 @@ public class Report implements Serializable {
                 el_la = "la ";
             }
             parametro.put("tipotramite", el_la + tipoTramite);
+            
+            parametro.put("resolucionnot", resnot);
+            parametro.put("fecharesolnot", fecharesnot);
 
             parametro.put("id", idCaducada);
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
@@ -955,8 +961,7 @@ public class Report implements Serializable {
             return null;
         }
     }
-
-    /*Dibuja (arma) el reporte, para que esté listo para ser mostrado en pantalla*/
+    
     public byte[] viewAbandonoProrrogaAllMasterBytes(String path, InputStream rutaJrxml, Integer id, String rutapdf,
             String delegado, String delegacion, Delegado secretaria, String tipoMod, Resolucion resnot) {
         JasperReport jasperReport;
@@ -971,21 +976,84 @@ public class Report implements Serializable {
             parametro.put("SUBREPORT_DIR", path + "/");
             parametro.put("id", id);
             parametro.put("tipo_mod", tipoMod);
-            if (tipoMod.equals("cambio_nombre")) {
+            Controlador c = new Controlador();
+            if (tipoMod.equals("prorroga")) {
+                parametro.put("cambio", "TRANSFERENCIA");
+                Prorroga p = c.getProrrogaById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(p.getDiasProrroga()));
+            } else if (tipoMod.equals("cambio_nombre")) {
                 parametro.put("cambio", "CAMBIO DE NOMBRE");
+                CambioNombre cn = c.getCambioNombreById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(cn.getDiasProrroga()));
             } else if (tipoMod.equals("cambio_domicilio")) {
                 parametro.put("cambio", "CAMBIO DE DOMICILIO");
+                CambioDomicilio cd = c.getCambioDomicilioById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(cd.getDiasProrroga()));
             } else if (tipoMod.equals("prenda_comercial")) {
                 parametro.put("cambio", "PRENDA COMERCIAL");
+                PrendaComercial pc = c.getPrendaComercialById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(pc.getDiasProrroga()));
             } else if (tipoMod.equals("licencia_uso")) {
                 parametro.put("cambio", "LICENCIA DE USO");
+                LicenciaUso lu = c.getLicenciaUsoById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(lu.getDiasProrroga()));
             } else {
                 parametro.put("cambio", "SUBLICENCIA DE USO");
+                SubLicenciaUso su = c.getSublicenciaUsoById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(su.getDiasProrroga()));
             }
 
             if (resnot.getId() != null) {
                 parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
             }
+
+//se carga el reporte
+            jasperReport = JasperCompileManager.compileReport(rutaJrxml);
+            //se procesa el archivo jasper
+            jasperPrint = JasperFillManager.fillReport(jasperReport, parametro, conn);
+            //se crea el archivo PDF            
+            byte[] output = JasperExportManager.exportReportToPdf(jasperPrint);
+            return output;
+        } catch (Exception ex) {
+            System.out.println("Error print abandono " + tipoMod + " separado: " + ex);
+            return null;
+        }
+    }
+
+    /*Dibuja (arma) el reporte, para que esté listo para ser mostrado en pantalla*/
+    public byte[] viewAbandonoAllMasterBytes(String path, InputStream rutaJrxml, Integer id, String rutapdf,
+            String delegado, String delegacion, Delegado secretaria, String tipoMod, Resolucion resnot) {
+        JasperReport jasperReport;
+        JasperPrint jasperPrint;
+        try {
+            Map parametro = new HashMap();
+
+            parametro.put("nombrePersona", delegado);
+            parametro.put("delegacion", delegacion);
+            parametro.put("secretaria", secretaria.getNombre());
+            parametro.put("denosecre", secretaria.getDenominacion());
+            parametro.put("SUBREPORT_DIR", path + "/");
+            parametro.put("id", id);
+            parametro.put("tipo_mod", tipoMod);
+            Controlador c = new Controlador();
+            if (tipoMod.equals("prorroga")) {
+                parametro.put("cambio", "TRANSFERENCIA");                
+            } else if (tipoMod.equals("cambio_nombre")) {
+                parametro.put("cambio", "CAMBIO DE NOMBRE");                
+            } else if (tipoMod.equals("cambio_domicilio")) {
+                parametro.put("cambio", "CAMBIO DE DOMICILIO");                
+            } else if (tipoMod.equals("prenda_comercial")) {
+                parametro.put("cambio", "PRENDA COMERCIAL");                
+            } else if (tipoMod.equals("licencia_uso")) {
+                parametro.put("cambio", "LICENCIA DE USO");                
+            } else {
+                parametro.put("cambio", "SUBLICENCIA DE USO");                
+            }
+
+            if (resnot.getId() != null) {
+                parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
+            }
+
 //se carga el reporte
             jasperReport = JasperCompileManager.compileReport(rutaJrxml);
             //se procesa el archivo jasper
@@ -1014,8 +1082,82 @@ public class Report implements Serializable {
             parametro.put("SUBREPORT_DIR", path + "/");
             parametro.put("id", id);
             parametro.put("tipo_mod", tipoMod);
-            if (tipoMod.equals("cambio_nombre")) {
+            Controlador c = new Controlador();
+            if (tipoMod.equals("prorroga")) {
+                parametro.put("cambio", "TRANSFERENCIA");
+                Prorroga p = c.getProrrogaById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(p.getDiasProrroga()));
+            } else if (tipoMod.equals("cambio_nombre")) {
                 parametro.put("cambio", "CAMBIO DE NOMBRE");
+                CambioNombre cn = c.getCambioNombreById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(cn.getDiasProrroga()));
+            } else if (tipoMod.equals("cambio_domicilio")) {
+                parametro.put("cambio", "CAMBIO DE DOMICILIO");
+                CambioDomicilio cd = c.getCambioDomicilioById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(cd.getDiasProrroga()));
+            } else if (tipoMod.equals("prenda_comercial")) {
+                parametro.put("cambio", "PRENDA COMERCIAL");
+                PrendaComercial pc = c.getPrendaComercialById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(pc.getDiasProrroga()));
+            } else if (tipoMod.equals("licencia_uso")) {
+                parametro.put("cambio", "LICENCIA DE USO");
+                LicenciaUso lu = c.getLicenciaUsoById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(lu.getDiasProrroga()));
+            } else {
+                parametro.put("cambio", "SUBLICENCIA DE USO");
+                SubLicenciaUso su = c.getSublicenciaUsoById(id);
+                parametro.put("dias_letras", Operaciones.convertirNumero(su.getDiasProrroga()));
+            }            
+
+            if (resnot.getId() != null) {
+                parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
+            }            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
+            if (jasperPrint.getPages().isEmpty()) {
+                System.out.println("Hay un error con el jasperprint");
+                return null;
+            }            
+            DefaultJasperReportsContext context = DefaultJasperReportsContext.getInstance();
+
+            try (OutputStream out = new FileOutputStream(rutapdf + ".pdf")) {
+                JRPdfExporter exporter = new JRPdfExporter();
+                SimplePdfExporterConfiguration configuration = new SimplePdfExporterConfiguration();
+                ExporterInput inp = new SimpleExporterInput(jasperPrint);
+                configuration.setCreatingBatchModeBookmarks(true);
+                configuration.set128BitKey(Boolean.TRUE);
+                exporter.setConfiguration(configuration);
+                exporter.setExporterInput(inp);
+                exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(out));
+                exporter.exportReport();
+            }            
+            entrada = new FileInputStream(rutapdf + ".pdf");
+            return entrada;
+        } catch (Exception ex) {
+            System.out.println("Error print abandono: " + ex);
+            return null;
+        }
+    }
+    
+    public FileInputStream viewAbandonoAll(String path, InputStream rutaJrxml, Integer id, String rutapdf,
+            String delegado, String delegacion, Delegado secretaria, String tipoMod, Resolucion resnot) {
+        try {
+            FileInputStream entrada;
+            JasperReport reportePrincipal = JasperCompileManager.compileReport(rutaJrxml);
+
+            Map parametro = new HashMap();
+
+            parametro.put("nombrePersona", delegado);
+            parametro.put("delegacion", delegacion);
+            parametro.put("secretaria", secretaria.getNombre());
+            parametro.put("denosecre", secretaria.getDenominacion());
+            parametro.put("SUBREPORT_DIR", path + "/");
+            parametro.put("id", id);
+            parametro.put("tipo_mod", tipoMod);
+            Controlador c = new Controlador();            
+            if (tipoMod.equals("prorroga")) {
+                parametro.put("cambio", "TRANSFERENCIA");
+            } else if (tipoMod.equals("cambio_nombre")) {
+                parametro.put("cambio", "CAMBIO DE NOMBRE");                
             } else if (tipoMod.equals("cambio_domicilio")) {
                 parametro.put("cambio", "CAMBIO DE DOMICILIO");
             } else if (tipoMod.equals("prenda_comercial")) {
@@ -1024,17 +1166,16 @@ public class Report implements Serializable {
                 parametro.put("cambio", "LICENCIA DE USO");
             } else {
                 parametro.put("cambio", "SUBLICENCIA DE USO");
-            }
+            }            
 
             if (resnot.getId() != null) {
                 parametro.put("resolucionnot", resnot.getResolucion() + " de fecha " + Operaciones.formatDateToLarge(resnot.getFecha()));
-            }
-
+            }            
             JasperPrint jasperPrint = JasperFillManager.fillReport(reportePrincipal, parametro, conn);
             if (jasperPrint.getPages().isEmpty()) {
                 System.out.println("Hay un error con el jasperprint");
                 return null;
-            }
+            }            
             DefaultJasperReportsContext context = DefaultJasperReportsContext.getInstance();
 
             try (OutputStream out = new FileOutputStream(rutapdf + ".pdf")) {

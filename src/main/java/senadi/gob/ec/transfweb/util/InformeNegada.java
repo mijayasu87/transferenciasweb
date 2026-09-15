@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import senadi.gob.ec.transfweb.bean.LoginBean;
 import senadi.gob.ec.transfweb.model.Caducada;
 import senadi.gob.ec.transfweb.model.Delegado;
+import senadi.gob.ec.transfweb.model.Resolucion;
 import senadi.gob.ec.transfweb.model.cd.CambioDomicilio;
 import senadi.gob.ec.transfweb.model.cn.CambioNombre;
 import senadi.gob.ec.transfweb.model.licencia.LicenciaUso;
@@ -83,6 +84,8 @@ public class InformeNegada extends HttpServlet {
 
         String delegado = c.getDelegadoActivo("delegado").getNombre();
         String delegacion = c.getDelegacionActiva().getNombre();
+        
+        Resolucion resnot = c.getResolucionActiva("notificacion");
 
         try {
 
@@ -111,7 +114,8 @@ public class InformeNegada extends HttpServlet {
                         String nombre = caducada.getSolicitud() + "_cad_tr_" + caducada.getResolucion();
 
                         Report report = new Report();
-                        arb = report.viewCaducadaMasterBytes(path, is, caducada.getFechaPresentacion(), caducada.getId(), delegado, delegacion, secretaria, "TRANSFERENCIA");
+                        arb = report.viewCaducadaMasterBytes(path, is, caducada.getFechaPresentacion(), caducada.getId(), delegado, 
+                                delegacion, secretaria, "TRANSFERENCIA", resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                         File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                         FileOutputStream outs = new FileOutputStream(fileTemp);
                         outs.write(arb);
@@ -137,7 +141,8 @@ public class InformeNegada extends HttpServlet {
                         String nombre = caducada.getSolicitud() + "_cad_cd_" + caducada.getResolucionCaducada();
 
                         Report report = new Report();
-                        arb = report.viewCaducadaMasterBytes(path, is, caducada.getFechaPresentacion(), caducada.getId(), delegado, delegacion, secretaria, "CAMBIO DE DOMICILIO");
+                        arb = report.viewCaducadaMasterBytes(path, is, caducada.getFechaPresentacion(), caducada.getId(), delegado, 
+                                delegacion, secretaria, "CAMBIO DE DOMICILIO",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                         File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                         FileOutputStream outs = new FileOutputStream(fileTemp);
                         outs.write(arb);
@@ -162,7 +167,8 @@ public class InformeNegada extends HttpServlet {
                         String nombre = caducadacn.getSolicitud() + "_cad_cn_" + caducadacn.getResolucionCaducada();
                         
                         Report report = new Report();
-                        arb = report.viewCaducadaMasterBytes(path, is, caducadacn.getFechaPresentacion(), caducadacn.getId(), delegado, delegacion, secretaria, "CAMBIO DE NOMBRE");
+                        arb = report.viewCaducadaMasterBytes(path, is, caducadacn.getFechaPresentacion(), caducadacn.getId(), 
+                                delegado, delegacion, secretaria, "CAMBIO DE NOMBRE",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                         File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                         FileOutputStream outs = new FileOutputStream(fileTemp);
                         outs.write(arb);
@@ -188,7 +194,8 @@ public class InformeNegada extends HttpServlet {
                         String nombre = caducadali.getSolicitud() + "_cad_li_" + caducadali.getResolucionCaducada();
                         
                         Report report = new Report();
-                        arb = report.viewCaducadaMasterBytes(path, is, caducadali.getFechaPresentacion(), caducadali.getId(), delegado, delegacion, secretaria, "LICENCIA DE USO");
+                        arb = report.viewCaducadaMasterBytes(path, is, caducadali.getFechaPresentacion(), 
+                                caducadali.getId(), delegado, delegacion, secretaria, "LICENCIA DE USO",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                         File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                         FileOutputStream outs = new FileOutputStream(fileTemp);
                         outs.write(arb);
@@ -213,7 +220,8 @@ public class InformeNegada extends HttpServlet {
                         String nombre = caducadapr.getSolicitud() + "_cad_li_" + caducadapr.getResolucionCaducada();
                         
                         Report report = new Report();
-                        arb = report.viewCaducadaMasterBytes(path, is, caducadapr.getFechaPresentacion(), caducadapr.getId(), delegado, delegacion, secretaria, "PRENDA COMERCIAL");
+                        arb = report.viewCaducadaMasterBytes(path, is, caducadapr.getFechaPresentacion(), caducadapr.getId(), 
+                                delegado, delegacion, secretaria, "PRENDA COMERCIAL",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                         File fileTemp = new File(nombre.trim().replace(" ", "_") + ".pdf");
                         FileOutputStream outs = new FileOutputStream(fileTemp);
                         outs.write(arb);
@@ -247,7 +255,8 @@ public class InformeNegada extends HttpServlet {
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/NegadaReporte.jrxml");
-                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, delegacion, secretaria, "TRANSFERENCIA");
+                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), 
+                                "archivo.xls", delegado, delegacion, secretaria, "TRANSFERENCIA",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
                     } else {
                         System.err.println("No se cargó correctamente la negada transferencia");
                     }
@@ -261,7 +270,8 @@ public class InformeNegada extends HttpServlet {
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/NegadaReporte.jrxml");
-                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, delegacion, secretaria, "CAMBIO DE DOMICILIO");                        
+                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", 
+                                delegado, delegacion, secretaria, "CAMBIO DE DOMICILIO",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
 
                     } else {
                         System.err.println("No se cargó correctamente la negada cambio de domicilio");
@@ -275,7 +285,8 @@ public class InformeNegada extends HttpServlet {
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/NegadaReporte.jrxml");
-                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, delegacion, secretaria, "CAMBIO DE NOMBRE");                        
+                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, 
+                                delegacion, secretaria, "CAMBIO DE NOMBRE",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
 
                     } else {
                         System.err.println("No se cargó correctamente la negada cambio de nombre");
@@ -289,7 +300,8 @@ public class InformeNegada extends HttpServlet {
                         nombre = nombre.trim().replace(" ", "_");
                         response.setHeader("Content-disposition", "inline; filename=" + nombre + ".pdf");
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/NegadaReporte.jrxml");
-                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, delegacion, secretaria, "LICENCIA DE USO");                        
+                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, 
+                                delegacion, secretaria, "LICENCIA DE USO",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
 
                     } else {
                         System.err.println("No se cargó correctamente la negada licencia de uso");
@@ -305,7 +317,8 @@ public class InformeNegada extends HttpServlet {
                         System.out.println("prenda comercial: "+caducada.getId()+", "+caducada.getFechaPresentacion().toString());
                         is = getServletContext().getResourceAsStream("/WEB-INF/report/NegadaReporte.jrxml");
                         System.out.println(caducada.getFechaPresentacion()+","+ caducada.getId()+","+ "archivo.xls"+","+ delegado+","+ delegacion+","+ secretaria+",PRENDA COMERCIAL");
-                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", delegado, delegacion, secretaria, "PRENDA COMERCIAL");
+                        in = report.viewCaducada(path, is, caducada.getFechaPresentacion(), caducada.getId(), "archivo.xls", 
+                                delegado, delegacion, secretaria, "PRENDA COMERCIAL",resnot.getResolucion(), Operaciones.formatDateToLarge(resnot.getFecha()));
 
                     } else {
                         System.err.println("No se cargó correctamente la negada prenda comercial");

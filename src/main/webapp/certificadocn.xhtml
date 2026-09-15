@@ -54,10 +54,10 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogacn.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonocn.xhtml" title="Abandono" >ABANDONO</a>
                 <a class="itemm" href="caducadacn.xhtml" title="Caducadas" >CADUCADAS-NEGADAS</a> 
-                <a class="itemm" href="desistidacn.xhtml" title="Desistidas" >DESISTIDAS</a> 
-                <a class="itemm" href="prorrogacn.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="desistidacn.xhtml" title="Desistidas" >DESISTIDAS</a>                 
                 <a class="itemm" href="notificadacn.xhtml" title="Notificaciones" >NOTIFICADAS</a>
                 <a class="activo" href="#" title="CERTIFICADO" >CERTIFICADO C. NOMBRE</a>
                 <a class="itemm" href="cnomrez.xhtml" title="REZAGO" style="display: #{loginBean.lectura eq true?'none':'inline-block'}" >REZAGO</a>
@@ -345,7 +345,7 @@ and open the template in the editor.
                         <p:inputTextarea id="aporeplegalForm" value="#{certificadocnBean.certificado.apeApodRepre}" title="Apoderado Representante Legal" 
                                          class="maxsize"/>
 
-                        <p:outputLabel value="nomApodRepre" for="nomApodRepre"/>                            
+                        <p:outputLabel value="NomApodRepre" for="nomApodRepre"/>                            
                         <p:inputTextarea id="nomApodRepre" value="#{certificadocnBean.certificado.nomApodRepre}" title="Nombre apoderado representante" 
                                          required="true" class="maxsize"/>
 

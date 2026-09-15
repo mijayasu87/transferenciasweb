@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9adbad99-856a-4e2a-bbca-e00e67d776f9">
 	<property name="ireport.zoom" value="1.464100000000001"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="192"/>
+	<property name="ireport.y" value="480"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
 	<parameter name="delegado" class="java.lang.String"/>
 	<parameter name="delegacion" class="java.lang.String"/>
@@ -45,9 +45,6 @@
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="titular_actual" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
-	<field name="nom_apod_repre" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="ti_apod_repre" class="java.lang.String">
@@ -259,7 +256,7 @@
 				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
 			</image>
 			<textField>
-				<reportElement x="481" y="363" width="64" height="12" uuid="81363007-7ba0-4b62-9ba7-509e37759ff8"/>
+				<reportElement x="481" y="366" width="64" height="12" uuid="81363007-7ba0-4b62-9ba7-509e37759ff8"/>
 				<textElement>
 					<font fontName="SansSerif" size="8"/>
 				</textElement>
@@ -287,7 +284,7 @@
 				<textFieldExpression><![CDATA[$P{secretaria}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="338" width="555" height="20" uuid="0b067176-551b-40e5-a21b-cc5af684dc9c"/>
+				<reportElement x="72" y="338" width="434" height="28" uuid="0b067176-551b-40e5-a21b-cc5af684dc9c"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>

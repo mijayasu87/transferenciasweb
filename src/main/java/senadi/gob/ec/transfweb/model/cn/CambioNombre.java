@@ -58,7 +58,7 @@ public class CambioNombre implements Serializable {
     @Column(name = "titular_actual")
     private String titularActual;
 
-    @Column(name = "nom_apod_repre")
+    @Column(name = "apoderado_representante_legal")
     private String nomApodRepre;
 
     @Column(name = "casillero_senadi")
@@ -89,7 +89,7 @@ public class CambioNombre implements Serializable {
     @Column(name = "tac_n_j")
     private String tac_n_j;
 
-    @Column(name = "apoderado_representante_legal")
+    @Column(name = "ape_apod_repre")
     private String apeApodRepre;
 
     @Column(name = "ro")

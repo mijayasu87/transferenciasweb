@@ -45,9 +45,6 @@
 	<field name="titular_actual" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
-	<field name="nom_apod_repre" class="java.lang.String">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
 	<field name="ti_apod_repre" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>

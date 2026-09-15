@@ -55,11 +55,11 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogalic.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonolic.xhtml" title="Abandonos" >ABANDONOS</a>
                 <a class="itemm" href="caducadalic.xhtml" title="Caducadas" >CADUCADAS - NEGADAS</a>
                 <a class="itemm" href="desistidalic.xhtml" title="Caducadas" >DESISTIDAS</a>                
-                <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a>
-                <a class="itemm" href="prorrogalic.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="terminacionlic.xhtml" title="Terminación Licencia" >TERMINACIÓN LICENCIA</a>                
                 <a class="activo" href="#" title="Notificada licencia" >NOTIFICADAS</a>
                 <a class="itemm" href="certificadolic.xhtml" title="Certificado Cambio Nombre" >CERTIFICADO LICENCIA</a>
             </div>
@@ -125,7 +125,6 @@ and open the template in the editor.
                     <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #00E676; padding: 6px; " >ERJAFE</div>
                     <div style="float: right; font-weight: bold; margin-top: -20px; border: solid dodgerblue; padding: 6px; " >COA</div>
                     <div style="float: right; font-weight: bold; margin-top: -20px; border: solid green; padding: 6px" >CON NOTIFICACIÓN</div>
-                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #ff9800; background: #fff3e0; padding: 6px; " >PARA PRÓRROGA</div>
                     <br/>
                     <p:commandButton value="PASAR A ABANDONOS" actionListener="#{notificacionLicenciaBean.prepararPasarAbandonos}"
                                      update="mensajes dlgTipoAbandono tipoAbanForm"
@@ -135,10 +134,6 @@ and open the template in the editor.
                                      update="mensajes dlgParaAbandono tipoAbanForm"
                                      style="float: right; font-weight: bold; margin-top: 20px;" class="btn_peque"
                                      oncomplete="if(args.abait){PF('dlgParaAbandono').show();}"/>
-                    <p:commandButton value="PARA PRÓRROGA" actionListener="#{notificacionLicenciaBean.prepararParaProrrogas}"
-                                     update="mensajes dlgParaProrroga paraProForm"
-                                     style="float: right; font-weight: bold; margin-top: 20px; margin-right: 5px;" class="btn_peque"
-                                     oncomplete="if(args.proit){PF('dlgParaProrroga').show();}"/>
                     <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
 
                     <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
@@ -157,7 +152,7 @@ and open the template in the editor.
                                  rowsPerPageTemplate="20,50,100,150,200,250,300"
                                  selection="#{notificacionLicenciaBean.selectedNotificaciones}"
                                  style="margin:3px auto; font-size: 9px !important;" 
-                                 rowKey="#{notificacion.id}" rowStyleClass="#{notificacion.fechaPuestaProrroga ne null ? 'row-prorroga' : (notificacion.tipoAbandono eq 'ERJAFE'?'row-erjafe':notificacion.tipoAbandono eq 'REGLAMENTO'?'row-reglamento':notificacion.tipoAbandono eq 'COA'?'row-coa':'')}">
+                                 rowKey="#{notificacion.id}" rowStyleClass="#{notificacion.tipoAbandono eq 'ERJAFE'?'row-erjafe':notificacion.tipoAbandono eq 'REGLAMENTO'?'row-reglamento':notificacion.tipoAbandono eq 'COA'?'row-coa':''}">
 
                         <f:facet name="header">
                             <p:outputPanel>
@@ -428,70 +423,6 @@ and open the template in the editor.
                                      style="float: right; font-weight: bold;" class="btn_buscar"
                                      oncomplete="if(args.abit){PF('dlgParaAbandono').hide();}">
                         <p:confirm header="CONFIRMAR" message="SEGURO DE CONFIGURAR LAS NOTIFICACIONES SELECCIONADAS PARA ABANDONO ?"/> 
-                    </p:commandButton>
-
-                </h:form>
-            </p:dialog>
-
-            <p:dialog id="dlgParaProrroga" modal="true" resizable="true"
-                      header="TRÁMITES SELECCIONADOS PARA ESTABLECER COMO PRÓRROGA" fitViewport="true"
-                      widgetVar="dlgParaProrroga" style="font-size: 11px; margin-bottom: 10px;" showEffect="clip"
-                      hideEffect="explode" closeOnEscape="true" width="800px">
-                <p:ajax event="close" update="dlgParaProrroga" resetValues="true" />
-                <p:growl id="paraPro" life="1000"/>
-                <h:form id="paraProForm" >
-                    <p:panel style="margin: 0 auto; text-align: center;" styleClass="panelpara">
-                        <p:outputLabel value="Las Notificaciones seleccionadas se configurarán para prórroga y, una vez cumplidos los días indicados, se pasarán automáticamente a la pestaña 'PRÓRROGAS'"
-                                       style="font-size: 10px !important; text-align: center !important;"/>
-                    </p:panel>
-                    <p:dataTable id="tablaDeProrroga" var="prorroga"
-                                 value="#{notificacionLicenciaBean.selectedNotificaciones}" widgetVar="tablaDeProrroga"
-                                 emptyMessage="No hay Datos para mostrar"
-                                 paginator="true"
-                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-                                 rows="10"
-                                 rowsPerPageTemplate="10,25,60,150,200,250,300"
-                                 style="margin:3px auto; font-size: 9px !important; background: none">
-
-                        <p:column headerText="Solicitud" style="text-align: center;" >
-                            <h:outputText value="#{prorroga.solicitud}" />
-                        </p:column>
-                        <p:column headerText="Denominación" style="text-align: center;" >
-                            <h:outputText value="#{prorroga.denominacion}" />
-                        </p:column>
-                        <p:column headerText="Notificación" style="text-align: center;" >
-                            <h:outputText value="#{prorroga.notificacion}" />
-                        </p:column>
-                        <p:column headerText="F. Notificación" style="text-align: center;" >
-                            <h:outputText value="#{prorroga.fechaNotificacion}" >
-                                <f:convertDateTime pattern="yyyy-MM-dd" />
-                            </h:outputText>
-                        </p:column>
-                        <p:column headerText="Escrito No. (Alcance)" style="text-align: center;" >
-                            <p:inputText value="#{prorroga.numeroAlcance}" title="Número de escrito / alcance" style="width: 90%; text-transform: uppercase"/>
-                        </p:column>
-                        <p:column headerText="Fecha Escrito" style="text-align: center;" >
-                            <p:calendar value="#{prorroga.fechaAlcance}" pattern="yyyy-MM-dd" navigator="true" mask="true" timeZone="GMT-5" title="Fecha del escrito / alcance"/>
-                        </p:column>
-                        <f:facet name="footer">
-                            <p:outputPanel>
-                                <h:outputText value="#{notificacionLicenciaBean.selectedNotificaciones.size()} Registros" style="font-size: 9px"/>
-                            </p:outputPanel>
-                        </f:facet>
-                    </p:dataTable>
-                    <p:panelGrid style="width:  100% !important" columns="2" columnClasses="thirty-percent, sixty-percent">
-                        <p:outputLabel value="Días de Prórroga:" for="diasProrroga" style="float: right"/>
-                        <p:inputText id="diasProrroga" value="#{notificacionLicenciaBean.diasProrroga}" title="Días de Prórroga" class="maxsize" required="true">
-                            <p:keyFilter mask="num" />
-                        </p:inputText>
-                    </p:panelGrid>
-
-                    <p:commandButton value="CERRAR" class="btn_cerrar" onclick="PF('dlgParaProrroga').hide();" style="float: right;"/>
-                    <p:commandButton value="PARA PRÓRROGA" actionListener="#{notificacionLicenciaBean.paraProrrogas}"
-                                     update="mensajes allform:tablaDeDatos diasProrroga" process="@form"
-                                     style="float: right; font-weight: bold;" class="btn_buscar"
-                                     oncomplete="if(args.proit){PF('dlgParaProrroga').hide();}">
-                        <p:confirm header="CONFIRMAR" message="SEGURO DE CONFIGURAR LAS NOTIFICACIONES SELECCIONADAS PARA PRÓRROGA ?"/>
                     </p:commandButton>
 
                 </h:form>

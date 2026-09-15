@@ -360,7 +360,29 @@ public class DesistimientoBean implements Serializable {
     }
 
     public void guardarDesistimiento(ActionEvent ae) {
+        try {
+            guardarDesistimientoInterno(ae);
+        } catch (Exception ex) {
+            System.err.println("Error al guardar desistimiento: " + ex);
+            ex.printStackTrace();
+            PrimeFaces.current().ajax().addCallbackParam("saved", false);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR",
+                    "NO SE PUDO COMPLETAR LA OPERACIÓN: " + (ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage())));
+        }
+    }
+
+    private void guardarDesistimientoInterno(ActionEvent ae) {
         FacesMessage msg = null;
+        if (desistimiento == null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "PROBLEMA AL CARGAR EL DESISTIMIENTO"));
+            return;
+        }
+        if (desistimiento.getSolicitud() == null || desistimiento.getSolicitud().trim().isEmpty()) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "EL DESISTIMIENTO NO TIENE NÚMERO DE SOLICITUD"));
+            return;
+        }
         if (desistimiento != null) {
             Controlador c = new Controlador();
             if (desistimiento.getId() != null) {
@@ -418,7 +440,14 @@ public class DesistimientoBean implements Serializable {
                         notificacion.setSolicitud(desistimiento.getSolicitud().toUpperCase());
                         notificacion.setFechaPresentacion(desistimiento.getFechaSolicitud());
                         notificacion.setFechaElaboraNotificacion(new Date());
-                        notificacion.setNotificacion(c.getNextNumeroNotificacion(notificacion.getFechaElaboraNotificacion()));
+                        int siguienteNotificacion = c.getNextNumeroNotificacion(notificacion.getFechaElaboraNotificacion());
+                        if (siguienteNotificacion <= 0) {
+                            PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR",
+                                    "NO SE PUDO ASIGNAR EL NÚMERO DE NOTIFICACIÓN; REVISE LA NUMERACIÓN DE NOTIFICADAS"));
+                            return;
+                        }
+                        notificacion.setNotificacion(siguienteNotificacion);
                         notificacion.setRegistro(desistimiento.getTitulo());
                         notificacion.setFechaRegistro(desistimiento.getFechaTitulo());
                         notificacion.setDenominacion(desistimiento.getDenominacion());
@@ -447,7 +476,7 @@ public class DesistimientoBean implements Serializable {
 
                                 if (c.removeDesistimiento(desists)) {
 
-                                    c.saveHistorial("NOTIFICADAS", "DESISTIMIENTO", notificacion.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                                    c.saveHistorial("NOTIFICADAS", "DESISTIMIENTO", notificacion.getSolicitud(), "PASADO A", getIdUsuario(), getNombreUsuario());
 
                                     loadDesistimientos();
                                     PrimeFaces.current().ajax().addCallbackParam("saved", true);
@@ -575,7 +604,17 @@ public class DesistimientoBean implements Serializable {
                 }
             }
         }
-        FacesContext.getCurrentInstance().addMessage(null, msg);
+        if (msg != null) {
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+        }
+    }
+
+    private int getIdUsuario() {
+        return loginBean != null && loginBean.getUsuario() != null ? loginBean.getUsuario().getId() : 0;
+    }
+
+    private String getNombreUsuario() {
+        return loginBean != null && loginBean.getNombre() != null ? loginBean.getNombre() : "modificaciones";
     }
 
     public void prepararHistorial(ActionEvent ae) {

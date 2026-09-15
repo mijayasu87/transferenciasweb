@@ -55,10 +55,10 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="activo" href="#" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonocn.xhtml" title="Abandono" >ABANDONO</a>
                 <a class="itemm" href="caducadacn.xhtml" title="Caducadas" >CADUCADAS - NEGADAS</a>
-                <a class="itemm" href="desistidacn.xhtml" title="Desistimientos" >DESISTIDAS</a>
-                <a class="activo" href="#" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="desistidacn.xhtml" title="Desistimientos" >DESISTIDAS</a>                
                 <a class="itemm" href="notificadacn.xhtml" title="Notificadas" >NOTIFICADAS</a>
                 <a class="itemm" href="certificadocn.xhtml" title="Certificado Cambio Nombre" >CERTIFICADO C. NOMBRE</a>
             </div>
@@ -80,7 +80,7 @@ and open the template in the editor.
                                          style="font-size: 14px; margin-right: 5px; width: 40%" placeholder="Ingrese un criterio de búsqueda"
                                          title="Puede buscar por No. Solicitud, Denominación o Titular Actual"/>
                             <p:commandButton value="BUSCAR" actionListener="#{prorrogacnBean.buscarProrroga}"
-                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg allform:alerta_pro"
                                              style="font-size: 13px"
                                              process="@parent" class="btn_peque"/>
                         </p:tab>
@@ -94,7 +94,7 @@ and open the template in the editor.
 
                             <p:commandButton value="BUSCAR"
                                              actionListener="#{prorrogacnBean.buscarProrrogasPorFecha}"
-                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                             update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg allform:alerta_pro"
                                              style="font-size: 13px" class="btn_peque"
                                              process="@parent" title="Se busca por fecha de Presentación"/>
                         </p:tab>
@@ -104,6 +104,13 @@ and open the template in the editor.
                     <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
                         <p:graphicImage name="/images/ajax-loader.gif" />
                     </p:dialog>
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #f44336; background: #ffebee; padding: 6px; " >PLAZO VENCIDO</div>
+                    <div style="float: right; font-weight: bold; margin-top: -20px; border: solid #ff9800; background: #fff3e0; padding: 6px; margin-right: 5px; " >EN PLAZO</div>
+                    <br/>
+                    <p:outputPanel id="alerta_pro" style="display: block; text-align: center;">
+                        <h:outputText value="#{prorrogacnBean.alertaVencidas}" rendered="#{not empty prorrogacnBean.alertaVencidas}"
+                                      style="font-size: 12px; font-weight: bold; color: #b71c1c; background: #ffebee; border: solid #f44336; padding: 6px;"/>
+                    </p:outputPanel>
                     <p:outputLabel id="num_reg" value="#{prorrogacnBean.numRegistros}" style="float: left; font-size: 12px"/>
                     <br/>
                     <p:dataTable id="tablaDeDatos" var="prorroga"
@@ -117,7 +124,7 @@ and open the template in the editor.
                                  selection="#{prorrogacnBean.selectedProrrogas}"
                                  rowsPerPageTemplate="20,50,100,150,200,250,300"
                                  style="margin:3px auto; font-size: 9px !important;"
-                                 rowKey="#{prorroga.id}">
+                                 rowKey="#{prorroga.id}" rowStyleClass="#{prorrogacnBean.getEstiloProrroga(prorroga)}">
 
                         <f:facet name="header">
                             <p:outputPanel>
@@ -130,7 +137,7 @@ and open the template in the editor.
                         <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{!loginBean.lectura}" exportable="false"/>
 
                         <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{prorroga.solicitud}" >
-                            <h:outputText value="#{prorroga.solicitud}" />
+                            <h:outputText value="#{prorroga.solicitud}" title="#{prorrogacnBean.getTooltipProrroga(prorroga)}"/>
                         </p:column>
                         <p:column headerText="F. Presentación" style="text-align: center;" filterBy="#{prorroga.fechaPresentacion}" >
                             <h:outputText value="#{prorroga.fechaPresentacion}" >
@@ -152,7 +159,11 @@ and open the template in the editor.
                             <h:outputText value="#{prorroga.numeroProrroga}" rendered="#{!prorroga.prorrogaNotificada}"/>
                         </p:column>
                         <p:column headerText="Días" style="text-align: center;" filterBy="#{prorroga.diasProrroga}" >
-                            <h:outputText value="#{prorroga.diasProrroga}" />
+                            <h:outputText value="#{prorroga.diasProrroga}" title="#{prorrogacnBean.getTooltipProrroga(prorroga)}"/>
+                        </p:column>
+                        <p:column headerText="Días Restantes" style="text-align: center;" >
+                            <h:outputText value="#{prorrogacnBean.getDiasRestantes(prorroga)}" title="#{prorrogacnBean.getTooltipProrroga(prorroga)}"
+                                          style="font-weight: bold; color: #{prorrogacnBean.isProrrogaVencida(prorroga) ? '#b71c1c' : '#e65100'};"/>
                         </p:column>
                         <p:column headerText="F. Puesta Prórroga" style="text-align: center;" filterBy="#{prorroga.fechaPuestaProrroga}" >
                             <h:outputText value="#{prorroga.fechaPuestaProrroga}" >
@@ -204,7 +215,7 @@ and open the template in the editor.
 
                             <p:commandLink class="link_remove"
                                            actionListener="#{prorrogacnBean.eliminarProrroga}"
-                                           update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg"
+                                           update="allform:tablaDeDatos mensajes allform:num_registros allform:num_reg allform:alerta_pro"
                                            title="Eliminar" process="@this" rendered="#{!loginBean.lectura}">
                                 <i id="delete_action" class="material-icons md-18">delete</i>
                                 <p:confirm header="CONFIRMAR" message="SEGURO DE ELIMINAR LA PRÓRROGA CON SOLICITUD: #{prorroga.solicitud} ?"/>
@@ -258,6 +269,10 @@ and open the template in the editor.
                         <p:outputLabel value="N. Prórroga:" for="numProrrogaForm"/>
                         <p:inputText id="numProrrogaForm" value="#{prorrogacnBean.prorroga.numeroProrroga}" title="Número de Prórroga (automático incremental)"
                                      class="maxsize" readonly="true" style="background: #e0e0e0 !important;"/>
+                        
+                        <p:outputLabel value="Solicitante:" for="solProrrogaForm"/>
+                        <p:inputTextarea id="solProrrogaForm" value="#{prorrogacnBean.prorroga.solicitante}" title="Solicitante"
+                                         class="maxsize" required="true"/>                                                
 
                         <p:outputLabel value="Días Prórroga:" for="diasProrrogaForm"/>
                         <p:inputText id="diasProrrogaForm" value="#{prorrogacnBean.prorroga.diasProrroga}" title="Días de Prórroga"
@@ -300,7 +315,7 @@ and open the template in the editor.
                                          title="Titular Anterior" class="maxsize" />
 
                         <p:outputLabel value="Nom Apod Repre:" for="nomapForm"/>
-                        <p:inputTextarea id="nomapForm" value="#{prorrogacnBean.prorroga.nomApodRepre}" title="Apoderado Representante Legal"
+                        <p:inputTextarea id="nomapForm" value="#{prorrogacnBean.prorroga.apeApodRepre}" title="Apoderado Representante Legal"
                                          class="maxsize"/>
 
                         <p:outputLabel value="F. Notificación:" for="fechaNotificacionForm"/>
@@ -338,11 +353,12 @@ and open the template in the editor.
                             <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
                             <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADA"/>
                             <f:selectItem itemLabel="CERTIFICADO" itemValue="CERTIFICADO"/>
+                            <f:selectItem itemLabel="ABANDONO" itemValue="ABANDONO"/>
                         </p:selectOneMenu>
                     </p:panelGrid>
                     <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar float-right"/>
                     <p:commandButton value="#{prorrogacnBean.saveEdit}" actionListener="#{prorrogacnBean.guardarProrroga}"
-                                     update="mensajes allform:tablaDeDatos datosNuevaT"
+                                     update="mensajes allform:tablaDeDatos allform:num_registros allform:num_reg allform:alerta_pro datosNuevaT"
                                      oncomplete="if(args.saved){PF('dlgNuevaT').hide();}"
                                      process="@form" class="btn_buscar float-right">
                         <p:confirm header="Seguridad" message="#{prorrogacnBean.mensajeConfirmacion}" />

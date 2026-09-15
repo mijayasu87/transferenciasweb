@@ -16,6 +16,7 @@
 	<parameter name="resuelve" class="java.lang.String"/>
 	<parameter name="tipotramite" class="java.lang.String"/>
 	<parameter name="tablabd" class="java.lang.String"/>
+	<parameter name="fecharesolnot" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[Select * from $P!{tablabd} where id = $P{id}]]>
 	</queryString>
@@ -78,8 +79,8 @@
 	</variable>
 	<variable name="parrafo_1" class="java.lang.String">
 		<variableExpression><![CDATA["Con fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_presentacion})+
-", "+$F{solicitante}+" presentó "+$P{tipotramite}+" de "+$F{signo}+" denominado "+$F{denominacion}+", con número "+
-"de registro "+$F{registro}+"."]]></variableExpression>
+", "+$F{solicitante}.replace("&","&amp;")+" presentó "+$P{tipotramite}+" de "+$F{signo}+" denominado "+
+$F{denominacion}.replace("&","&amp;")+", con número de registro "+$F{registro}+"."]]></variableExpression>
 	</variable>
 	<variable name="parrafo_2" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>PRIMERO. -</style> El artículo 226 de la Constitución de la República "+
@@ -101,7 +102,7 @@
 	<variable name="parrafo_4" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>1. Negar</style> la solicitud de "+$P{tipotramite}+" No. "+$F{solicitud}+","+
 "de fecha "+new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_presentacion})+", correspondiente "+
-"a la denominación "+$F{denominacion}+", con número de registro "+$F{registro}+", por "+$F{observacion}+", "+
+"a la denominación "+$F{denominacion}.replace("&","&amp;")+", con número de registro "+$F{registro}+", por "+$F{observacion}.replace("&","&amp;")+", "+
 "constituyendo aquello un incumplimiento de los requisitos y condiciones previstos en la normativa "+
 "nacional y comunitaria aplicable.\n\n"+
 "<style pdfFontName='Times-Bold'>2. Ordenar</style> el archivo del expediente conformado para el efecto.\n\n"+
@@ -110,9 +111,9 @@ $P{resuelve}+" <style pdfFontName='Times-Bold'>NOTIFÍQUESE Y CÚMPLASE.</style>
 	<variable name="parrafo_5" class="java.lang.String">
 		<variableExpression><![CDATA["<style pdfFontName='Times-Bold'>RAZÓN:</style> Siento por tal que el día de hoy "+
 new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+
-", notifiqué con la resolución que antecede a "+$F{solicitante}+", mediante boleta depositada "+
+", notifiqué con la resolución que antecede a "+$F{solicitante}.replace("&","&amp;")+", mediante boleta depositada "+
 "en la casilla "+$F{casillero_senadi}+". - Lo que certifico, en virtud de la delegación conferida "+
-"mediante Resolución No. 034-2024-DG-SENADI, de 18 de noviembre de 2024."]]></variableExpression>
+"mediante Resolución No. "+$P{resolucionnot}+", de "+$P{fecharesolnot}+"."]]></variableExpression>
 	</variable>
 	<background>
 		<band height="802" splitType="Stretch">
@@ -123,23 +124,23 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+
 		</band>
 	</background>
 	<title>
-		<band height="119" splitType="Stretch">
+		<band height="140" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="58" width="555" height="20" uuid="75886497-9a84-4ebb-8451-ed6226e2d29f"/>
+				<reportElement x="0" y="69" width="555" height="20" uuid="75886497-9a84-4ebb-8451-ed6226e2d29f"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="14" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>
 				<text><![CDATA[SERVICIO NACIONAL DE DERECHOS INTELECTUALES - SENADI]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="76" width="555" height="20" uuid="32244cfa-1740-426c-88c0-0f4551a15c77"/>
+				<reportElement x="0" y="87" width="555" height="20" uuid="32244cfa-1740-426c-88c0-0f4551a15c77"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="14" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>
 				<text><![CDATA[DIRECCIÓN NACIONAL DE PROPIEDAD INDUSTRIAL]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="93" width="555" height="20" uuid="3f93cec4-a170-4026-bbaf-80e92076299a"/>
+				<reportElement x="0" y="104" width="555" height="20" uuid="3f93cec4-a170-4026-bbaf-80e92076299a"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="14" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>
@@ -147,9 +148,11 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+
 			</staticText>
 		</band>
 	</title>
-	<columnHeader>
-		<band height="9" splitType="Stretch"/>
-	</columnHeader>
+	<pageHeader>
+		<band height="61">
+			<printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+		</band>
+	</pageHeader>
 	<detail>
 		<band height="208" splitType="Stretch">
 			<staticText>
@@ -244,80 +247,84 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+
 				<text><![CDATA[PARA RESOLVER SE CONSIDERA:]]></text>
 			</staticText>
 		</band>
-		<band height="63">
+		<band height="18">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="57" y="0" width="451" height="63" uuid="d0b396d5-2fa0-421b-9a4b-a54a69361262"/>
+				<reportElement x="57" y="0" width="451" height="18" uuid="d0b396d5-2fa0-421b-9a4b-a54a69361262"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_2}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="73">
+		<band height="17">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="57" y="0" width="451" height="73" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
+				<reportElement x="57" y="0" width="451" height="17" uuid="2985774b-9ae3-4b7b-bb0c-598745289a7f"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_3}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="525">
+		<band height="39">
 			<staticText>
-				<reportElement x="0" y="59" width="555" height="20" uuid="89bb4a52-d315-4b0d-862a-48cde9639973"/>
+				<reportElement x="0" y="7" width="555" height="20" uuid="89bb4a52-d315-4b0d-862a-48cde9639973"/>
 				<textElement textAlignment="Center" markup="styled">
 					<font fontName="Times New Roman" size="14" isBold="true" pdfFontName="Times-Bold" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[RESUELVE]]></text>
 			</staticText>
+		</band>
+		<band height="19">
 			<textField isStretchWithOverflow="true">
-				<reportElement x="56" y="92" width="452" height="138" uuid="05640be2-a542-46ad-bce8-8b8e7fdcfeb8"/>
+				<reportElement x="56" y="0" width="452" height="19" uuid="05640be2-a542-46ad-bce8-8b8e7fdcfeb8"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_4}]]></textFieldExpression>
 			</textField>
+		</band>
+		<band height="269">
+			<image>
+				<reportElement x="369" y="146" width="121" height="106" uuid="6ace09a7-39ae-427f-ae5d-06e2c5fa2678"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
+			</image>
 			<textField>
-				<reportElement x="0" y="312" width="555" height="15" uuid="14db6459-31b8-403c-9671-a4ff1c151463"/>
+				<reportElement x="0" y="66" width="555" height="15" uuid="14db6459-31b8-403c-9671-a4ff1c151463"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{delegacion}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="297" width="555" height="20" uuid="1d40ec67-0fda-435c-85d3-871684048a65"/>
+				<reportElement x="0" y="51" width="555" height="20" uuid="1d40ec67-0fda-435c-85d3-871684048a65"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="false" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{nombrePersona}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement x="56" y="343" width="452" height="47" uuid="ab8ad161-1f06-4240-b470-bb26e17c8791"/>
+				<reportElement x="56" y="97" width="452" height="52" uuid="ab8ad161-1f06-4240-b470-bb26e17c8791"/>
 				<textElement textAlignment="Justified" markup="styled">
 					<font fontName="Times New Roman" size="12" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{parrafo_5}]]></textFieldExpression>
 			</textField>
-			<image>
-				<reportElement x="364" y="389" width="121" height="106" uuid="6ace09a7-39ae-427f-ae5d-06e2c5fa2678"/>
-				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_new.png"]]></imageExpression>
-			</image>
 			<textField>
-				<reportElement x="469" y="503" width="64" height="12" uuid="81363007-7ba0-4b62-9ba7-509e37759ff8"/>
+				<reportElement x="469" y="250" width="64" height="12" uuid="81363007-7ba0-4b62-9ba7-509e37759ff8"/>
 				<textElement>
 					<font fontName="SansSerif" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{responsable}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="456" width="555" height="20" uuid="f4f273bc-e219-4e5d-8275-6921ca970c5b"/>
+				<reportElement x="0" y="207" width="555" height="20" uuid="f4f273bc-e219-4e5d-8275-6921ca970c5b"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="false" pdfFontName="Times-Roman"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{secretaria}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="470" width="555" height="20" uuid="282d7c42-5dc0-47d2-be5e-aec1b882088a"/>
+				<reportElement x="56" y="221" width="429" height="29" uuid="282d7c42-5dc0-47d2-be5e-aec1b882088a"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="12" isBold="true" pdfFontName="Times-Bold"/>
 				</textElement>
@@ -329,7 +336,7 @@ new SimpleDateFormat("dd 'de' MMMMM 'de' yyyy").format($F{fecha_notificacion})+
 		<band height="15" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="8" splitType="Stretch"/>
+		<band height="75" splitType="Stretch"/>
 	</pageFooter>
 	<summary>
 		<band height="7" splitType="Stretch"/>

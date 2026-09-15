@@ -55,10 +55,10 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogacn.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonocn.xhtml" title="Abandono" >ABANDONO</a>
                 <a class="activo" href="#" title="Caducadas" >CADUCADAS-NEGADAS</a> 
-                <a class="itemm" href="desistidacn.xhtml" title="Desistidas" >DESISTIDAS</a> 
-                <a class="itemm" href="prorrogacn.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="desistidacn.xhtml" title="Desistidas" >DESISTIDAS</a>                 
                 <a class="itemm" href="notificadacn.xhtml" title="Notificaciones" >NOTIFICADAS</a> 
                 <a class="itemm" href="certificadocn.xhtml" title="CERTIFICADO" >CERTIFICADO C. NOMBRE</a>
             </div>
@@ -76,7 +76,7 @@ and open the template in the editor.
                     <p:commandButton id="nuevo_registro" value="NUEVO CADUCADA-NEGADO C. NOMBRE" 
                                      style="font-size: 12px; float: left"
                                      actionListener="#{caducadacnBean.prepararNuevo}"
-                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn"
+                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn"
                                      oncomplete="if(args.doit){PF('dlgNuevaT').show()};" process="@this" class="btn_peque" rendered="#{!loginBean.lectura}"/>
                     <p:tabView style="font-size: 12px; margin: 0 auto; width: 50%" >
                         <p:tab title="Búsqueda por Criterio" >
@@ -176,7 +176,7 @@ and open the template in the editor.
                                   rendered="#{!loginBean.lectura}">                            
                             <p:commandLink class="link"
                                            actionListener="#{caducadacnBean.prepararEditar}"
-                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn "
+                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn "
                                            oncomplete="if(args.peditar){PF('dlgNuevaT').show()};"
                                            process="@this"
                                            title="Editar" >
@@ -313,7 +313,7 @@ and open the template in the editor.
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
 
                     </p:panelGrid>
-
+                    
                     <p:panelGrid id="guardarBtn" columns="2" styleClass="ui-noborder" style="float: right">                            
 
                         <p:commandButton value="#{caducadacnBean.saveEdit}" actionListener="#{caducadacnBean.guardarCaducada}"
@@ -324,7 +324,17 @@ and open the template in the editor.
                         </p:commandButton>
                         <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar"/>                            
                     </p:panelGrid>
-                                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
+                    <p:panelGrid id="pasarBtn" columns="2" styleClass="ui-noborder" style="float: right; margin-right: 100px;">
+                        <p:outputLabel value="PASAR A: "
+                                       style="white-space: nowrap; text-align: right; padding-top: 6px;"
+                                       rendered="#{caducadacnBean.saveEdit eq 'EDITAR'}"/>
+                        <p:selectOneMenu id="estadoRegistro" style="width: 180px;" value="#{caducadacnBean.estadoTemp}"
+                                         rendered="#{caducadacnBean.saveEdit eq 'EDITAR'}">
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADA"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
                                      header="TÍTULO CANCELADO" severity="alert"
                                      message="#{caducadacnBean.mensajeCancelado}"
                                      showEffect="explode" hideEffect="explode">
@@ -332,7 +342,7 @@ and open the template in the editor.
                         <p:commandButton value="NO" actionListener="#{caducadacnBean.descartarTramite}" process="@this"
                                          update="frmNuevaT:datosNuevaT" oncomplete="PF('cvTitCancelado').hide();" class="btn_cerrar"/>
                     </p:confirmDialog>
-</h:form>
+                </h:form>
             </p:dialog>
 
             <p:dialog id="dlgExpediente" modal="true" resizable="true"

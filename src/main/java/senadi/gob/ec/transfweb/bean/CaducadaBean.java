@@ -21,6 +21,7 @@ import senadi.gob.ec.transfweb.modelp.PpdiTituloSignoDistintivo;
 import senadi.gob.ec.transfweb.model.Caducada;
 import senadi.gob.ec.transfweb.model.Documento;
 import senadi.gob.ec.transfweb.model.Historial;
+import senadi.gob.ec.transfweb.model.Notificacion;
 import senadi.gob.ec.transfweb.model.TituloCancelado;
 import senadi.gob.ec.transfweb.model.Transferencia;
 import senadi.gob.ec.transfweb.model.iepdep.HallmarkForms;
@@ -227,6 +228,52 @@ public class CaducadaBean implements Serializable {
                                     loadCaducadas();
                                     PrimeFaces.current().ajax().addCallbackParam("saved", true);
                                     msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "TRANSFERENCIA DE DATOS SATISFACTORIA");
+                                } else {
+                                    PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE HA PODIDO REMOVER LA CADUCADA");
+                                }
+                            } else {
+                                PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN ERROR, INTÉNTELO MÁS TARDE.");
+                            }
+                        }
+                    } else if (estadoTemp.equals("NOTIFICADAS")) {
+                        Notificacion notificacion = new Notificacion();
+                        notificacion.setSolicitud(caducada.getSolicitud().toUpperCase());
+                        notificacion.setFechaPresentacion(caducada.getFechaPresentacion());
+                        notificacion.setFechaElaboraNotificacion(new Date());
+                        notificacion.setNotificacion(c.getNextNumeroNotificacion(notificacion.getFechaElaboraNotificacion()));
+                        notificacion.setFechaNotificacion(caducada.getFechaNotificacion());
+                        notificacion.setRegistro(caducada.getRegistro());
+                        notificacion.setFechaRegistro(caducada.getFechaRegistro());
+                        notificacion.setDenominacion(caducada.getDenominacion());
+                        notificacion.setSigno(caducada.getSigno());
+                        notificacion.setTitularAnterior(caducada.getTitularAnterior());
+                        notificacion.setTitularActual(caducada.getTitularActual());
+                        notificacion.setApeApodRepre(caducada.getApoderadoRepresetante());
+                        notificacion.setRo(caducada.getRo());
+                        notificacion.setCasilleroSenadi(caducada.getCasilleroSenadi());
+                        notificacion.setCasilleroJudicial(caducada.getCasilleroJudicial());
+                        notificacion.setResponsable(caducada.getResponsable());
+                        notificacion.setIdentificacion(caducada.getIdentificacion());
+                        notificacion.setEmail(caducada.getEmail());
+                        notificacion.setComprobante(caducada.getComprobante());
+                        notificacion.setCancelado(caducada.getCancelado());
+                        notificacion.setSolicitante(caducada.getSolicitante());
+
+                        if (c.validarExistenciaNotificacion(notificacion.getSolicitud())) {
+                            PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "EXISTENCIA", "Ya existe un trámite en notificaciones con el mismo número de solicitud");
+                        } else {
+                            if (c.saveNotificacion(notificacion)) {
+                                c = new Controlador();
+                                Caducada caducadaActual = c.getCaducadaBySolSenadi(notificacion.getSolicitud());
+
+                                if (c.removeCaducada(caducadaActual)) {
+                                    c.saveHistorial("NOTIFICADAS", "CADUCADAS-NEGADAS", notificacion.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                                    loadCaducadas();
+                                    PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                                    msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "LA CADUCADA-NEGADA SE HA PASADO A NOTIFICACIONES SATISFACTORIAMENTE");
                                 } else {
                                     PrimeFaces.current().ajax().addCallbackParam("saved", false);
                                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE HA PODIDO REMOVER LA CADUCADA");

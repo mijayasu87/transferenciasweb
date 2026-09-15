@@ -67,6 +67,8 @@ public class CaducadaLicenciaBean implements Serializable {
     
     private List<LicenciaUso> selectedCaducadas;
 
+    private String estadoTemp;
+
     public CaducadaLicenciaBean() {
         loadCaducadasLicencia();
 
@@ -146,6 +148,7 @@ public class CaducadaLicenciaBean implements Serializable {
     public void prepararEditar(ActionEvent ae) {
 
         saveEdit = "EDITAR";
+        estadoTemp = null;
         edicion = true;
 
         FacesMessage msg = null;
@@ -170,6 +173,7 @@ public class CaducadaLicenciaBean implements Serializable {
     public void prepararNuevo(ActionEvent ae) {
         dialogTitle = "NUEVO CADUCADA-NEGADO LICENCIA";
         saveEdit = "GUARDAR";
+        estadoTemp = null;
         mensajeConfirmacion = "¿Seguro de guardar el Nuevo Caducada-Negado?";
         Controlador c = new Controlador();
         caducada = new LicenciaUso();
@@ -187,8 +191,20 @@ public class CaducadaLicenciaBean implements Serializable {
         if (caducada != null) {
             Controlador c = new Controlador();
             if (caducada.getId() != null) {
-                //Editar Caducada
-                if (c.validarExistenciaLicenciaUso(caducada)) {
+                if (estadoTemp != null && estadoTemp.equals("NOTIFICADA")) {
+                    //Pasar a Notificadas
+                    caducada.setTipoEstado("NOTIFICADA");
+                    caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
+                    if (c.updateLicenciaUso(caducada)) {
+                        c.saveHistorial("NOTIFICADA_LICENCIA", "CADUCADA_LICENCIA", caducada.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                        loadCaducadasLicencia();
+                        PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "LA CADUCADA-NEGADA SE HA PASADO A NOTIFICADAS SATISFACTORIAMENTE");
+                    } else {
+                        PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL PASAR LA CADUCADA-NEGADA A NOTIFICADAS");
+                    }
+                } else if (c.validarExistenciaLicenciaUso(caducada)) {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
                 } else {
                     caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
@@ -756,5 +772,19 @@ public class CaducadaLicenciaBean implements Serializable {
      */
     public void setSelectedCaducadas(List<LicenciaUso> selectedCaducadas) {
         this.selectedCaducadas = selectedCaducadas;
+    }
+
+    /**
+     * @return the estadoTemp
+     */
+    public String getEstadoTemp() {
+        return estadoTemp;
+    }
+
+    /**
+     * @param estadoTemp the estadoTemp to set
+     */
+    public void setEstadoTemp(String estadoTemp) {
+        this.estadoTemp = estadoTemp;
     }
 }

@@ -55,11 +55,11 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogaprenda.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="activo" href="#" title="Abandonos" >ABANDONO</a>
                 <a class="itemm" href="caducadaprenda.xhtml" title="CADUCADA NEGADA" >CADUCADA NEGADA</a>
                 <a class="itemm" href="desistidaprenda.xhtml" title="Desistida" >DESISTIDAS</a>
-                <a class="itemm" href="levanprenda.xhtml" title="Levantamiento Prenda" >LEVANTAMIENTO</a>
-                <a class="itemm" href="prorrogaprenda.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="levanprenda.xhtml" title="Levantamiento Prenda" >LEVANTAMIENTO</a>                
                 <a class="itemm" href="notificadapre.xhtml" title="Notificaciones" >NOTIFICADAS</a> 
                 <a class="itemm" href="certificadopre.xhtml" title="Certificado Prenda Comercial" >CERTIFICADO P. COMERCIAL</a>
             </div>
@@ -120,6 +120,12 @@ and open the template in the editor.
                                              process="@parent" title="Se busca por fecha de Presentación"/>
                         </p:tab>
                     </p:tabView>
+
+                    <p:commandButton value="PARA PRÓRROGA" actionListener="#{abandonoprendaBean.prepararParaProrrogas}"
+                                     update="mensajes dlgParaProrroga paraProForm"
+                                     style="float: right; font-weight: bold; margin-top: 20px; margin-right: 5px;" class="btn_peque"
+                                     oncomplete="if(args.proit){PF('dlgParaProrroga').show();}"
+                                     title="Los trámites seleccionados pasan a PRÓRROGAS" rendered="#{!loginBean.lectura}"/>
 
                     <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
 
@@ -307,6 +313,70 @@ and open the template in the editor.
                     <p:panel>
                         <p:inputTextarea value="#{abandonoprendaBean.roshow}" readonly="true" style="width: 100%"/>
                     </p:panel>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dlgParaProrroga" modal="true" resizable="true"
+                      header="TRÁMITES SELECCIONADOS PARA PASAR A PRÓRROGA" fitViewport="true"
+                      widgetVar="dlgParaProrroga" style="font-size: 11px; margin-bottom: 10px;" showEffect="clip"
+                      hideEffect="explode" closeOnEscape="true" width="800px">
+                <p:ajax event="close" update="dlgParaProrroga" resetValues="true" />
+                <p:growl id="paraPro" life="1000"/>
+                <h:form id="paraProForm" >
+                    <p:panel style="margin: 0 auto; text-align: center;" styleClass="panelpara">
+                        <p:outputLabel value="Los abandonos seleccionados pasarán inmediatamente a la pestaña 'PRÓRROGAS'. A partir de este momento se contabilizarán los días indicados y, una vez vencido el plazo, el sistema mostrará la alerta en dicha pestaña"
+                                       style="font-size: 10px !important; text-align: center !important;"/>
+                    </p:panel>
+                    <p:dataTable id="tablaDeProrroga" var="prorroga"
+                                 value="#{abandonoprendaBean.selectedAbandonos}" widgetVar="tablaDeProrroga"
+                                 emptyMessage="No hay Datos para mostrar"
+                                 paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rows="10"
+                                 rowsPerPageTemplate="10,25,60,150,200,250,300"
+                                 style="margin:3px auto; font-size: 9px !important; background: none">
+
+                        <p:column headerText="Solicitud" style="text-align: center;" >
+                            <h:outputText value="#{prorroga.solicitud}" />
+                        </p:column>
+                        <p:column headerText="Denominación" style="text-align: center;" >
+                            <h:outputText value="#{prorroga.denominacion}" />
+                        </p:column>
+                        <p:column headerText="Abandono" style="text-align: center;" >
+                            <h:outputText value="#{prorroga.numeroAbandono}" />
+                        </p:column>
+                        <p:column headerText="F. Abandono" style="text-align: center;" >
+                            <h:outputText value="#{prorroga.fechaAbandono}" >
+                                <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Escrito No. (Alcance)" style="text-align: center;" >
+                            <p:inputText value="#{prorroga.numeroAlcance}" title="Número de escrito / alcance" style="width: 90%; text-transform: uppercase"/>
+                        </p:column>
+                        <p:column headerText="Fecha Escrito" style="text-align: center;" >
+                            <p:calendar value="#{prorroga.fechaAlcance}" pattern="yyyy-MM-dd" navigator="true" mask="true" timeZone="GMT-5" title="Fecha del escrito / alcance"/>
+                        </p:column>
+                        <f:facet name="footer">
+                            <p:outputPanel>
+                                <h:outputText value="#{abandonoprendaBean.selectedAbandonos.size()} Registros" style="font-size: 9px"/>
+                            </p:outputPanel>
+                        </f:facet>
+                    </p:dataTable>
+                    <p:panelGrid style="width:  100% !important" columns="2" columnClasses="thirty-percent, sixty-percent">
+                        <p:outputLabel value="Días de Prórroga:" for="diasProrroga" style="float: right"/>
+                        <p:inputText id="diasProrroga" value="#{abandonoprendaBean.diasProrroga}" title="Días de Prórroga" class="maxsize" required="true">
+                            <p:keyFilter mask="num" />
+                        </p:inputText>
+                    </p:panelGrid>
+
+                    <p:commandButton value="CERRAR" class="btn_cerrar" onclick="PF('dlgParaProrroga').hide();" style="float: right;"/>
+                    <p:commandButton value="PASAR A PRÓRROGA" actionListener="#{abandonoprendaBean.paraProrrogas}"
+                                     update="mensajes allform:tablaDeAbandonos allform:num_registros allform:num_reg diasProrroga" process="@form"
+                                     style="float: right; font-weight: bold;" class="btn_buscar"
+                                     oncomplete="if(args.proit){PF('dlgParaProrroga').hide();}">
+                        <p:confirm header="CONFIRMAR" message="SEGURO DE PASAR LOS ABANDONOS SELECCIONADOS A PRÓRROGA ?"/>
+                    </p:commandButton>
+
                 </h:form>
             </p:dialog>
 

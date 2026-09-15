@@ -55,14 +55,14 @@ and open the template in the editor.
                     </p:commandLink>
                 </div>                
                 <a class="itemm" href="settings.xhtml" title="Configuración" style="display:  #{loginBean.lectura eq true?'none':'inline-block'}"><i class="material-icons" >settings</i></a>
+                <a class="itemm" href="prorrogacd.xhtml" title="Prórrogas" >PRÓRROGAS</a>
                 <a class="itemm" href="abandonocd.xhtml" title="Caducadas" >ABANDONO</a>
                 <a class="itemm" href="resolucioncd.xhtml" title="Desistimientos" >RESOLUCIONES</a>
                 <a class="activo" href="#" title="Caducada" >CADUCADAS - NEGADAS</a>
-                <a class="itemm" href="desistidacd.xhtml" title="Desistidas" >DESISTIDAS</a>
-                <a class="itemm" href="prorrogacd.xhtml" title="Prórrogas" >PRÓRROGAS</a>
+                <a class="itemm" href="desistidacd.xhtml" title="Desistidas" >DESISTIDAS</a>                
                 <a class="itemm" href="notificadacd.xhtml" title="Notificadas" >NOTIFICADAS</a>
                 <a class="itemm" href="certificadocd.xhtml" title="Certificado Cambio Domicilio" >CERTIFICADO C. DOMICILIO</a>
-                
+
             </div>
             <div class="card" style="margin-top: 20%; position: absolute;">
                 <br/>
@@ -78,7 +78,7 @@ and open the template in the editor.
                     <p:commandButton id="nuevo_registro" value="NUEVO CADUCADA-NEGADO C. DOMICILIO" 
                                      style="font-size: 12px; float: left"
                                      actionListener="#{caducadacdBean.prepararNuevo}"
-                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn"
+                                     update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn"
                                      oncomplete="if(args.doit){PF('dlgNuevaT').show()};" process="@this" class="btn_peque" rendered="#{!loginBean.lectura}"/>
                     <p:tabView style="font-size: 12px; margin: 0 auto; width: 50%" >
                         <p:tab title="Búsqueda por Criterio" >
@@ -132,9 +132,9 @@ and open the template in the editor.
                                              style="width:300px" placeholder="Escriba aquí"/>
                             </p:outputPanel>
                         </f:facet>
-                        
+
                         <p:column selectionMode="multiple" style="width:16px;text-align:center" rendered="#{!loginBean.lectura}" exportable="false"/>
-                        
+
                         <p:column headerText="Solicitud" style="text-align: center;" filterBy="#{caducada.solicitud}" >
                             <h:outputText value="#{caducada.solicitud}" />
                         </p:column>
@@ -177,7 +177,7 @@ and open the template in the editor.
                         <p:column id="editar" headerText="Acción"  exportable="false" style="margin: 0 auto; width: 150px;" rendered="#{!loginBean.lectura}">                            
                             <p:commandLink class="link"
                                            actionListener="#{caducadacdBean.prepararEditar}"
-                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn "
+                                           update="allform:dlgNuevaT allform:frmNuevaT:datosNuevaT allform:frmNuevaT:guardarBtn allform:frmNuevaT:pasarBtn "
                                            oncomplete="if(args.peditar){PF('dlgNuevaT').show()};"
                                            process="@this"
                                            title="Editar" >
@@ -263,7 +263,7 @@ and open the template in the editor.
                         <p:outputLabel value="F. Registro:" for="fregistroForm"/>                  
                         <p:calendar id="fregistroForm"  value="#{caducadacdBean.caducada.fechaRegistro}" timeZone="GMT-5" navigator="true"
                                     mask="true" pattern="yyyy-MM-dd" required="true" title="Fecha de Registro" inputStyleClass="maxsize"/>
-                        
+
                         <p:outputLabel value="Solicitante:" for="solicForm"/>                            
                         <p:inputTextarea id="solicForm" value="#{caducadacdBean.caducada.solicitante}" title="Denominación" 
                                          required="true" class="maxsize"/>
@@ -281,7 +281,7 @@ and open the template in the editor.
                         <p:outputLabel value="Apoderado Representante:" for="aporeplegalForm"/>                            
                         <p:inputTextarea id="aporeplegalForm" value="#{caducadacdBean.caducada.apeApodRepre}" 
                                          title="Apoderado Representate" class="maxsize"/>
-                        
+
                         <p:outputLabel value="NomApodRepre:" for="nomapodre"/>                            
                         <p:inputTextarea id="nomapodre" value="#{caducadacdBean.caducada.nomApodRepre}" 
                                          title="Apoderado Representate" class="maxsize"/>
@@ -307,17 +307,18 @@ and open the template in the editor.
 
                         <p:outputLabel value="Observación:" for="obsForm"/>                            
                         <p:inputTextarea id="obsForm" value="#{caducadacdBean.caducada.observacion}" title="Observación" class="maxsize" required="true"/>
-                        
+
                         <p:outputLabel value="Comprobante" for="comproForm"/>
                         <p:inputText id="comproForm" value="#{caducadacdBean.caducada.comprobante}" title="comprobante" class="maxsize"/>
-                        
+
                         <p:outputLabel value="Url: " style="float: right !important"/>                       
                         <p:commandLink value="Ruta Expediente" actionListener="#{caducadacdBean.prepararExpediente}" process="@this"
                                        disabled="#{caducadacdBean.caducada.solicitud eq null? true:false}" style="color: blue"
                                        oncomplete="PF('dlgExpediente').show();" update="allform:dlgExpediente mensajes"/>
-                        
+
                     </p:panelGrid>
-                    
+
+
                     <p:panelGrid id="guardarBtn" columns="2" styleClass="ui-noborder" style="float: right">                            
 
                         <p:commandButton value="#{caducadacdBean.saveEdit}" actionListener="#{caducadacdBean.guardarCaducada}"
@@ -328,7 +329,17 @@ and open the template in the editor.
                         </p:commandButton>
                         <p:commandButton value="CERRAR" oncomplete="PF('dlgNuevaT').hide();" process="@form" class="btn_cerrar"/>                            
                     </p:panelGrid>
-                                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
+                    <p:panelGrid id="pasarBtn" columns="2" styleClass="ui-noborder" style="float: right; margin-right: 100px;">
+                        <p:outputLabel value="PASAR A: "
+                                       style="white-space: nowrap; text-align: right; padding-top: 6px;"
+                                       rendered="#{caducadacdBean.saveEdit eq 'EDITAR'}"/>
+                        <p:selectOneMenu id="estadoRegistro" style="width: 180px;" value="#{caducadacdBean.estadoTemp}"
+                                         rendered="#{caducadacdBean.saveEdit eq 'EDITAR'}">
+                            <f:selectItem itemLabel="Seleccionar..." itemValue="" noSelectionOption="true"/>
+                            <f:selectItem itemLabel="NOTIFICADAS" itemValue="NOTIFICADA"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:confirmDialog widgetVar="cvTitCancelado" id="cvTitCancelado" appendTo="@(body)"
                                      header="TÍTULO CANCELADO" severity="alert"
                                      message="#{caducadacdBean.mensajeCancelado}"
                                      showEffect="explode" hideEffect="explode">
@@ -336,7 +347,7 @@ and open the template in the editor.
                         <p:commandButton value="NO" actionListener="#{caducadacdBean.descartarTramite}" process="@this"
                                          update="frmNuevaT:datosNuevaT" oncomplete="PF('cvTitCancelado').hide();" class="btn_cerrar"/>
                     </p:confirmDialog>
-</h:form>
+                </h:form>
             </p:dialog>
             <p:dialog id="dlgExpediente" modal="true" resizable="true"
                       header="#{caducadacdBean.dialogTitle}" fitViewport="true"
@@ -380,7 +391,7 @@ and open the template in the editor.
         </h:form>
 
         <div id="footer"></div>
-        
+
         <p:idleMonitor timeout="#{1000*60*60}" id="idleSesion">
             <p:ajax event="idle" listener="#{idleMonitorCtrl.idleListener}"
                     oncomplete="PF('idleDialog').show()" />
@@ -414,7 +425,7 @@ and open the template in the editor.
                 $('h1').css('color', '#222222');
                 $("#footer").load("footer.html");
             }, 150);
-            
+
             $("#menuside").load("menusidebar.html", function () {
                 jQuery('#cad_doc').addClass('activomenu');
                 jQuery('#cambiosdoctitul').removeClass('sideinactivo').addClass('sideactivo');

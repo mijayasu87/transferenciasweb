@@ -96,6 +96,8 @@ public class AbandonoCDBean implements Serializable {
 
     private String rutaNotificacionCasillero;
 
+    private Integer diasProrroga;
+
     public AbandonoCDBean() {
         loadAbandonosCD();
     }
@@ -254,9 +256,7 @@ public class AbandonoCDBean implements Serializable {
         if (abandono != null) {
             Controlador c = new Controlador();
             abandono = c.getCambioDomicilioBySolicitud(abandono.getSolicitud());
-            c.refreshCambioDomicilio(abandono);
-
-//            System.out.println("fechaaaaaaaaaA: " + abandono.getFechaPresentacion());
+            System.out.println("fechaaaaaaaaaA: " + abandono.getFechaPresentacion());
             roselectable = false;
             dialogTitle = "EDITAR ABANDONO CAMBIO DE DOMICILIO " + abandono.getSolicitud();
             mensajeConfirmacion = "¿Seguro de editar la Abandono_CD: " + abandono.getSolicitud() + "?";
@@ -269,6 +269,55 @@ public class AbandonoCDBean implements Serializable {
         } else {
             msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "PROBLEMA AL CARGAR ABANDONO_CD");
             PrimeFaces.current().ajax().addCallbackParam("peditar", false);
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
+    public void prepararParaProrrogas() {
+        FacesMessage msg = null;
+        if (selectedAbandonos == null || selectedAbandonos.isEmpty()) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        } else {
+            diasProrroga = 10;
+            msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "TRÁMITES CARGADOS");
+            PrimeFaces.current().ajax().addCallbackParam("proit", true);
+        }
+        FacesContext.getCurrentInstance().addMessage(null, msg);
+    }
+
+    public void paraProrrogas(ActionEvent ae) {
+        FacesMessage msg = null;
+        if (selectedAbandonos == null || selectedAbandonos.isEmpty()) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "AVISO", "DEBE SELECCIONAR AL MENOS UN REGISTRO DE LA TABLA");
+        } else if (diasProrroga == null || diasProrroga <= 0) {
+            msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "INGRESE UN NÚMERO DE DÍAS DE PRÓRROGA VÁLIDO");
+        } else {
+            Controlador c = new Controlador();
+            int n = 0;
+            for (int i = 0; i < selectedAbandonos.size(); i++) {
+                CambioDomicilio abaaux = selectedAbandonos.get(i);
+                abaaux.setTipoEstado("PRORROGA");
+                abaaux.setFechaPuestaProrroga(new Date());
+                abaaux.setDiasProrroga(diasProrroga);
+                abaaux.setFechaProrroga(new Date());
+                if (abaaux.getNumeroProrroga() == null) {
+                    abaaux.setNumeroProrroga(c.getNextNumeroProrrogaCD(new Date()));
+                }
+                if (!c.updateCambioDomicilio(abaaux)) {
+                    msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "NO SE PUDO PASAR A PRÓRROGA EL TRÁMITE " + abaaux.getSolicitud());
+                    FacesContext.getCurrentInstance().addMessage(null, msg);
+                    return;
+                }
+                c.saveHistorial("PRORROGA_CD", "ABANDONO_CD", abaaux.getSolicitud(), "PASADO A PRÓRROGA (" + diasProrroga + " DÍAS)", loginBean.getUsuario().getId(), loginBean.getNombre());
+                n++;
+            }
+            if (n > 0) {
+                loadAbandonosCD();
+                PrimeFaces.current().ajax().addCallbackParam("proit", true);
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "INFORMACIÓN", "LOS TRÁMITES SELECCIONADOS PASARON A PRÓRROGA");
+            } else {
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL PASAR LOS TRÁMITES A PRÓRROGA, CONSULTE AL ADMINISTRADOR DEL SISTEMA");
+            }
         }
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
@@ -1345,5 +1394,19 @@ public class AbandonoCDBean implements Serializable {
      */
     public void setRutaNotificacionCasillero(String rutaNotificacionCasillero) {
         this.rutaNotificacionCasillero = rutaNotificacionCasillero;
+    }
+
+    /**
+     * @return the diasProrroga
+     */
+    public Integer getDiasProrroga() {
+        return diasProrroga;
+    }
+
+    /**
+     * @param diasProrroga the diasProrroga to set
+     */
+    public void setDiasProrroga(Integer diasProrroga) {
+        this.diasProrroga = diasProrroga;
     }
 }

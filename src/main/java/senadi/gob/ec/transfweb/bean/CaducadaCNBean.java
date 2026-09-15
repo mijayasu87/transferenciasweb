@@ -69,6 +69,8 @@ public class CaducadaCNBean implements Serializable {
 
     private List<CambioNombre> selectedCaducadas;
 
+    private String estadoTemp;
+
     public CaducadaCNBean() {
         loadCaducadasCN();
 
@@ -153,6 +155,7 @@ public class CaducadaCNBean implements Serializable {
     public void prepararEditar(ActionEvent ae) {
 
         saveEdit = "EDITAR";
+        estadoTemp = null;
         edicion = true;
 
         FacesMessage msg = null;
@@ -177,6 +180,7 @@ public class CaducadaCNBean implements Serializable {
     public void prepararNuevo(ActionEvent ae) {
         dialogTitle = "NUEVO CADUCADA-NEGADO CAMBIO DE NOMBRE";
         saveEdit = "GUARDAR";
+        estadoTemp = null;
         mensajeConfirmacion = "¿Seguro de guardar el Nuevo Caducada-Negado?";
         caducada = new CambioNombre();
         caducada.setTipoEstado("CADUCADA");
@@ -192,8 +196,20 @@ public class CaducadaCNBean implements Serializable {
         if (caducada != null) {
             Controlador c = new Controlador();
             if (caducada.getId() != null) {
-                //Editar Caducada
-                if (c.validarExistenciaCambioNombre(caducada)) {
+                if (estadoTemp != null && estadoTemp.equals("NOTIFICADA")) {
+                    //Pasar a Notificadas
+                    caducada.setTipoEstado("NOTIFICADA");
+                    caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
+                    if (c.updateCambioNombre(caducada)) {
+                        c.saveHistorial("NOTIFICADA_CN", "CADUCADA_CN", caducada.getSolicitud(), "PASADO A", loginBean.getUsuario().getId(), loginBean.getNombre());
+                        loadCaducadasCN();
+                        PrimeFaces.current().ajax().addCallbackParam("saved", true);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "EDITADO", "LA CADUCADA-NEGADA SE HA PASADO A NOTIFICADAS SATISFACTORIAMENTE");
+                    } else {
+                        PrimeFaces.current().ajax().addCallbackParam("saved", false);
+                        msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "HUBO UN PROBLEMA AL PASAR LA CADUCADA-NEGADA A NOTIFICADAS");
+                    }
+                } else if (c.validarExistenciaCambioNombre(caducada)) {
                     msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "ERROR", "YA EXISTE UN REGISTRO CON EL MISMO NÚMERO DE SOLICITUD INGRESADO");
                 } else {
                     caducada.setSolicitud(caducada.getSolicitud().toUpperCase());
@@ -781,5 +797,19 @@ public class CaducadaCNBean implements Serializable {
      */
     public void setSelectedCaducadas(List<CambioNombre> selectedCaducadas) {
         this.selectedCaducadas = selectedCaducadas;
+    }
+
+    /**
+     * @return the estadoTemp
+     */
+    public String getEstadoTemp() {
+        return estadoTemp;
+    }
+
+    /**
+     * @param estadoTemp the estadoTemp to set
+     */
+    public void setEstadoTemp(String estadoTemp) {
+        this.estadoTemp = estadoTemp;
     }
 }

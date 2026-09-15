@@ -717,25 +717,50 @@ public class Controlador {
         CambioNombreDAO cd = new CambioNombreDAO(null);
         return cd.getCambioNombreBySolicitud(solicitud);
     }
+    
+    public CambioNombre getCambioNombreById(Integer id) {
+        CambioNombreDAO cd = new CambioNombreDAO(null);
+        return cd.getCambioNombreById(id);
+    }
 
     public SubLicenciaUso getSublicenciaUsoBySolicitud(String solicitud) {
         SublicenciaUsoDAO ld = new SublicenciaUsoDAO(null);
         return ld.getSublicenciaUsoBySolicitud(solicitud);
+    }
+    
+    public SubLicenciaUso getSublicenciaUsoById(Integer id) {
+        SublicenciaUsoDAO ld = new SublicenciaUsoDAO(null);
+        return ld.getSublicenciaUsoById(id);
     }
 
     public LicenciaUso getLicenciaUsoBySolicitud(String solicitud) {
         LicenciaUsoDAO ld = new LicenciaUsoDAO(null);
         return ld.getLicenciaUsoBySolicitud(solicitud);
     }
+    
+    public LicenciaUso getLicenciaUsoById(Integer id) {
+        LicenciaUsoDAO ld = new LicenciaUsoDAO(null);
+        return ld.getLicenciaUsoById(id);
+    }
 
     public PrendaComercial getPrendaComercialBySolicitud(String solicitud) {
         PrendaComercialDAO cd = new PrendaComercialDAO(null);
         return cd.getPrendaComercialBySolicitud(solicitud);
     }
+    
+    public PrendaComercial getPrendaComercialById(Integer id) {
+        PrendaComercialDAO cd = new PrendaComercialDAO(null);
+        return cd.getPrendaComercialById(id);
+    }
 
     public CambioDomicilio getCambioDomicilioBySolicitud(String solicitud) {
         CambioDomicilioDAO cd = new CambioDomicilioDAO(null);
         return cd.getCambioDomicilioBySolicitud(solicitud);
+    }
+    
+    public CambioDomicilio getCambioDomicilioById(Integer id) {
+        CambioDomicilioDAO cd = new CambioDomicilioDAO(null);
+        return cd.getCambioDomicilioById(id);
     }
 
     public boolean existeCambioNombre(String numeroTramite) {
@@ -1471,6 +1496,11 @@ public class Controlador {
     public Prorroga getProrrogaBySolicitud(String solicitud) {
         ProrrogaDAO pd = new ProrrogaDAO(null);
         return pd.getProrrogaBySolicitud(solicitud);
+    }
+    
+    public Prorroga getProrrogaById(Integer id){
+        ProrrogaDAO pd = new ProrrogaDAO(null);
+        return pd.getProrrogaById(id);
     }
 
     public List<CambioDomicilio> getProrrogasCandidatasCD() {
